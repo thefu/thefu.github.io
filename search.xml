@@ -108,52 +108,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>Android工程项目结构解析</title>
-    <url>/2022/11/10/Android%E5%B7%A5%E7%A8%8B%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[<p>android工程的重点目录解析</p>
-<span id="more"></span>
-
-<p><img src="https://s3.bmp.ovh/imgs/2022/11/10/7b843f31f0a99719.png"></p>
-<p>接下来对关键部分进行讲解：<br>Java，我们写Java代码的地方，业务功能都在这里实现<br>res，我们存放各种资源文件的地方，有图片，字符串，动画，音频，还有各种形式的xml文件</p>
-<h1 id="一、res资源文件夹介绍："><a href="#一、res资源文件夹介绍：" class="headerlink" title="一、res资源文件夹介绍："></a>一、res资源文件夹介绍：</h1><p>注：说道这个res目录，另外还有一个assets目录，虽然这里没有，但是我们可以自己创建，两者的区别在于是否前者下所有的资源文件都会在R.java文件下生成对应的资源id，而后者并不会；前者我们可以通过资源id访问到对应的资源；而后者则需要我们通过AssetManager以二进制的形式来读取了。这个R文件可以理解为字典，res下每个资源都会在这里生成一个唯一的id。<br>分辨率不同的系统会根据屏幕的分辨率来选择hdpi,mdpi,xmdpi,xxhdpi下的对应图片，所以你解压别人的apk可以看到上述目录统一名称的图片，在四个文件夹下都有，只是大小和像素不一样而已，当然，这也不是绝对的，比如我们把所有图片都丢到hdpi下的话，本该加载ldpi文件夹下的图片资源，但是ldpi下没有，那么加载的还会使hdpi下的图片，另外还有一种情况，比如hdpi，mdpi目录下有ldpi下没有，那么会加载mdpi中的资源！原则是使用最接近密度级别，另外如果你想禁止android不跟随屏幕密度加载不同文件夹的资源，只需在AndroidManifest.xml文件中添加android:anyDensity&#x3D;”false”字段即可。</p>
-<h2 id="1-图片资源"><a href="#1-图片资源" class="headerlink" title="1.图片资源"></a>1.图片资源</h2><ul>
-<li>drawable：存放各种位图文件，(.png，.jpg，.9png，.gif等)除此之外可能是一些其他的drawable类型的XML文件</li>
-<li>mipmap-hdpi：高分辨率，一般我们把图片丢这里</li>
-<li>mipmap-mdpi：中等分辨率，很少，除非兼容的的手机很旧</li>
-<li>mipmap-xhdpi：超高分辨率，手机屏幕材质越来越好，以后估计会慢慢往这里过渡</li>
-<li>mipmap-xxhdpi：超超高分辨率，这个在高端机上有所体现</li>
-</ul>
-<h2 id="2-布局资源"><a href="#2-布局资源" class="headerlink" title="2.布局资源"></a>2.布局资源</h2><ul>
-<li>layout：该目录下存放的就是我们的布局文件，另外在一些特定的机型上，我们做屏幕适配，比如480*320这样的手机，我们会另外创建一套布局，就行：layout-480x320这样的文件夹！</li>
-</ul>
-<h2 id="3-菜单资源"><a href="#3-菜单资源" class="headerlink" title="3.菜单资源"></a>3.菜单资源</h2><ul>
-<li>menu：在以前有物理菜单按钮，即menu键的手机上，用的较多，现在用的并不多，菜单项相关的资源xml可在这里编写，不知道谷歌会不会出新的东西来替代菜单了~</li>
-</ul>
-<h2 id="4-values目录"><a href="#4-values目录" class="headerlink" title="4.values目录"></a>4.values目录</h2><ul>
-<li>demens.xml：定义尺寸资源</li>
-<li>string.xml：定义字符串资源</li>
-<li>styles.xml：定义样式资源</li>
-<li>colors.xml：定义颜色资源</li>
-<li>arrays.xml：定义数组资源</li>
-<li>attrs.xml：自定义控件时用的较多，自定义控件的属性！</li>
-<li>theme主题文件，和styles很相似，但是会对整个应用中的Actvitiy或指定Activity起作用，一般是改变窗口外观的！可在Java代码中通过setTheme使用，或者在Androidmanifest.xml中为&lt;application…&gt;添加theme的属性！ PS:你可能看到过这样的values目录：values-w820dp，values-v11等，前者w代表平板设备，820dp代表屏幕宽度；而v11这样代表在API(11)，即android 3.0后才会用到的！</li>
-</ul>
-<h2 id="5-raw目录"><a href="#5-raw目录" class="headerlink" title="5.raw目录"></a>5.raw目录</h2><p>用于存放各种原生资源（音频，视频，一些XML文件等），我们可以通过openRawResource(int id)来获得资源的二进制流，其实和Assets差不多，不过这里面的资源会在R文件里生成一个资源id而已<br>6.最后还有动画的，动画有两种：属性动画和补间动画</p>
-<ul>
-<li>animator：存放属性动画的XML文件</li>
-<li>anim：存放补间动画的XML文件</li>
-</ul>
-<h1 id="二、深入了解三个文件"><a href="#二、深入了解三个文件" class="headerlink" title="二、深入了解三个文件"></a>二、深入了解三个文件</h1><p>工程中三个比较重要的文件：MainActivity.java， 布局文件：activity_main.xml和配置文件AndroidMainfest.xml<br>代码分析：</p>
-<p>MainAcitivity.java<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/48c14edb5816ca14.png"><br>activity_main.xml：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/e8bfda21011a2f54.png"><br>AndroidMainfest.xml配置文件：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/d4a0c330f888bfbe.png"><br>①如果app包含其他组件的话,都要使用类型说明语法在该文件中进行声明 Server:<br>②权限的声明: 在该文件中显式地声明程序需要的权限,防止app错误地使用服务, 不恰当地访问 资源,最终提高android app的健壮性 android.permission.SEND_SMS 有这句话表示app需要使用发送信息的权限,安装的时候就会提示用户, 相关权限可以在sdk参考手册查找！</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Android之碎片Fragment</title>
     <url>/2022/12/11/Android%E4%B9%8B%E7%A2%8E%E7%89%87Fragment/</url>
     <content><![CDATA[<p>安卓自3.0开始引入Fragment的概念，主要是为了能在不同分辨率的屏幕上进行更为动态和灵活的UI设计，让程序更加合理和充分利用大屏幕空间。</p>
@@ -220,6 +174,52 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </categories>
   </entry>
   <entry>
+    <title>Android工程项目结构解析</title>
+    <url>/2022/11/10/Android%E5%B7%A5%E7%A8%8B%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<p>android工程的重点目录解析</p>
+<span id="more"></span>
+
+<p><img src="https://s3.bmp.ovh/imgs/2022/11/10/7b843f31f0a99719.png"></p>
+<p>接下来对关键部分进行讲解：<br>Java，我们写Java代码的地方，业务功能都在这里实现<br>res，我们存放各种资源文件的地方，有图片，字符串，动画，音频，还有各种形式的xml文件</p>
+<h1 id="一、res资源文件夹介绍："><a href="#一、res资源文件夹介绍：" class="headerlink" title="一、res资源文件夹介绍："></a>一、res资源文件夹介绍：</h1><p>注：说道这个res目录，另外还有一个assets目录，虽然这里没有，但是我们可以自己创建，两者的区别在于是否前者下所有的资源文件都会在R.java文件下生成对应的资源id，而后者并不会；前者我们可以通过资源id访问到对应的资源；而后者则需要我们通过AssetManager以二进制的形式来读取了。这个R文件可以理解为字典，res下每个资源都会在这里生成一个唯一的id。<br>分辨率不同的系统会根据屏幕的分辨率来选择hdpi,mdpi,xmdpi,xxhdpi下的对应图片，所以你解压别人的apk可以看到上述目录统一名称的图片，在四个文件夹下都有，只是大小和像素不一样而已，当然，这也不是绝对的，比如我们把所有图片都丢到hdpi下的话，本该加载ldpi文件夹下的图片资源，但是ldpi下没有，那么加载的还会使hdpi下的图片，另外还有一种情况，比如hdpi，mdpi目录下有ldpi下没有，那么会加载mdpi中的资源！原则是使用最接近密度级别，另外如果你想禁止android不跟随屏幕密度加载不同文件夹的资源，只需在AndroidManifest.xml文件中添加android:anyDensity&#x3D;”false”字段即可。</p>
+<h2 id="1-图片资源"><a href="#1-图片资源" class="headerlink" title="1.图片资源"></a>1.图片资源</h2><ul>
+<li>drawable：存放各种位图文件，(.png，.jpg，.9png，.gif等)除此之外可能是一些其他的drawable类型的XML文件</li>
+<li>mipmap-hdpi：高分辨率，一般我们把图片丢这里</li>
+<li>mipmap-mdpi：中等分辨率，很少，除非兼容的的手机很旧</li>
+<li>mipmap-xhdpi：超高分辨率，手机屏幕材质越来越好，以后估计会慢慢往这里过渡</li>
+<li>mipmap-xxhdpi：超超高分辨率，这个在高端机上有所体现</li>
+</ul>
+<h2 id="2-布局资源"><a href="#2-布局资源" class="headerlink" title="2.布局资源"></a>2.布局资源</h2><ul>
+<li>layout：该目录下存放的就是我们的布局文件，另外在一些特定的机型上，我们做屏幕适配，比如480*320这样的手机，我们会另外创建一套布局，就行：layout-480x320这样的文件夹！</li>
+</ul>
+<h2 id="3-菜单资源"><a href="#3-菜单资源" class="headerlink" title="3.菜单资源"></a>3.菜单资源</h2><ul>
+<li>menu：在以前有物理菜单按钮，即menu键的手机上，用的较多，现在用的并不多，菜单项相关的资源xml可在这里编写，不知道谷歌会不会出新的东西来替代菜单了~</li>
+</ul>
+<h2 id="4-values目录"><a href="#4-values目录" class="headerlink" title="4.values目录"></a>4.values目录</h2><ul>
+<li>demens.xml：定义尺寸资源</li>
+<li>string.xml：定义字符串资源</li>
+<li>styles.xml：定义样式资源</li>
+<li>colors.xml：定义颜色资源</li>
+<li>arrays.xml：定义数组资源</li>
+<li>attrs.xml：自定义控件时用的较多，自定义控件的属性！</li>
+<li>theme主题文件，和styles很相似，但是会对整个应用中的Actvitiy或指定Activity起作用，一般是改变窗口外观的！可在Java代码中通过setTheme使用，或者在Androidmanifest.xml中为&lt;application…&gt;添加theme的属性！ PS:你可能看到过这样的values目录：values-w820dp，values-v11等，前者w代表平板设备，820dp代表屏幕宽度；而v11这样代表在API(11)，即android 3.0后才会用到的！</li>
+</ul>
+<h2 id="5-raw目录"><a href="#5-raw目录" class="headerlink" title="5.raw目录"></a>5.raw目录</h2><p>用于存放各种原生资源（音频，视频，一些XML文件等），我们可以通过openRawResource(int id)来获得资源的二进制流，其实和Assets差不多，不过这里面的资源会在R文件里生成一个资源id而已<br>6.最后还有动画的，动画有两种：属性动画和补间动画</p>
+<ul>
+<li>animator：存放属性动画的XML文件</li>
+<li>anim：存放补间动画的XML文件</li>
+</ul>
+<h1 id="二、深入了解三个文件"><a href="#二、深入了解三个文件" class="headerlink" title="二、深入了解三个文件"></a>二、深入了解三个文件</h1><p>工程中三个比较重要的文件：MainActivity.java， 布局文件：activity_main.xml和配置文件AndroidMainfest.xml<br>代码分析：</p>
+<p>MainAcitivity.java<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/48c14edb5816ca14.png"><br>activity_main.xml：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/e8bfda21011a2f54.png"><br>AndroidMainfest.xml配置文件：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/d4a0c330f888bfbe.png"><br>①如果app包含其他组件的话,都要使用类型说明语法在该文件中进行声明 Server:<br>②权限的声明: 在该文件中显式地声明程序需要的权限,防止app错误地使用服务, 不恰当地访问 资源,最终提高android app的健壮性 android.permission.SEND_SMS 有这句话表示app需要使用发送信息的权限,安装的时候就会提示用户, 相关权限可以在sdk参考手册查找！</p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Android文件管理</title>
     <url>/2022/12/07/Android%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/</url>
     <content><![CDATA[<h2 id="1-Android文件的操作模式"><a href="#1-Android文件的操作模式" class="headerlink" title="1.Android文件的操作模式"></a>1.Android文件的操作模式</h2><p>Android和其他的操作系统不一样，它是基于Linux的，在读写文件的时候，还需要加上文件的操作模式，Android中的操作模式如下：</p>
@@ -268,31 +268,13 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>EditText:android:focusable和android:focusableInTouchMode的区别</title>
-    <url>/2022/10/15/EditText-android-focusable%E5%92%8Candroid-focusableInTouchMode%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
-    <content><![CDATA[<p>本文向大家介绍EditText:android:focusable和android:focusableInTouchMode的区别，主要包括EditText:android:focusable和android:focusableInTouchMode的区别使用实例，应用技巧，基本知识点总结和需要注意事项，具有一定的参考价值。<br>android:focusable</p>
-<span id="more"></span>
-<p>之所以有这个属性主要是因为android系统不仅仅是针对手机的，有可能在电视，手表等等的非触摸输入设备上（比如android TV）这些设备只有物理上下键不具备触摸功能，<br>那么当把这个属性值设置为true的时候，比如你按了一下向下键，屏幕上的内容就会对应选中一个向下的控件（如果这个控件设置android:focusable&#x3D;true的话），否则就会选中下一个具备focusable能力的控件。<br>android:focusableInTouchMode<br>与上面的那种情况相反，如果是针对手机开发的话，那么大部分手机都具备触摸功能，那么这个属性有什么作用呢？<br>从交互的角度来讲，焦点的作用其实就是为了提示用户当前控件已经被选中了，可以进行下一步的操作。比如在android5.0上新退出的Material Design效果上面，如果一个EditText被选中了，那么它的输入框就会更换颜色以示区别，但是在手机开发中并不是所有的控件都需要有选中的这种状态，通常在点击后可能只想达到某种效果（如点击按钮就是想触发点击事件，不需要有选中效果），那么这个时候，如果把android:focusableInTouchMode设置为true，此时执行的就是更换焦点操作，相应的事件就无法得到及时相应，这样的体验就会很不好。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:background=&quot;#ddffff&quot;</span><br><span class="line">    android:gravity=&quot;center&quot;</span><br><span class="line">    android:orientation=&quot;vertical&quot;</span><br><span class="line">    android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">    &gt;</span><br><span class="line">    </span><br><span class="line">    &lt;View</span><br><span class="line">        android:id=&quot;@+id/view_test&quot;</span><br><span class="line">        android:layout_width=&quot;100dip&quot;</span><br><span class="line">        android:layout_height=&quot;100dip&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        android:background=&quot;#ff0000&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;Button</span><br><span class="line">        android:id=&quot;@+id/bt_test&quot;</span><br><span class="line">        android:layout_width=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_height=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_marginBottom=&quot;20dp&quot;</span><br><span class="line">        android:text=&quot;click me&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">&lt;/LinearLayout&gt;</span><br></pre></td></tr></table></figure>
-<p>我们分别为LinearLayout，View，Button都增加一个触摸时能够获取到焦点的属性</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yuneec.testdemo;</span><br><span class="line">import android.os.Bundle;import android.support.v7.app.AppCompatActivity;import android.util.Log;import android.view.View;import android.widget.Button;</span><br><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private View view_test;</span><br><span class="line">    private Button bt_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line">        view_test = findViewById(R.id.view_test);</span><br><span class="line">        bt_test = (Button) findViewById(R.id.bt_test);</span><br><span class="line"></span><br><span class="line">        view_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        view_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们先点击View，发现View的onClick事件未打印，再点击view，发现view的onclick事件可以正常打印了。<br>然后点击button，发现button的onclick事件也未打印，再点击一次button，发现button的onclick事件可以正常打印了。<br>这说明第一次点击view或者button，知识单纯将焦点转换到了view和button上，此时会调用onFocusChangeListener方法，只有当再次点击的时候才会调用onClick方法。<br>因此，这种操作对Button来说是多余的，而button的android:focusableInTouchMode属性默认也就是false。<br>但对于EditText这种控件来说就不一样了，比方说一个界面上有很多EditText，在你点击了其中一个的时候，你必须先告知用户他点击的是哪一个，这样用户才不会输错，事实上在android源代码里面，EditText的focusableInTouchMode属性默认也就是True。</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>GitHub+Hexo搭建个人博客网站</title>
     <url>/2022/09/18/GitHub-Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99/</url>
     <content><![CDATA[<h2 id="什么是hexo？"><a href="#什么是hexo？" class="headerlink" title="什么是hexo？"></a>什么是hexo？</h2><p>Hexo是一款基于Node.js的静态博客框架，特点是快速，简介并且高效的博客框架，Hexo使用Markdown解析文章，在几秒内，即可利用靓丽的主题生成静态网页。它可以方便的生成静态网页托管在GitHub和其他托管平台上，是搭建博客的首选框架。</p>
 <span id="more"></span>
 <h2 id="什么是github？"><a href="#什么是github？" class="headerlink" title="什么是github？"></a>什么是github？</h2><p>GitHub是一个在线软件源代码托管服务平台，使用Git作为版本控制软件，是世界上最大的代码托管网站和开源社区。我们使用的是github上的一个服务，GitHub Pages，它是由GitHub提供的一个网页寄存服务，可以用于存放静态网页，包括博客，项目文档甚至整本书。一般GitHub Pages使用github.io的子域名，但是用户也可以使用第三方域名。</p>
 <h2 id="搭建步骤："><a href="#搭建步骤：" class="headerlink" title="搭建步骤："></a>搭建步骤：</h2><h3 id="1-GitHub创建个人仓库"><a href="#1-GitHub创建个人仓库" class="headerlink" title="1.GitHub创建个人仓库"></a>1.GitHub创建个人仓库</h3><p>登录到GitHub，如果没有GitHub账号，使用你的邮箱注册GitHub账号，点击GitHub中的New repository创建新仓库，仓库名应该为：“用户名.github.io”这个用户名使用你的github账号名称代替，这是一个相对固定的写法。</p>
-<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#103;&#x69;&#116;&#64;&#103;&#105;&#116;&#x68;&#117;&#98;&#x2e;&#99;&#x6f;&#109;">&#103;&#x69;&#116;&#64;&#103;&#105;&#116;&#x68;&#117;&#98;&#x2e;&#99;&#x6f;&#109;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
+<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#x62;&#x2e;&#x63;&#111;&#x6d;">&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#x62;&#x2e;&#x63;&#111;&#x6d;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
 <h3 id="3-安装Node-js"><a href="#3-安装Node-js" class="headerlink" title="3.安装Node.js"></a>3.安装Node.js</h3><p>Hexo基于Node.js，<a href="https://nodejs.org/en/download/">Node.js下载地址</a>，注意安装node.js会包含环境变量及npm的安装，安装后，检测node.js是否安装成功，在命令行输入node -v，检测npm是否安装成功，npm -v<br>到这儿，安装Hexo的环境已经全部搭建完成。</p>
 <h3 id="4-安装Hexo"><a href="#4-安装Hexo" class="headerlink" title="4.安装Hexo"></a>4.安装Hexo</h3><p>hexo就是我们的个人博客网站的框架，这里需要自己在电脑里创建一个文件夹，可以命名为Blog，Hexo框架与以后你自己发布的网页都在这个文件夹中，创建好后，进入文件夹中，打开命令行窗口。<br>使用npm命令安装Hexo，输入：<br>npm install -g hexo-cli<br>这个安装时间较长耐心等待，安装完成后，初始化我们的博客，输入：<br>hexo init blog<br>注意：这里的命令都是作用在刚刚创建的blog文件夹中。<br>在命令行中输入启动命令：<br>hexo server<br>打开浏览器哦网址可以看到网站的样式</p>
 <h3 id="5-推送网站"><a href="#5-推送网站" class="headerlink" title="5.推送网站"></a>5.推送网站</h3><p>上面只是在本地预览，接下来要做的就是推送网站，也就是发布网站，让我们的网站可以被更多人访问到。在设置之前，需要解释一个概念，在blog根目录里的_config.yml文件称为站点配置文件<br>进入themes文件夹，里面也有个_config.yml文件，这个称为主题配置文件<br>现在需要做的是将我们的Hexo和GitHub关联起来，打开站点的配置文件_config.yml，翻到最后修改为：<br>deploy:<br>type: git<br>repo: 这里填入你之前在GitHub上创建仓库的完整历经，记得加上.git<br>branch: master<br>保存站点配置文件。<br>其实就是给hexo d这个命令做相应的配置，让hexo知道你要把blog部署在哪个位置，很显然，我们部署在我们GitHub的仓库里，最后安装git部署插件，输入命令：<br>npm install hexo-deployer-git –save<br>这时，我们分别输入三条命令：<br>hexo clean<br>hexo g<br>hexo d<br>其实第三条hexo d就是部署网站的命令，d是deploy的缩写，完成后，打开浏览器，在地址栏输入你的放置个人网站的仓库路径，你就可以发现你的博客已经上线了，可以在网络上被访问到。</p>
@@ -993,6 +975,24 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>EditText:android:focusable和android:focusableInTouchMode的区别</title>
+    <url>/2022/10/15/EditText-android-focusable%E5%92%8Candroid-focusableInTouchMode%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
+    <content><![CDATA[<p>本文向大家介绍EditText:android:focusable和android:focusableInTouchMode的区别，主要包括EditText:android:focusable和android:focusableInTouchMode的区别使用实例，应用技巧，基本知识点总结和需要注意事项，具有一定的参考价值。<br>android:focusable</p>
+<span id="more"></span>
+<p>之所以有这个属性主要是因为android系统不仅仅是针对手机的，有可能在电视，手表等等的非触摸输入设备上（比如android TV）这些设备只有物理上下键不具备触摸功能，<br>那么当把这个属性值设置为true的时候，比如你按了一下向下键，屏幕上的内容就会对应选中一个向下的控件（如果这个控件设置android:focusable&#x3D;true的话），否则就会选中下一个具备focusable能力的控件。<br>android:focusableInTouchMode<br>与上面的那种情况相反，如果是针对手机开发的话，那么大部分手机都具备触摸功能，那么这个属性有什么作用呢？<br>从交互的角度来讲，焦点的作用其实就是为了提示用户当前控件已经被选中了，可以进行下一步的操作。比如在android5.0上新退出的Material Design效果上面，如果一个EditText被选中了，那么它的输入框就会更换颜色以示区别，但是在手机开发中并不是所有的控件都需要有选中的这种状态，通常在点击后可能只想达到某种效果（如点击按钮就是想触发点击事件，不需要有选中效果），那么这个时候，如果把android:focusableInTouchMode设置为true，此时执行的就是更换焦点操作，相应的事件就无法得到及时相应，这样的体验就会很不好。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:background=&quot;#ddffff&quot;</span><br><span class="line">    android:gravity=&quot;center&quot;</span><br><span class="line">    android:orientation=&quot;vertical&quot;</span><br><span class="line">    android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">    &gt;</span><br><span class="line">    </span><br><span class="line">    &lt;View</span><br><span class="line">        android:id=&quot;@+id/view_test&quot;</span><br><span class="line">        android:layout_width=&quot;100dip&quot;</span><br><span class="line">        android:layout_height=&quot;100dip&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        android:background=&quot;#ff0000&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;Button</span><br><span class="line">        android:id=&quot;@+id/bt_test&quot;</span><br><span class="line">        android:layout_width=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_height=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_marginBottom=&quot;20dp&quot;</span><br><span class="line">        android:text=&quot;click me&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">&lt;/LinearLayout&gt;</span><br></pre></td></tr></table></figure>
+<p>我们分别为LinearLayout，View，Button都增加一个触摸时能够获取到焦点的属性</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yuneec.testdemo;</span><br><span class="line">import android.os.Bundle;import android.support.v7.app.AppCompatActivity;import android.util.Log;import android.view.View;import android.widget.Button;</span><br><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private View view_test;</span><br><span class="line">    private Button bt_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line">        view_test = findViewById(R.id.view_test);</span><br><span class="line">        bt_test = (Button) findViewById(R.id.bt_test);</span><br><span class="line"></span><br><span class="line">        view_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        view_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先点击View，发现View的onClick事件未打印，再点击view，发现view的onclick事件可以正常打印了。<br>然后点击button，发现button的onclick事件也未打印，再点击一次button，发现button的onclick事件可以正常打印了。<br>这说明第一次点击view或者button，知识单纯将焦点转换到了view和button上，此时会调用onFocusChangeListener方法，只有当再次点击的时候才会调用onClick方法。<br>因此，这种操作对Button来说是多余的，而button的android:focusableInTouchMode属性默认也就是false。<br>但对于EditText这种控件来说就不一样了，比方说一个界面上有很多EditText，在你点击了其中一个的时候，你必须先告知用户他点击的是哪一个，这样用户才不会输错，事实上在android源代码里面，EditText的focusableInTouchMode属性默认也就是True。</p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust中所有权和作用域以及生周期</title>
     <url>/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/</url>
     <content><![CDATA[<p>在rust中，作用域（Scope）和所有权（Ownership）是保证内存安全的核心机制，它们共同决定了变量的生命周期和内存管理方式，无需垃圾回收即可避免悬垂指针、双重释放等内存问题。</p>
@@ -1185,6 +1185,92 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>Rust中的 Send 和 Sync trait 详解</title>
+    <url>/2023/09/20/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<p>Rust中的标记 trait（Marker Trait）<code>Send</code> 和 <code>Sync</code> 是并发安全的核心基石。用于标记类型的并发安全属性，让编译器在编译时检查线程间数据传递的合法性，从根源上避免数据竞争（Data Race）。</p>
+<span id="more"></span>
+
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><ul>
+<li>**<code>Send</code>**：类型的值能不能在线程之间”移动所有权”。</li>
+<li>**<code>Sync</code>**：类型的值能不能在多个线程中”共享引用 &amp;T”。</li>
+</ul>
+<h3 id="重要原则"><a href="#重要原则" class="headerlink" title="重要原则"></a>重要原则</h3><ul>
+<li>对同一个值进行<strong>并发访问（只读）</strong>是内存安全的。</li>
+<li><strong>并发修改</strong>仍然要靠锁&#x2F;原子&#x2F;其他机制。</li>
+</ul>
+<h2 id="1-Send-所有权在线程间的转移"><a href="#1-Send-所有权在线程间的转移" class="headerlink" title="1. Send - 所有权在线程间的转移"></a>1. Send - 所有权在线程间的转移</h2><p>一个类型 <code>T</code> 是 <code>Send</code>，表示把 <code>T</code> 的一个值从一个线程移动到另一个线程，不会引发数据竞争或内存安全问题。</p>
+<h3 id="Send-的特点"><a href="#Send-的特点" class="headerlink" title="Send 的特点"></a>Send 的特点</h3><ul>
+<li>移动的是<strong>所有权</strong>，而不是引用。</li>
+<li>移动之后，原线程不能再用这个值（所有权已经被 move）。</li>
+</ul>
+<h3 id="不是-Send-的类型（-Send）"><a href="#不是-Send-的类型（-Send）" class="headerlink" title="不是 Send 的类型（!Send）"></a>不是 Send 的类型（<code>!Send</code>）</h3><p>绝大多数类型自动实现 <code>Send</code>，以下一些例外：</p>
+<ul>
+<li>**<code>Rc&lt;T&gt;</code>**：引用计数是非原子操作，跨线程转移会导致计数竞争（数据竞争）。</li>
+<li>**<code>RefCell&lt;T&gt;</code> &#x2F; <code>Cell&lt;T&gt;</code>**：内部可变性无同步机制，跨线程转移后，多个线程可能同时修改数据。</li>
+<li>**裸指针 <code>*const T</code> &#x2F; <code>*mut T</code>**：无安全保证，直接跨线程转移可能导致悬垂指针或数据竞争。</li>
+<li>**<code>UnsafeCell&lt;T&gt;</code>**：内部可变性的底层实现，本身 <code>!Send</code>（但基于它的线程安全类型如 <code>Mutex</code> 会手动实现 <code>Send</code>）。</li>
+</ul>
+<h3 id="Send-示例"><a href="#Send-示例" class="headerlink" title="Send 示例"></a>Send 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">    <span class="comment">// Vec&lt;i32&gt; 是 Send，通过move把所有权移到线程中</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, v);</span><br><span class="line">    &#125;);</span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-Sync-引用在线程间的共享"><a href="#2-Sync-引用在线程间的共享" class="headerlink" title="2. Sync - 引用在线程间的共享"></a>2. Sync - 引用在线程间的共享</h2><p>一个类型 <code>T</code> 是 <code>Sync</code>，表示可以安全地被多个线程共享（即 <code>&amp;T</code> 是 <code>Send</code>）。即，如果一个类型的引用 <code>&amp;T</code> 能安全跨线程传递，那么这个类型就是 <code>Sync</code>（多个线程持有 <code>&amp;T</code> 不会导致数据竞争）。</p>
+<h3 id="不是-Sync-的类型（-Sync）"><a href="#不是-Sync-的类型（-Sync）" class="headerlink" title="不是 Sync 的类型（!Sync）"></a>不是 Sync 的类型（<code>!Sync</code>）</h3><p>任何允许通过共享引用 <code>&amp;T</code> 获得可变访问且没有同步保护的类型，都不是 <code>Sync</code>：</p>
+<ul>
+<li>**<code>Cell&lt;T&gt;</code> &#x2F; <code>RefCell&lt;T&gt;</code>**：允许通过 <code>&amp;T</code> 改变内部数据（”内部可变性”），但不保证线程安全。</li>
+<li>**<code>Rc&lt;T&gt;</code>**：通过共享引用可以克隆 <code>Rc</code> 得到更多引用，从而在多线程下导致竞争。</li>
+<li><strong>非线程安全的 FFI 对象</strong>，如果通过 <code>&amp;</code> 能调用会修改内部状态的方法。</li>
+</ul>
+<h3 id="Sync-示例"><a href="#Sync-示例" class="headerlink" title="Sync 示例"></a>Sync 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data</span> = Arc::<span class="title function_ invoke__">new</span>(Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>)); <span class="comment">// Arc&lt;Mutex&lt;i32&gt;&gt;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data_clone</span> = data.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = data_clone.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 加锁，独占访问</span></span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;).<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Auto-Trait-自动推导"><a href="#3-Auto-Trait-自动推导" class="headerlink" title="3. Auto Trait - 自动推导"></a>3. Auto Trait - 自动推导</h2><p><code>Send</code> 和 <code>Sync</code> 都是 auto trait，编译器会根据类型的组成部分自动推导实现。</p>
+<h3 id="Send-和-Sync-的四种组合"><a href="#Send-和-Sync-的四种组合" class="headerlink" title="Send 和 Sync 的四种组合"></a>Send 和 Sync 的四种组合</h3><table>
+<thead>
+<tr>
+<th>组合</th>
+<th>说明</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Send + Sync</code></td>
+<td>可以在线程间移动，也可以多线程共享引用</td>
+<td><code>i32</code>、<code>Mutex&lt;T&gt;</code>等</td>
+</tr>
+<tr>
+<td><code>Send + !Sync</code></td>
+<td>可以在线程间移动，但不能多线程共享引用</td>
+<td>一些 <code>*mut T</code> 封装、<code>Sender&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>!Send + Sync</code></td>
+<td>不能跨线程移动；不移动，只读共享是安全的</td>
+<td>少数特殊 FFI 对象（较少见）</td>
+</tr>
+<tr>
+<td><code>!Send + !Sync</code></td>
+<td>既不能跨线程移动，也不能多线程共享引用</td>
+<td><code>Rc&lt;RefCell&lt;T&gt;&gt;</code> 等</td>
+</tr>
+</tbody></table>
+<h2 id="4-手动实现-Send-和-Sync"><a href="#4-手动实现-Send-和-Sync" class="headerlink" title="4. 手动实现 Send 和 Sync"></a>4. 手动实现 Send 和 Sync</h2><p>只有在特殊情况下（写底层库 &#x2F; FFI 封装 &#x2F; 自己的锁和原子数据结构时）才会需要手动实现 <code>Send</code> 和 <code>Sync</code>：</p>
+<ul>
+<li><code>unsafe impl Send</code> &#x2F; <code>unsafe impl Sync</code> 是非常严肃的承诺</li>
+<li>要自己保证所有可能的并发访问路径都不会产生数据竞争、悬垂指针等。</li>
+</ul>
+<h3 id="手动实现示例：用-Mutex-保护裸指针"><a href="#手动实现示例：用-Mutex-保护裸指针" class="headerlink" title="手动实现示例：用 Mutex 保护裸指针"></a>手动实现示例：用 Mutex 保护裸指针</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类型：用 Mutex 保护裸指针（裸指针本身 !Send/!Sync）</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SafePtr</span>&lt;T&gt;(Mutex&lt;*<span class="keyword">mut</span> T&gt;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T&gt; SafePtr&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">new</span>(value: T) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ptr</span> = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(value)); <span class="comment">// 裸指针指向堆内存</span></span><br><span class="line">        <span class="title function_ invoke__">SafePtr</span>(Mutex::<span class="title function_ invoke__">new</span>(ptr))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全访问：通过 Mutex 加锁，保证独占访问</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">get</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123; <span class="title function_ invoke__">Some</span>(&amp;**guard) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">set</span>(&amp;<span class="keyword">self</span>, new_value: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123;</span><br><span class="line">            std::ptr::<span class="title function_ invoke__">drop_in_place</span>(*guard);</span><br><span class="line">            *guard = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(new_value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动实现 Send 和 Sync，因为我们通过 Mutex 确保了线程安全</span></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Send</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Sync</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong><code>Send</code></strong> 保证所有权可以安全地在线程间转移</li>
+<li><strong><code>Sync</code></strong> 保证引用可以安全地在多个线程间共享</li>
+<li>大多数类型会自动实现这些 trait</li>
+<li>只有在处理特殊情况（裸指针、FFI、自定义同步原语）时才需要手动实现</li>
+<li>手动实现 <code>unsafe impl Send/Sync</code> 时要特别谨慎，确保确实满足并发安全条件</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust中模块定义与导入</title>
     <url>/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/</url>
     <content><![CDATA[<p>模块（mod）是Rust的核心代码组织工具，用于解决命名冲突、控制代码可见性（封装）、拆分大型项目。</p>
@@ -1371,92 +1457,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <li><strong>可见性修饰符</strong>控制元素的访问范围</li>
 <li><strong>绝对&#x2F;相对路径</strong>用于引用模块元素</li>
 <li><strong>重导出（pub use）</strong>可以简化外部 API</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rust中的 Send 和 Sync trait 详解</title>
-    <url>/2023/09/20/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<p>Rust中的标记 trait（Marker Trait）<code>Send</code> 和 <code>Sync</code> 是并发安全的核心基石。用于标记类型的并发安全属性，让编译器在编译时检查线程间数据传递的合法性，从根源上避免数据竞争（Data Race）。</p>
-<span id="more"></span>
-
-<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><ul>
-<li>**<code>Send</code>**：类型的值能不能在线程之间”移动所有权”。</li>
-<li>**<code>Sync</code>**：类型的值能不能在多个线程中”共享引用 &amp;T”。</li>
-</ul>
-<h3 id="重要原则"><a href="#重要原则" class="headerlink" title="重要原则"></a>重要原则</h3><ul>
-<li>对同一个值进行<strong>并发访问（只读）</strong>是内存安全的。</li>
-<li><strong>并发修改</strong>仍然要靠锁&#x2F;原子&#x2F;其他机制。</li>
-</ul>
-<h2 id="1-Send-所有权在线程间的转移"><a href="#1-Send-所有权在线程间的转移" class="headerlink" title="1. Send - 所有权在线程间的转移"></a>1. Send - 所有权在线程间的转移</h2><p>一个类型 <code>T</code> 是 <code>Send</code>，表示把 <code>T</code> 的一个值从一个线程移动到另一个线程，不会引发数据竞争或内存安全问题。</p>
-<h3 id="Send-的特点"><a href="#Send-的特点" class="headerlink" title="Send 的特点"></a>Send 的特点</h3><ul>
-<li>移动的是<strong>所有权</strong>，而不是引用。</li>
-<li>移动之后，原线程不能再用这个值（所有权已经被 move）。</li>
-</ul>
-<h3 id="不是-Send-的类型（-Send）"><a href="#不是-Send-的类型（-Send）" class="headerlink" title="不是 Send 的类型（!Send）"></a>不是 Send 的类型（<code>!Send</code>）</h3><p>绝大多数类型自动实现 <code>Send</code>，以下一些例外：</p>
-<ul>
-<li>**<code>Rc&lt;T&gt;</code>**：引用计数是非原子操作，跨线程转移会导致计数竞争（数据竞争）。</li>
-<li>**<code>RefCell&lt;T&gt;</code> &#x2F; <code>Cell&lt;T&gt;</code>**：内部可变性无同步机制，跨线程转移后，多个线程可能同时修改数据。</li>
-<li>**裸指针 <code>*const T</code> &#x2F; <code>*mut T</code>**：无安全保证，直接跨线程转移可能导致悬垂指针或数据竞争。</li>
-<li>**<code>UnsafeCell&lt;T&gt;</code>**：内部可变性的底层实现，本身 <code>!Send</code>（但基于它的线程安全类型如 <code>Mutex</code> 会手动实现 <code>Send</code>）。</li>
-</ul>
-<h3 id="Send-示例"><a href="#Send-示例" class="headerlink" title="Send 示例"></a>Send 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">    <span class="comment">// Vec&lt;i32&gt; 是 Send，通过move把所有权移到线程中</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, v);</span><br><span class="line">    &#125;);</span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-Sync-引用在线程间的共享"><a href="#2-Sync-引用在线程间的共享" class="headerlink" title="2. Sync - 引用在线程间的共享"></a>2. Sync - 引用在线程间的共享</h2><p>一个类型 <code>T</code> 是 <code>Sync</code>，表示可以安全地被多个线程共享（即 <code>&amp;T</code> 是 <code>Send</code>）。即，如果一个类型的引用 <code>&amp;T</code> 能安全跨线程传递，那么这个类型就是 <code>Sync</code>（多个线程持有 <code>&amp;T</code> 不会导致数据竞争）。</p>
-<h3 id="不是-Sync-的类型（-Sync）"><a href="#不是-Sync-的类型（-Sync）" class="headerlink" title="不是 Sync 的类型（!Sync）"></a>不是 Sync 的类型（<code>!Sync</code>）</h3><p>任何允许通过共享引用 <code>&amp;T</code> 获得可变访问且没有同步保护的类型，都不是 <code>Sync</code>：</p>
-<ul>
-<li>**<code>Cell&lt;T&gt;</code> &#x2F; <code>RefCell&lt;T&gt;</code>**：允许通过 <code>&amp;T</code> 改变内部数据（”内部可变性”），但不保证线程安全。</li>
-<li>**<code>Rc&lt;T&gt;</code>**：通过共享引用可以克隆 <code>Rc</code> 得到更多引用，从而在多线程下导致竞争。</li>
-<li><strong>非线程安全的 FFI 对象</strong>，如果通过 <code>&amp;</code> 能调用会修改内部状态的方法。</li>
-</ul>
-<h3 id="Sync-示例"><a href="#Sync-示例" class="headerlink" title="Sync 示例"></a>Sync 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data</span> = Arc::<span class="title function_ invoke__">new</span>(Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>)); <span class="comment">// Arc&lt;Mutex&lt;i32&gt;&gt;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data_clone</span> = data.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = data_clone.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 加锁，独占访问</span></span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;).<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Auto-Trait-自动推导"><a href="#3-Auto-Trait-自动推导" class="headerlink" title="3. Auto Trait - 自动推导"></a>3. Auto Trait - 自动推导</h2><p><code>Send</code> 和 <code>Sync</code> 都是 auto trait，编译器会根据类型的组成部分自动推导实现。</p>
-<h3 id="Send-和-Sync-的四种组合"><a href="#Send-和-Sync-的四种组合" class="headerlink" title="Send 和 Sync 的四种组合"></a>Send 和 Sync 的四种组合</h3><table>
-<thead>
-<tr>
-<th>组合</th>
-<th>说明</th>
-<th>例子</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Send + Sync</code></td>
-<td>可以在线程间移动，也可以多线程共享引用</td>
-<td><code>i32</code>、<code>Mutex&lt;T&gt;</code>等</td>
-</tr>
-<tr>
-<td><code>Send + !Sync</code></td>
-<td>可以在线程间移动，但不能多线程共享引用</td>
-<td>一些 <code>*mut T</code> 封装、<code>Sender&lt;T&gt;</code></td>
-</tr>
-<tr>
-<td><code>!Send + Sync</code></td>
-<td>不能跨线程移动；不移动，只读共享是安全的</td>
-<td>少数特殊 FFI 对象（较少见）</td>
-</tr>
-<tr>
-<td><code>!Send + !Sync</code></td>
-<td>既不能跨线程移动，也不能多线程共享引用</td>
-<td><code>Rc&lt;RefCell&lt;T&gt;&gt;</code> 等</td>
-</tr>
-</tbody></table>
-<h2 id="4-手动实现-Send-和-Sync"><a href="#4-手动实现-Send-和-Sync" class="headerlink" title="4. 手动实现 Send 和 Sync"></a>4. 手动实现 Send 和 Sync</h2><p>只有在特殊情况下（写底层库 &#x2F; FFI 封装 &#x2F; 自己的锁和原子数据结构时）才会需要手动实现 <code>Send</code> 和 <code>Sync</code>：</p>
-<ul>
-<li><code>unsafe impl Send</code> &#x2F; <code>unsafe impl Sync</code> 是非常严肃的承诺</li>
-<li>要自己保证所有可能的并发访问路径都不会产生数据竞争、悬垂指针等。</li>
-</ul>
-<h3 id="手动实现示例：用-Mutex-保护裸指针"><a href="#手动实现示例：用-Mutex-保护裸指针" class="headerlink" title="手动实现示例：用 Mutex 保护裸指针"></a>手动实现示例：用 Mutex 保护裸指针</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类型：用 Mutex 保护裸指针（裸指针本身 !Send/!Sync）</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SafePtr</span>&lt;T&gt;(Mutex&lt;*<span class="keyword">mut</span> T&gt;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T&gt; SafePtr&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">new</span>(value: T) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ptr</span> = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(value)); <span class="comment">// 裸指针指向堆内存</span></span><br><span class="line">        <span class="title function_ invoke__">SafePtr</span>(Mutex::<span class="title function_ invoke__">new</span>(ptr))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全访问：通过 Mutex 加锁，保证独占访问</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">get</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123; <span class="title function_ invoke__">Some</span>(&amp;**guard) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">set</span>(&amp;<span class="keyword">self</span>, new_value: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123;</span><br><span class="line">            std::ptr::<span class="title function_ invoke__">drop_in_place</span>(*guard);</span><br><span class="line">            *guard = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(new_value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动实现 Send 和 Sync，因为我们通过 Mutex 确保了线程安全</span></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Send</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Sync</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li><strong><code>Send</code></strong> 保证所有权可以安全地在线程间转移</li>
-<li><strong><code>Sync</code></strong> 保证引用可以安全地在多个线程间共享</li>
-<li>大多数类型会自动实现这些 trait</li>
-<li>只有在处理特殊情况（裸指针、FFI、自定义同步原语）时才需要手动实现</li>
-<li>手动实现 <code>unsafe impl Send/Sync</code> 时要特别谨慎，确保确实满足并发安全条件</li>
 </ul>
 ]]></content>
       <tags>
@@ -2611,6 +2611,20 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>Rust学习笔记</title>
+    <url>/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
+<span id="more"></span>
+<p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p>
+<p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p>
+<p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p>
+<p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust中错误处理机制</title>
     <url>/2023/08/24/Rust%E4%B8%AD%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<p>Rust 的错误处理是通过 <code>Result</code> 类型和 <code>panic!</code> 宏两个层次来完成的：</p>
@@ -2830,155 +2844,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <li><strong>自定义错误类型</strong>：实现 <code>Error</code> 和 <code>Display</code> trait，推荐使用 <code>thiserror</code> 库简化代码</li>
 <li>**<code>panic!</code>**：处理不可恢复错误，通过栈展开保证资源安全</li>
 <li>**<code>catch_unwind</code>**：在特定场景（如隔离第三方库）捕获 panic，但需注意其限制</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rust学习笔记</title>
-    <url>/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
-<span id="more"></span>
-<p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p>
-<p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p>
-<p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p>
-<p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rust异步编程之async与.await</title>
-    <url>/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/</url>
-    <content><![CDATA[<p>Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。<code>async</code>&#x2F;<code>.await</code> 是Rust内置语法，用于让异步函数编写得像同步代码。<code>async</code> 将代码块转化成实现了 <code>Future</code> trait 的状态机。</p>
-<span id="more"></span>
-
-<h2 id="1-async-创建-Future"><a href="#1-async-创建-Future" class="headerlink" title="1. async - 创建 Future"></a>1. async - 创建 Future</h2><p><code>async</code> 是用于创建 Future 的语法糖，用来标记一个函数为异步函数。</p>
-<h3 id="异步函数（async-fn）"><a href="#异步函数（async-fn）" class="headerlink" title="异步函数（async fn）"></a>异步函数（async fn）</h3><ul>
-<li>调用后不会立即执行，而是返回一个 Future</li>
-<li>返回值会被自动包装为 Future</li>
-<li>异步函数内部可以直接使用 <code>.await</code></li>
-<li>异步函数的参数支持所有普通函数的参数类型（包括引用、所有权类型等），但要注意生命周期</li>
-</ul>
-<h3 id="异步块（async-…-）"><a href="#异步块（async-…-）" class="headerlink" title="异步块（async { … }）"></a>异步块（async { … }）</h3><p><code>async</code> 块可以捕获外部变量（类似闭包）</p>
-<ul>
-<li><code>async &#123; ... &#125;</code>：默认像闭包捕获，按借用捕获外部变量</li>
-<li><code>async move &#123; ... &#125;</code>：把需要的变量按值 <code>move</code> 进 Future，Future 对它们具有所有权</li>
-</ul>
-<h3 id="异步闭包"><a href="#异步闭包" class="headerlink" title="异步闭包"></a>异步闭包</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 异步函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">fetch_data</span>() <span class="punctuation">-&gt;</span> <span class="type">u32</span> &#123;</span><br><span class="line">    <span class="number">42</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步块</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">fut</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Working...&quot;</span>);</span><br><span class="line">    <span class="number">100</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步闭包</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">async_func</span> = <span class="keyword">async</span> |x: <span class="type">i32</span>| x + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-await-等待-Future-完成"><a href="#2-await-等待-Future-完成" class="headerlink" title="2. .await - 等待 Future 完成"></a>2. .await - 等待 Future 完成</h2><p><code>.await</code> 是用于等待 Future 执行完成的操作符；只能在 <code>async</code> 函数或 <code>async</code> 块内部使用。</p>
-<p>对 Future 调用 <code>.await</code>，会暂停当前 Future 的执行（并将线程让给其他可执行的 Future），直到被等待的 Future 完成，然后返回其 <code>Output</code> 结果。</p>
-<h3 id="await-工作原理"><a href="#await-工作原理" class="headerlink" title=".await 工作原理"></a>.await 工作原理</h3><p>Rust中代码编译扫描时，把每一个可能”挂起”的 <code>.await</code> 看作一个边界，把整个函数拆成几段；同时定义状态机，把后续要继续执行所需的局部变量保存下来。</p>
-<h3 id="await-示例"><a href="#await-示例" class="headerlink" title=".await 示例"></a>.await 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 原始示例函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">foo</span>() <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = <span class="keyword">async</span> &#123; <span class="number">2</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = x + y;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">w</span> = <span class="keyword">async</span> &#123; z * <span class="number">10</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    w</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 翻译的伪代码</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">FooState</span> &#123;</span><br><span class="line">    <span class="comment">// 初始状态</span></span><br><span class="line">    Start,</span><br><span class="line">    <span class="comment">// 正在等待第一个 .await： async &#123; 2 &#125;</span></span><br><span class="line">    AwaitY &#123;</span><br><span class="line">        <span class="comment">// 需要保存仍然会用到的局部变量</span></span><br><span class="line">        x: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 正在等待第二个 .await： async &#123; z * 10 &#125;</span></span><br><span class="line">    AwaitW &#123;</span><br><span class="line">        z: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    Done,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Future-异步计算的抽象"><a href="#3-Future-异步计算的抽象" class="headerlink" title="3. Future - 异步计算的抽象"></a>3. Future - 异步计算的抽象</h2><p>Future（<code>std::future::Future</code>）是 Rust 异步编程的基础，<code>async</code> 语法的本质是生成 Future，<code>.await</code> 则是触发 Future 执行并等待结果。</p>
-<h3 id="Future-Trait-定义"><a href="#Future-Trait-定义" class="headerlink" title="Future Trait 定义"></a>Future Trait 定义</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">trait</span> <span class="title class_">Future</span> &#123;</span><br><span class="line">    <span class="comment">// Future 最终产生的结果类型</span></span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 驱动 Future 执行：返回 Poll&lt;Output&gt;</span></span><br><span class="line">    <span class="comment">// waker：用于唤醒暂停的 Future</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">poll</span>(<span class="keyword">self</span>: Pin&lt;&amp;<span class="keyword">mut</span> <span class="keyword">Self</span>&gt;, cx: &amp;<span class="keyword">mut</span> Context&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> Poll&lt;<span class="keyword">Self</span>::Output&gt;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Poll 枚举：表示 Future 的执行状态</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Poll</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// Future 仍在执行中（需要等待某个事件，如 IO 完成）</span></span><br><span class="line">    Pending,</span><br><span class="line">    <span class="comment">// Future 已完成，返回结果 T</span></span><br><span class="line">    <span class="title function_ invoke__">Ready</span>(T),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Future-的特性"><a href="#Future-的特性" class="headerlink" title="Future 的特性"></a>Future 的特性</h3><p>Future 是惰性的——定义后不会自动执行，必须通过 <code>poll</code> 方法”驱动”它运行。只有当调用者（通常是异步执行器）调用 <code>poll</code> 时，Future 才会推进执行，直到遇到”需要等待的事件”（如网络请求、文件IO），此时返回 <code>Pending</code> 并暂停，等待被 <code>waker</code> 唤醒后再次执行。</p>
-<h2 id="4-执行器（Executor）"><a href="#4-执行器（Executor）" class="headerlink" title="4. 执行器（Executor）"></a>4. 执行器（Executor）</h2><p>要运行一个异步函数（<code>async fn</code>），必须使用一个执行器（Runtime &#x2F; Executor）来驱动它。</p>
-<h3 id="执行器使用方式"><a href="#执行器使用方式" class="headerlink" title="执行器使用方式"></a>执行器使用方式</h3><table>
-<thead>
-<tr>
-<th>场景</th>
-<th>方式</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>应用程序入口</td>
-<td>使用宏</td>
-<td><code>#[tokio::main] async fn main() &#123; ... &#125;</code></td>
-</tr>
-<tr>
-<td>普通函数中</td>
-<td>手动创建 Runtime</td>
-<td><code>Runtime::new().unwrap().block_on(future)</code></td>
-</tr>
-<tr>
-<td>轻量级&#x2F;测试</td>
-<td>使用简单执行器</td>
-<td><code>futures::executor::block_on(future)</code></td>
-</tr>
-</tbody></table>
-<h3 id="并发执行多个-Future"><a href="#并发执行多个-Future" class="headerlink" title="并发执行多个 Future"></a>并发执行多个 Future</h3><p><code>async</code>&#x2F;<code>.await</code> 本身是串行的，若要并发执行多个 Future，需使用并发宏：</p>
-<ul>
-<li><strong><code>tokio::join!</code></strong> &#x2F; **<code>async_std::future::join!</code>**：等待所有 Future 完成（类似 Promise.all）</li>
-<li><strong><code>tokio::select!</code></strong> &#x2F; **<code>async_std::future::select!</code>**：等待第一个完成的 Future（类似 Promise.race）</li>
-<li>**<code>tokio::try_join!</code>**：并发执行，且所有 Future 均返回 <code>Result</code>，一旦有一个失败则立即返回错误</li>
-</ul>
-<h2 id="5-运行时（Runtime）"><a href="#5-运行时（Runtime）" class="headerlink" title="5. 运行时（Runtime）"></a>5. 运行时（Runtime）</h2><p>运行时是驱动异步任务（Future）执行的”引擎”，负责线程池管理、任务调度、IO事件复用（如 epoll&#x2F;kqueue）等底层工作。</p>
-<h3 id="运行时的三个核心部分"><a href="#运行时的三个核心部分" class="headerlink" title="运行时的三个核心部分"></a>运行时的三个核心部分</h3><ol>
-<li><p><strong>Executor（执行器）</strong></p>
-<ul>
-<li>负责不断调用 <code>Future::poll()</code> 推进任务执行</li>
-<li>支持任务调度、任务队列、线程池等</li>
-</ul>
-</li>
-<li><p><strong>Reactor（反应器）</strong></p>
-<ul>
-<li>基于操作系统的 IO 多路复用机制（epoll&#x2F;Linux、kqueue&#x2F;macOS、IOCP&#x2F;Windows）</li>
-<li>当 socket、文件或计时器可用时，唤醒对应任务</li>
-</ul>
-</li>
-<li><p><strong>Concurrency Primitives（并发原语）</strong></p>
-<ul>
-<li>提供异步锁（如 <code>Mutex</code>）、通道（<code>Channel</code>）、计时器（<code>Timer</code>）等工具，支持多任务安全通信</li>
-</ul>
-</li>
-</ol>
-<h3 id="常见运行时库对比"><a href="#常见运行时库对比" class="headerlink" title="常见运行时库对比"></a>常见运行时库对比</h3><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>Tokio</th>
-<th>async-std</th>
-<th>futures</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>性能</td>
-<td>最高（多线程调度）</td>
-<td>中等</td>
-<td>轻量，适中</td>
-</tr>
-<tr>
-<td>使用体验</td>
-<td>偏工程化、配置丰富</td>
-<td>最接近标准库</td>
-<td>极简、底层</td>
-</tr>
-<tr>
-<td>生态支持</td>
-<td>最强（hyper, tonic, reqwest）</td>
-<td>中等</td>
-<td>少量核心库</td>
-</tr>
-<tr>
-<td>内部实现</td>
-<td>work-stealing + reactor</td>
-<td>smol 内核</td>
-<td>模块化组件</td>
-</tr>
-<tr>
-<td>适合场景</td>
-<td>高并发服务端</td>
-<td>快速开发、教学</td>
-<td>小型嵌入式、自定义运行时</td>
-</tr>
-</tbody></table>
-<h3 id="Tokio-示例"><a href="#Tokio-示例" class="headerlink" title="Tokio 示例"></a>Tokio 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 并发执行两个任务</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task1</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 1 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task2</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">500</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 2 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// join! 等待两个任务都完成</span></span><br><span class="line">    tokio::join!(task1, task2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li><strong><code>async</code></strong> 将函数或代码块转化为 Future</li>
-<li><strong><code>.await</code></strong> 用于暂停执行并等待 Future 完成</li>
-<li><strong>Future</strong> 是 Rust 异步编程的基础，需要通过执行器来驱动</li>
-<li><strong>执行器</strong> 负责调度和运行 Future，支持单线程或多线程并发</li>
-<li><strong>运行时</strong> 提供了完整的异步生态，Tokio 是最流行的选择</li>
-<li>异步编程适合 I&#x2F;O 密集型任务，可在单线程上实现高并发</li>
 </ul>
 ]]></content>
       <tags>
@@ -3612,6 +3477,141 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>Rust异步编程之async与.await</title>
+    <url>/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/</url>
+    <content><![CDATA[<p>Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。<code>async</code>&#x2F;<code>.await</code> 是Rust内置语法，用于让异步函数编写得像同步代码。<code>async</code> 将代码块转化成实现了 <code>Future</code> trait 的状态机。</p>
+<span id="more"></span>
+
+<h2 id="1-async-创建-Future"><a href="#1-async-创建-Future" class="headerlink" title="1. async - 创建 Future"></a>1. async - 创建 Future</h2><p><code>async</code> 是用于创建 Future 的语法糖，用来标记一个函数为异步函数。</p>
+<h3 id="异步函数（async-fn）"><a href="#异步函数（async-fn）" class="headerlink" title="异步函数（async fn）"></a>异步函数（async fn）</h3><ul>
+<li>调用后不会立即执行，而是返回一个 Future</li>
+<li>返回值会被自动包装为 Future</li>
+<li>异步函数内部可以直接使用 <code>.await</code></li>
+<li>异步函数的参数支持所有普通函数的参数类型（包括引用、所有权类型等），但要注意生命周期</li>
+</ul>
+<h3 id="异步块（async-…-）"><a href="#异步块（async-…-）" class="headerlink" title="异步块（async { … }）"></a>异步块（async { … }）</h3><p><code>async</code> 块可以捕获外部变量（类似闭包）</p>
+<ul>
+<li><code>async &#123; ... &#125;</code>：默认像闭包捕获，按借用捕获外部变量</li>
+<li><code>async move &#123; ... &#125;</code>：把需要的变量按值 <code>move</code> 进 Future，Future 对它们具有所有权</li>
+</ul>
+<h3 id="异步闭包"><a href="#异步闭包" class="headerlink" title="异步闭包"></a>异步闭包</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 异步函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">fetch_data</span>() <span class="punctuation">-&gt;</span> <span class="type">u32</span> &#123;</span><br><span class="line">    <span class="number">42</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步块</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">fut</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Working...&quot;</span>);</span><br><span class="line">    <span class="number">100</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步闭包</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">async_func</span> = <span class="keyword">async</span> |x: <span class="type">i32</span>| x + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-await-等待-Future-完成"><a href="#2-await-等待-Future-完成" class="headerlink" title="2. .await - 等待 Future 完成"></a>2. .await - 等待 Future 完成</h2><p><code>.await</code> 是用于等待 Future 执行完成的操作符；只能在 <code>async</code> 函数或 <code>async</code> 块内部使用。</p>
+<p>对 Future 调用 <code>.await</code>，会暂停当前 Future 的执行（并将线程让给其他可执行的 Future），直到被等待的 Future 完成，然后返回其 <code>Output</code> 结果。</p>
+<h3 id="await-工作原理"><a href="#await-工作原理" class="headerlink" title=".await 工作原理"></a>.await 工作原理</h3><p>Rust中代码编译扫描时，把每一个可能”挂起”的 <code>.await</code> 看作一个边界，把整个函数拆成几段；同时定义状态机，把后续要继续执行所需的局部变量保存下来。</p>
+<h3 id="await-示例"><a href="#await-示例" class="headerlink" title=".await 示例"></a>.await 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 原始示例函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">foo</span>() <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = <span class="keyword">async</span> &#123; <span class="number">2</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = x + y;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">w</span> = <span class="keyword">async</span> &#123; z * <span class="number">10</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    w</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 翻译的伪代码</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">FooState</span> &#123;</span><br><span class="line">    <span class="comment">// 初始状态</span></span><br><span class="line">    Start,</span><br><span class="line">    <span class="comment">// 正在等待第一个 .await： async &#123; 2 &#125;</span></span><br><span class="line">    AwaitY &#123;</span><br><span class="line">        <span class="comment">// 需要保存仍然会用到的局部变量</span></span><br><span class="line">        x: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 正在等待第二个 .await： async &#123; z * 10 &#125;</span></span><br><span class="line">    AwaitW &#123;</span><br><span class="line">        z: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    Done,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Future-异步计算的抽象"><a href="#3-Future-异步计算的抽象" class="headerlink" title="3. Future - 异步计算的抽象"></a>3. Future - 异步计算的抽象</h2><p>Future（<code>std::future::Future</code>）是 Rust 异步编程的基础，<code>async</code> 语法的本质是生成 Future，<code>.await</code> 则是触发 Future 执行并等待结果。</p>
+<h3 id="Future-Trait-定义"><a href="#Future-Trait-定义" class="headerlink" title="Future Trait 定义"></a>Future Trait 定义</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">trait</span> <span class="title class_">Future</span> &#123;</span><br><span class="line">    <span class="comment">// Future 最终产生的结果类型</span></span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 驱动 Future 执行：返回 Poll&lt;Output&gt;</span></span><br><span class="line">    <span class="comment">// waker：用于唤醒暂停的 Future</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">poll</span>(<span class="keyword">self</span>: Pin&lt;&amp;<span class="keyword">mut</span> <span class="keyword">Self</span>&gt;, cx: &amp;<span class="keyword">mut</span> Context&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> Poll&lt;<span class="keyword">Self</span>::Output&gt;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Poll 枚举：表示 Future 的执行状态</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Poll</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// Future 仍在执行中（需要等待某个事件，如 IO 完成）</span></span><br><span class="line">    Pending,</span><br><span class="line">    <span class="comment">// Future 已完成，返回结果 T</span></span><br><span class="line">    <span class="title function_ invoke__">Ready</span>(T),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Future-的特性"><a href="#Future-的特性" class="headerlink" title="Future 的特性"></a>Future 的特性</h3><p>Future 是惰性的——定义后不会自动执行，必须通过 <code>poll</code> 方法”驱动”它运行。只有当调用者（通常是异步执行器）调用 <code>poll</code> 时，Future 才会推进执行，直到遇到”需要等待的事件”（如网络请求、文件IO），此时返回 <code>Pending</code> 并暂停，等待被 <code>waker</code> 唤醒后再次执行。</p>
+<h2 id="4-执行器（Executor）"><a href="#4-执行器（Executor）" class="headerlink" title="4. 执行器（Executor）"></a>4. 执行器（Executor）</h2><p>要运行一个异步函数（<code>async fn</code>），必须使用一个执行器（Runtime &#x2F; Executor）来驱动它。</p>
+<h3 id="执行器使用方式"><a href="#执行器使用方式" class="headerlink" title="执行器使用方式"></a>执行器使用方式</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用程序入口</td>
+<td>使用宏</td>
+<td><code>#[tokio::main] async fn main() &#123; ... &#125;</code></td>
+</tr>
+<tr>
+<td>普通函数中</td>
+<td>手动创建 Runtime</td>
+<td><code>Runtime::new().unwrap().block_on(future)</code></td>
+</tr>
+<tr>
+<td>轻量级&#x2F;测试</td>
+<td>使用简单执行器</td>
+<td><code>futures::executor::block_on(future)</code></td>
+</tr>
+</tbody></table>
+<h3 id="并发执行多个-Future"><a href="#并发执行多个-Future" class="headerlink" title="并发执行多个 Future"></a>并发执行多个 Future</h3><p><code>async</code>&#x2F;<code>.await</code> 本身是串行的，若要并发执行多个 Future，需使用并发宏：</p>
+<ul>
+<li><strong><code>tokio::join!</code></strong> &#x2F; **<code>async_std::future::join!</code>**：等待所有 Future 完成（类似 Promise.all）</li>
+<li><strong><code>tokio::select!</code></strong> &#x2F; **<code>async_std::future::select!</code>**：等待第一个完成的 Future（类似 Promise.race）</li>
+<li>**<code>tokio::try_join!</code>**：并发执行，且所有 Future 均返回 <code>Result</code>，一旦有一个失败则立即返回错误</li>
+</ul>
+<h2 id="5-运行时（Runtime）"><a href="#5-运行时（Runtime）" class="headerlink" title="5. 运行时（Runtime）"></a>5. 运行时（Runtime）</h2><p>运行时是驱动异步任务（Future）执行的”引擎”，负责线程池管理、任务调度、IO事件复用（如 epoll&#x2F;kqueue）等底层工作。</p>
+<h3 id="运行时的三个核心部分"><a href="#运行时的三个核心部分" class="headerlink" title="运行时的三个核心部分"></a>运行时的三个核心部分</h3><ol>
+<li><p><strong>Executor（执行器）</strong></p>
+<ul>
+<li>负责不断调用 <code>Future::poll()</code> 推进任务执行</li>
+<li>支持任务调度、任务队列、线程池等</li>
+</ul>
+</li>
+<li><p><strong>Reactor（反应器）</strong></p>
+<ul>
+<li>基于操作系统的 IO 多路复用机制（epoll&#x2F;Linux、kqueue&#x2F;macOS、IOCP&#x2F;Windows）</li>
+<li>当 socket、文件或计时器可用时，唤醒对应任务</li>
+</ul>
+</li>
+<li><p><strong>Concurrency Primitives（并发原语）</strong></p>
+<ul>
+<li>提供异步锁（如 <code>Mutex</code>）、通道（<code>Channel</code>）、计时器（<code>Timer</code>）等工具，支持多任务安全通信</li>
+</ul>
+</li>
+</ol>
+<h3 id="常见运行时库对比"><a href="#常见运行时库对比" class="headerlink" title="常见运行时库对比"></a>常见运行时库对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Tokio</th>
+<th>async-std</th>
+<th>futures</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能</td>
+<td>最高（多线程调度）</td>
+<td>中等</td>
+<td>轻量，适中</td>
+</tr>
+<tr>
+<td>使用体验</td>
+<td>偏工程化、配置丰富</td>
+<td>最接近标准库</td>
+<td>极简、底层</td>
+</tr>
+<tr>
+<td>生态支持</td>
+<td>最强（hyper, tonic, reqwest）</td>
+<td>中等</td>
+<td>少量核心库</td>
+</tr>
+<tr>
+<td>内部实现</td>
+<td>work-stealing + reactor</td>
+<td>smol 内核</td>
+<td>模块化组件</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>高并发服务端</td>
+<td>快速开发、教学</td>
+<td>小型嵌入式、自定义运行时</td>
+</tr>
+</tbody></table>
+<h3 id="Tokio-示例"><a href="#Tokio-示例" class="headerlink" title="Tokio 示例"></a>Tokio 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 并发执行两个任务</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task1</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 1 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task2</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">500</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 2 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// join! 等待两个任务都完成</span></span><br><span class="line">    tokio::join!(task1, task2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong><code>async</code></strong> 将函数或代码块转化为 Future</li>
+<li><strong><code>.await</code></strong> 用于暂停执行并等待 Future 完成</li>
+<li><strong>Future</strong> 是 Rust 异步编程的基础，需要通过执行器来驱动</li>
+<li><strong>执行器</strong> 负责调度和运行 Future，支持单线程或多线程并发</li>
+<li><strong>运行时</strong> 提供了完整的异步生态，Tokio 是最流行的选择</li>
+<li>异步编程适合 I&#x2F;O 密集型任务，可在单线程上实现高并发</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>View的事件分发机制</title>
     <url>/2023/04/30/View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<p>在讲到View的事件分发机制之前要首先了解一下Activity的组成，然后从源码的角度来分析View的事件分发机制。</p>
@@ -3628,73 +3628,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 ]]></content>
       <tags>
         <tag>Android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>redis 相关知识</title>
-    <url>/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
-<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
-<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
-<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
-<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
-<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
-</ul>
-<span id="more"></span>
-<h2 id="redis的数据结构"><a href="#redis的数据结构" class="headerlink" title="redis的数据结构"></a>redis的数据结构</h2><p>Redis支持五中数据类型：String、hash、list、set和zset（有序集合）</p>
-<h3 id="String-类型"><a href="#String-类型" class="headerlink" title="String 类型"></a>String 类型</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对</p>
-<blockquote>
-<p>set test “test”<br>OK<br>get test<br>“test”</p>
-</blockquote>
-<p>*注意：一个键最大能存储512MB</p>
-<h3 id="Hash（哈希）"><a href="#Hash（哈希）" class="headerlink" title="Hash（哈希）"></a>Hash（哈希）</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对集合，每个最外层key对应多个（key&#x3D;&#x3D;&gt;value）形式的键值对<br>使用时需要用命令HSET 和HGET命令。</p>
-<blockquote>
-<p>hset htest h1 “t1” h2 “t2”<br>2<br>hget htest h1<br>“t1”<br>hget htest h2<br>“t2”</p>
-</blockquote>
-<h3 id="List（列表）"><a href="#List（列表）" class="headerlink" title="List（列表）"></a>List（列表）</h3><p>是一个简单的字符串列表，排序默认按照插入顺序排序<br>需要用命令LPUSH 和LRANGE start end(给出索引起始和结束位置左闭又闭区间)命令。<br> lpush ltest qq<br>(integer) 1</p>
-<blockquote>
-<p>lpush ltest ll<br>(integer) 2<br>lrange ltest 0 10</p>
-</blockquote>
-<ol>
-<li>“ll”</li>
-<li>“qq”</li>
-</ol>
-<h3 id="set（集合）"><a href="#set（集合）" class="headerlink" title="set（集合）"></a>set（集合）</h3><p>添加一个string对象到对应的set集合中，成功返回1，如果元素已在集合中返回0<br>添加元素使用：sadd，显示所有元素使用 smembers</p>
-<blockquote>
-<p>sadd stest 1<br>(integer) 1<br>sadd stest 2<br>(integer) 1<br>sadd stest 1<br>(integer) 0<br>smembers stest</p>
-</blockquote>
-<ol>
-<li>“1”</li>
-<li>“2”</li>
-</ol>
-<h3 id="zset（有序集合）"><a href="#zset（有序集合）" class="headerlink" title="zset（有序集合）"></a>zset（有序集合）</h3><p>Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。<br>不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。<br>zset的成员是唯一的,但分数(score)却可以重复。<br>需要使用命令</p>
-<blockquote>
-<p>zadd ztest 0 t1<br>(integer) 1<br>zadd ztest 1 t2<br>(integer) 1<br>zadd ztest 0 t3<br>(integer) 1<br>zrangebyscore ztest 0 3</p>
-</blockquote>
-<ol>
-<li>“t1”</li>
-<li>“t3”</li>
-<li>“t2”</li>
-</ol>
-<h2 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h2><p>为什么需要持久化？<br>Redis的数据都存储在内存中，若没有配置持久化，redis重启后数据就丢失了，于是需要开启redis的持久化功能，将数据保存到磁盘上，重启后从磁盘恢复数据。redis提供了两种持久化方式：1.RDB持久化（定时将redis在内存中的数据生成快照，全量同步到磁盘）。2.AOF（append only file）持久化（将redis的操作日志以追加的方式写入文件）。</p>
-<ol>
-<li><p>RDB持久化<br>过程：在指定时间间隔内将内存中的数据集快照写入磁盘，实际操作过程就是fork一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用于二进制压缩存储。<br><a href="https://imgse.com/i/pCtU9i9"><img src="https://s1.ax1x.com/2023/06/24/pCtU9i9.png" alt="pCtU9i9.png"></a><br>优点：<br>1.redis只会包含一个文件，便于文件备份。可以配置每小时归档最近24小时的数据，同时每天归档最近30天的数据，通过这样的策略，一旦系统出现灾难性故障，可以很容易的进行恢复。<br>2.RDB适合于灾难恢复，可以很轻松的将一个单独的文件压缩后再转移到其他存储介质上。<br>3.性能最大化。fork出一个子进程完成持久化操作，避免了单个线程的IO问题。<br>4.相比于AOF机制，如果数据集很大，RDB的启动效率更高。<br>缺点：<br>1.无法保证数据的高可用性，即最大限度的避免数据丢失。如果在持久化之前出现宕机现象，此前未来得及写入磁盘的数据都将丢失。<br>2.fork子进程完成持久化操作时，如果数据集较大时，可能会导致服务器停止服务几百毫秒到1秒。</p>
-</li>
-<li><p>AOF持久化<br>过程：AOF以日志的形式来记录每个写操作，将redis执行过的所有写指令记录下来，只许追加文件但不允许改写文件，redis启动之后就会读取该文件重构数据集。默认是不开启的，需要将appendonly改为yes就开启了aof，重启后生效。<br><a href="https://imgse.com/i/pCtUCGR"><img src="https://s1.ax1x.com/2023/06/24/pCtUCGR.png" alt="pCtUCGR.png"></a><br>优点：<br>1.更高的数据安全性，保证数据在redis重启前后是一致的。<br>2.日志写操作采用的是append方式，写入过程中出现宕机也不会破坏日志文件中已存在的内容。<br>3.如果日志过大，redis会自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。<br>4.AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。<br>缺点：<br>1.对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>2.根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p>
-</li>
-</ol>
-<h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><p>1.主从模式<br>至少需要两台服务器，一台主节点（master），一台从节点（slave）。master主要负责写，slave主要负责读，主从模式实现了读写分离。<br><a href="https://imgse.com/i/pCtUkM6"><img src="https://s1.ax1x.com/2023/06/24/pCtUkM6.png" alt="pCtUkM6.png"></a><br>主从复制的作用：<br>数据冗余：实现了数据的热备份，是持久化之外的另一种数据冗余方式<br>故障恢复：master故障时，slave可以提供服务，实现故障快速恢复<br>负载均衡：master负责写，slave负责读。在写少读多的场景下可以极大提高redis吞吐量<br>高可用基石：主从复制是redis哨兵模式和集群模式的基础。<br>主从复制实现原理：<br>主从复制过程主要可以分为3个阶段：连接建立阶段、数据同步阶段、命令传播阶段。<br>连接建立阶段：在主从节点之间建立连接，为数据同步做准备。<br>数据同步阶段：执行数据的全量（或增量）复制（复制RDB文件）<br>命令传播阶段：主节点将已执行的命令发送给从节点，从节点接收命令并执行，从而实现主从节点的数据一致性<br>主从模式中，一个主节点可以有多个从节点。为了减少主从复制对主节点的性能影响，一个从节点可以作为另外一个从节点的主节点进行主从复制。<br>不足之处：主节点宕机之后，需要手动拉起从节点来提供业务，不能达到高可用。</p>
-<p>2.哨兵模式<br><a href="https://imgse.com/i/pCtUZZD"><img src="https://s1.ax1x.com/2023/06/24/pCtUZZD.png" alt="pCtUZZD.png"></a><br>哨兵模式的原理<br>Sentinel是一种特殊的redis节点，每个sentinel节点会维护与其他redis节点（包括master&#x2F;slave&#x2F;sentinel）的心跳。<br>当一个sentinel节点与master节点的心跳丢失时，这个sentinel节点就会认为master节点出现了故障，处于不可用的状态，这种判定叫作主观下线（即sentinel节点自己主观认为master下线了），之后，这个sentinel节点会与其他sentinel节点交换信息，如果发现认为主节点发生故障的sentinel节点的个数超过了某个阈值（通常为sentinel节点总数的1&#x2F;2+1，即超过半数），则sentinel会认为master节点已经处于客观下线的状态，即大家都认为master故障不可用了。<br>之后，sentinel节点中会选举处一个sentinel leader来执行redis主节点的故障转移。<br>被选举出的 Sentinel 领导者进行故障转移的具体步骤如下：<br>（1）在从节点列表中选出一个节点作为新的主节点</p>
-<ul>
-<li>过滤不健康或者不满足要求的节点；</li>
-<li>选择 slave-priority（优先级）最高的从节点， 如果存在则返回， 不存在则继续；</li>
-<li>选择复制偏移量最大的从节点 ， 如果存在则返回， 不存在则继续；</li>
-<li>选择 runid 最小的从节点。<br>（2）Sentinel 领导者节点会对选出来的从节点执行 slaveof no one 命令让其成为主节点。<br>（3）Sentinel 领导者节点会向剩余的从节点发送命令，让他们从新的主节点上复制数据。<br>（4）Sentinel 领导者会将原来的主节点更新为从节点， 并对其进行监控， 当其恢复后命令它去复制新的主节点。</li>
-</ul>
-<p>3.集群模式<br>如图所示集群模式其实就是多个主从复制的结构组合起来的，每一个主从复制结构可以看成一个节点，那么上面的Cluster集群中就有三个节点。<br><a href="https://imgse.com/i/pCtUmIH"><img src="https://s1.ax1x.com/2023/06/24/pCtUmIH.png" alt="pCtUmIH.png"></a></p>
-]]></content>
-      <tags>
-        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -4097,243 +4030,70 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>使用Android sharesheet在Android应用程序中分享内容和链接</title>
-    <url>/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/</url>
-    <content><![CDATA[<p>为何要使用Android sharesheet<br>主要有三点原因：</p>
+    <title>redis 相关知识</title>
+    <url>/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
+<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
+<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
+<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
+<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
+<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
+</ul>
+<span id="more"></span>
+<h2 id="redis的数据结构"><a href="#redis的数据结构" class="headerlink" title="redis的数据结构"></a>redis的数据结构</h2><p>Redis支持五中数据类型：String、hash、list、set和zset（有序集合）</p>
+<h3 id="String-类型"><a href="#String-类型" class="headerlink" title="String 类型"></a>String 类型</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对</p>
+<blockquote>
+<p>set test “test”<br>OK<br>get test<br>“test”</p>
+</blockquote>
+<p>*注意：一个键最大能存储512MB</p>
+<h3 id="Hash（哈希）"><a href="#Hash（哈希）" class="headerlink" title="Hash（哈希）"></a>Hash（哈希）</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对集合，每个最外层key对应多个（key&#x3D;&#x3D;&gt;value）形式的键值对<br>使用时需要用命令HSET 和HGET命令。</p>
+<blockquote>
+<p>hset htest h1 “t1” h2 “t2”<br>2<br>hget htest h1<br>“t1”<br>hget htest h2<br>“t2”</p>
+</blockquote>
+<h3 id="List（列表）"><a href="#List（列表）" class="headerlink" title="List（列表）"></a>List（列表）</h3><p>是一个简单的字符串列表，排序默认按照插入顺序排序<br>需要用命令LPUSH 和LRANGE start end(给出索引起始和结束位置左闭又闭区间)命令。<br> lpush ltest qq<br>(integer) 1</p>
+<blockquote>
+<p>lpush ltest ll<br>(integer) 2<br>lrange ltest 0 10</p>
+</blockquote>
 <ol>
-<li>谷歌官方推荐使用</li>
-<li>Target SDK 30 以上，包名可见性发生了变更，默认情况下，应用与应用是不可见的，换句话说，如果使用queryIntentActivities()方法，不一定能够获取到所有intent对应的activity，这样就给分享intent造成了麻烦。</li>
-<li>Android sharesheet提供了包括界面、结果收集、固定前置和屏蔽指定app在内的全套功能，可以节省设计和开发资源<span id="more"></span></li>
+<li>“ll”</li>
+<li>“qq”</li>
 </ol>
-<h2 id="使用Android-sharesheet的基础步骤"><a href="#使用Android-sharesheet的基础步骤" class="headerlink" title="使用Android sharesheet的基础步骤"></a>使用Android sharesheet的基础步骤</h2><p>Android sharesheet的使用十分简单，大致分为两个步骤：准备intent，使用intent调起分享弹窗。<br>将会使用3个例子来展现sharesheet的使用，本别是：分享一段文字(可以包含某个链接)，分享一个视频，分享多个视频</p>
-<h3 id="准备intent："><a href="#准备intent：" class="headerlink" title="准备intent："></a>准备intent：</h3><h3 id="分享一段文字："><a href="#分享一段文字：" class="headerlink" title="分享一段文字："></a>分享一段文字：</h3><p>如果只是想分享一段文字，并且文字中包含了一个跳转链接，是比较简单的：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//linkWtihText 就是想要分享的文字，实际使用时常常包含一段跳转链接</span><br><span class="line">val sendIntent: Intent = Intent().apply &#123;</span><br><span class="line">    action = Intent.ACTION_SEND</span><br><span class="line">    putExtra(Intent.EXTRA_TEXT, linkWtihText)</span><br><span class="line">    type = &quot;text/plain&quot;</span><br><span class="line">&#125;</span><br><span class="line">//使用sendIntent来制作分享跳转使用的intent</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, &quot;null&quot;)</span><br><span class="line">//添加flag</span><br><span class="line">shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br></pre></td></tr></table></figure>
-
-<h3 id="分享一个视频："><a href="#分享一个视频：" class="headerlink" title="分享一个视频："></a>分享一个视频：</h3><p>其实质是分享一个视频媒体文件，所以分享一个音乐、一张图片等也是类似的步骤。首先，我们需要制作一个待分享的文件的uri，此处使用FileProvider：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//把路径转换成可以用来分享的Uri，path：待分享的文件路径</span><br><span class="line">private fun createFileUriWithPath(context: Context, path: String): Uri &#123;</span><br><span class="line">    val shareFile = File(path)</span><br><span class="line">    return FileProvider.getUriForFile(</span><br><span class="line">        context,</span><br><span class="line">        &quot;com.miui.localvideoplayer.shareprovider&quot;,</span><br><span class="line">        shareFile</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后，基于以上方法制作的uri，制作分享intent：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">val shareUri = createFileUriWithPath(appContext, path)</span><br><span class="line">val sendIntent = Intent()</span><br><span class="line">sendIntent.action = Intent.ACTION_SEND</span><br><span class="line">sendIntent.putExtra(Intent.EXTRA_STREAM, shareUri)</span><br><span class="line">sendIntent.data = shareUri</span><br><span class="line">//此处需要对uri赋予可读取的权限</span><br><span class="line">sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)</span><br><span class="line">sendIntent.type = &quot;video/*&quot;</span><br><span class="line">//使用sendIntent来制作分享跳转使用的intent</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, &quot;null&quot;)</span><br><span class="line">//添加flag</span><br><span class="line">shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br></pre></td></tr></table></figure>
-
-<h3 id="分享多个视频："><a href="#分享多个视频：" class="headerlink" title="分享多个视频："></a>分享多个视频：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//shareList: ArrayList&lt;String&gt; 待分享的文件路径列表</span><br><span class="line"></span><br><span class="line">if (shareList.size == 1) &#123;</span><br><span class="line">    //如果列表中只有一个文件，那么请将其当作单个文件分享，以获取更多的接受方</span><br><span class="line">    shareSingleVideoFile(context, shareList[0])</span><br><span class="line">    return</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">val shareUriList = java.util.ArrayList&lt;Uri&gt;()</span><br><span class="line">for (path in shareList) &#123;</span><br><span class="line">    //仍然需要用到上文提到的制作uri的方法，将uri们保存在一个list里</span><br><span class="line">    val shareUri = createFileUriWithPath(appContext, path)</span><br><span class="line">    shareUriList.add(shareUri)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">val sendIntent = Intent()</span><br><span class="line">//此处的action为ACTION_SEND_MULTIPLE</span><br><span class="line">sendIntent.action = Intent.ACTION_SEND_MULTIPLE</span><br><span class="line">sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, shareUriList)</span><br><span class="line">sendIntent.type = &quot;video/*&quot;</span><br><span class="line">sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, &quot;null&quot;)</span><br><span class="line">shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用intent调起分享弹窗："><a href="#使用intent调起分享弹窗：" class="headerlink" title="使用intent调起分享弹窗："></a>使用intent调起分享弹窗：</h3><p>使用context.startActivity方法：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mContext.startActivity(shareIntent)</span><br></pre></td></tr></table></figure>
-
-<h2 id="将某些接收端固定前置-x2F-将某些接收端屏蔽"><a href="#将某些接收端固定前置-x2F-将某些接收端屏蔽" class="headerlink" title="将某些接收端固定前置&#x2F;将某些接收端屏蔽"></a>将某些接收端固定前置&#x2F;将某些接收端屏蔽</h2><p>在实际的使用中，我们经常想要将某些应用前置在我们的分享弹窗中，例如，我希望用户把我们的链接分享到facebook,whatsapp,messenger,telegram中，这样可以方便我们进行裂变转播，sharesheet也可以做到。<br>实现方法也十分简单，只要给shareInent增加一个key为Intent.EXTRA_INITIAL_INTENTS的extra，并且往里传入一个sendIntent的typedArray，就可以了<br>首先，制作需要前置分享的app的intent list</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fun getExtraInitialIntent(text: String): ArrayList&lt;Intent&gt; &#123;</span><br><span class="line">    val intentShareList = ArrayList&lt;Intent&gt;()</span><br><span class="line">    //需要前置的receiver app的包名</span><br><span class="line">    var shareItems = </span><br><span class="line">        arrayOf(</span><br><span class="line">            &quot;com.facebook.katana&quot;,</span><br><span class="line">            &quot;com.whatsapp&quot;,</span><br><span class="line">            &quot;com.facebook.orca&quot;,</span><br><span class="line">            &quot;org.telegram.messenger&quot;</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line">    for (packageName in shareItems) &#123;</span><br><span class="line">        val intent = Intent()</span><br><span class="line">        intent.action = Intent.ACTION_SEND</span><br><span class="line">        intent.type = &quot;text/plain&quot;</span><br><span class="line">        intent.setPackage(packageName)</span><br><span class="line">        intent.putExtra(Intent.EXTRA_TEXT, text)</span><br><span class="line">        intentShareList.add(intent)</span><br><span class="line">    &#125;</span><br><span class="line">    return intentShareList</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后，将其转换为TypedArray并且携带给shareIntent</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shareIntent.putExtra(</span><br><span class="line">    Intent.EXTRA_INITIAL_INTENTS,</span><br><span class="line">    getExtraInitialIntent(arrayListOf(path)).toTypedArray()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<p>同样的，我们也可以在sharesheet中排除某个receiver，比如，如果选择小米文档查看器作为receiver，那么它将把分享的文字内容当作一段地址来尝试读取某个文件，显然，这不符合我们的业务需求，并且会造成bug。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">private fun getExtraExcludeComponents(intent: Intent): ArrayList&lt;ComponentName&gt; &#123;</span><br><span class="line">    val excludeList = ArrayList&lt;ComponentName&gt;()</span><br><span class="line">    val extraExcludedItems = arrayOf(&quot;cn.wps.xiaomi.abroad.lite&quot;)</span><br><span class="line">    val pm = FrameworkApplication.getAppContext().packageManager</span><br><span class="line">    val targets = pm.queryIntentActivities(intent, 0)</span><br><span class="line">    for (resolveInfo in targets) &#123;</span><br><span class="line">        val targetPackage = resolveInfo.activityInfo.packageName</span><br><span class="line">        val appName = resolveInfo.activityInfo.name</span><br><span class="line">        for (packageName in extraExcludedItems) &#123;</span><br><span class="line">            if (packageName.equals(targetPackage, true)) &#123;</span><br><span class="line">                excludeList.add(ComponentName(targetPackage, appName))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return excludeList</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在制作shareIntent时，加入extra，使用EXTRA_EXCLUDE_COMPONENTS关键字，将其排除。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shareIntent.putExtra(</span><br><span class="line">                    Intent.EXTRA_EXCLUDE_COMPONENTS,</span><br><span class="line">                    getExtraExcludeComponents(sendIntent).toTypedArray()</span><br><span class="line">                )</span><br></pre></td></tr></table></figure>
-
-<h2 id="收集分享的结果"><a href="#收集分享的结果" class="headerlink" title="收集分享的结果"></a>收集分享的结果</h2><p>用户在点击分享后，需要在分享弹窗中选择一个渠道进行分享，例如，选择Facebook进行分享，而我们如果想要收集用户最后点击的选项，那么可以在Intent.createChooser(sendIntent, “null”, “null”)方法中传入一个广播接收器，从而可以接受用户点击后发出的广播。<br>首先，我们需要一个广播接收器类：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">class LocalShareBroadCastReceiver : BroadcastReceiver() &#123;</span><br><span class="line">    override fun onReceive(context: Context?, intent: Intent?) &#123;</span><br><span class="line">        val clickedComponentName = intent?.getParcelableExtra&lt;ComponentName&gt;(Intent.EXTRA_CHOSEN_COMPONENT)</span><br><span class="line">        val packageName = clickedComponentName?.packageName</span><br><span class="line">        //packageName就是用户最终点选的包名，此处可以进行打点等统计操作</span><br><span class="line">        context?.unregisterReceiver(this)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>其次，我们需要创建一个接收器实例，并且动态注册，之后再返回一个intentSender用于构造shareIntent</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//建议将localShareBroadCastReceiver 保存成为static final常量，在每次分享操作时，检查是否被注册。多次注册广播接收器会使得用户在第二次分享的时候执行两次onReceive中的操作</span><br><span class="line">val localShareBroadCastReceiver = LocalShareBroadCastReceiver()</span><br><span class="line"></span><br><span class="line">val sender = registerShareReceiver(</span><br><span class="line">    appContext, &quot;com.videoplayer.SHARE_ACTION_LOCAL&quot;,</span><br><span class="line">    localShareBroadCastReceiver</span><br><span class="line">)</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, sender)</span><br></pre></td></tr></table></figure>
-
-<p>其中，registerShareReceiver方法如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fun registerShareReceiver(</span><br><span class="line">    context: Context,</span><br><span class="line">    action: String,</span><br><span class="line">    receiver: BroadcastReceiver</span><br><span class="line">): IntentSender &#123;</span><br><span class="line">    val receiverIntent = Intent(action)</span><br><span class="line">    receiverIntent.putExtra(&quot;test&quot;, &quot;test&quot;)</span><br><span class="line">    val pi = PendingIntent.getBroadcast(</span><br><span class="line">        FrameworkApplication.getAppContext(),</span><br><span class="line">        10000,</span><br><span class="line">        receiverIntent,</span><br><span class="line">        //Android 12 以上，一定要加PendingIntent.FLAG_MUTABLE，不然将不会收到回调</span><br><span class="line">        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE</span><br><span class="line">    )</span><br><span class="line">    context.registerReceiver(</span><br><span class="line">        receiver,</span><br><span class="line">        IntentFilter(action)</span><br><span class="line">    )</span><br><span class="line">    return pi.intentSender;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如前文注释中提到的，多次注册广播接收器会使得用户在第二次分享的时候执行两次onReceive中的操作，因此建议将localShareBroadCastReceiver 保存成为static final常量，在每次分享操作时，尝试反注册，保证每次分享操作仅有1个receiver进行监听。<br>Android开发者：应用数据和文件<br><a href="https://developer.android.google.cn/training/sharing">https://developer.android.google.cn/training/sharing</a> </p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>函数响应式编程——RxJava</title>
-    <url>/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/</url>
-    <content><![CDATA[<p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
-<span id="more"></span>
-<p>RxJava是ReactiveX的一种Java实现，ReactiveX是Reactive Extensions的缩写，一般简写为Rx。<br>微软的定义是：Rx是一个函数库，让开发者可以利用可观察序列和LINQ风格查询操作符来编写异步和基于事件的程序。开发者可以用Observables表示异步数据流，用<br>LINQ操作符查询一部数据流，用Schedulers参数化一部数据流的并发处理，Rx可以这样定义：Rx &#x3D; Observables+LINQ+Schedulers。</p>
-<p>1.为何要用RxJava<br>说到异步操作，我们会想到Android的AsyncTask和Handler。但是随着请求的数量越来越多，代码逻辑将会变得越来越复杂而RxJava却仍旧能保持清晰的逻辑。<br>RxJava的原理就是创建一个Observable对象来干活，然后使用各种操作符建立起来的链式操作，就如同流水线一样，把你想要处理的数据一步一步地加工成你<br>想要的成品，然后发射给Subscriber处理</p>
-<p>2.RxJava与观察者模式<br>RxJava的异步操作是通过扩展的观察者模式来实现的。RxJava有4个角色Observable、Observer、Subscriber和Suject，这4个角色后面会具体讲解。<br>Observable和Observer 通过subscribe方法实现订阅关系，Observable就可以在需要的时候通知Observer</p>
-<p>3.RxJava的基本实现<br>1）创建Observer(观察者)<br>它决定事件触发的时候将有怎样的行为，其中onCompleted、onError和onNext是必须要实现的方法。<br>2）创建Observable(被观察者)<br>它决定什么时候触发事件以及触发怎样的事件。RxJava使用create方法，just方法，或者from方来创建一个Observable<br>2）Subscribe(订阅)<br>订阅只需要一行代码就可以了<br>observable.subscribe(subscriber)</p>
-<p>3.Subject<br>subject既可以是一个Observer，也可以是一个Observerable,它是连接Observer和Observerable的桥梁，因此，Subject可以被理解为Subject&#x3D;Observable+Observer。<br>RxJava提供了以下4种Subject:</p>
+<h3 id="set（集合）"><a href="#set（集合）" class="headerlink" title="set（集合）"></a>set（集合）</h3><p>添加一个string对象到对应的set集合中，成功返回1，如果元素已在集合中返回0<br>添加元素使用：sadd，显示所有元素使用 smembers</p>
+<blockquote>
+<p>sadd stest 1<br>(integer) 1<br>sadd stest 2<br>(integer) 1<br>sadd stest 1<br>(integer) 0<br>smembers stest</p>
+</blockquote>
 <ol>
-<li>PublishSubject<br>publishsubject只会把在订阅发生的事件点之后来自原始Observable的数据发生给观察者。如果要确保来自原始Observable的所有数据都被分发，<br>则可以当所有观察者都已经订阅时才开始发射数据，或者改用ReplaySubject。<br>2）BehaviorSubject<br>当Observer订阅BehaviorSubject时，它开始发射原始Observable最近发射的数据<br>3）ReplaySubject<br>不管Observer何时订阅ReplaySubject，ReplaySubject均会发射所有来自原始Observable的数据给Observer。如果使用ReplaySubject作为Observer，注意不要在多个线程中调用onNext、onComplete和onError方法。这可能会导致顺序错乱，并且违反了Observer规则。<br>4）AsyncSubject<br>当Observable完成时，AsyncSubject只会发射来自原始Observable的最后一个数据</li>
+<li>“1”</li>
+<li>“2”</li>
 </ol>
-<p>4.RxJava操作符<br>RxJava操作符的类型分为创建操作符、变换操作符、过滤操作符、组合操作符、错误处理操作符、辅助操作符、条件和布尔操作符、算术和聚合操作符及连接操作符等，<br>而这些操作符类型下又有很多操作符，每个操作符可能还有很多变体。</p>
-<p>创建操作符：create,just,from,defer,range,interval,start,repeat,timer<br>变换操作符：map,flatMap,concatMap,switchMap等<br>过滤操作符：filter,elementAt,distince,skip,take<br>组合操作符：startWith,merge,concat,zip</p>
+<h3 id="zset（有序集合）"><a href="#zset（有序集合）" class="headerlink" title="zset（有序集合）"></a>zset（有序集合）</h3><p>Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。<br>不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。<br>zset的成员是唯一的,但分数(score)却可以重复。<br>需要使用命令</p>
+<blockquote>
+<p>zadd ztest 0 t1<br>(integer) 1<br>zadd ztest 1 t2<br>(integer) 1<br>zadd ztest 0 t3<br>(integer) 1<br>zrangebyscore ztest 0 3</p>
+</blockquote>
+<ol>
+<li>“t1”</li>
+<li>“t3”</li>
+<li>“t2”</li>
+</ol>
+<h2 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h2><p>为什么需要持久化？<br>Redis的数据都存储在内存中，若没有配置持久化，redis重启后数据就丢失了，于是需要开启redis的持久化功能，将数据保存到磁盘上，重启后从磁盘恢复数据。redis提供了两种持久化方式：1.RDB持久化（定时将redis在内存中的数据生成快照，全量同步到磁盘）。2.AOF（append only file）持久化（将redis的操作日志以追加的方式写入文件）。</p>
+<ol>
+<li><p>RDB持久化<br>过程：在指定时间间隔内将内存中的数据集快照写入磁盘，实际操作过程就是fork一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用于二进制压缩存储。<br><a href="https://imgse.com/i/pCtU9i9"><img src="https://s1.ax1x.com/2023/06/24/pCtU9i9.png" alt="pCtU9i9.png"></a><br>优点：<br>1.redis只会包含一个文件，便于文件备份。可以配置每小时归档最近24小时的数据，同时每天归档最近30天的数据，通过这样的策略，一旦系统出现灾难性故障，可以很容易的进行恢复。<br>2.RDB适合于灾难恢复，可以很轻松的将一个单独的文件压缩后再转移到其他存储介质上。<br>3.性能最大化。fork出一个子进程完成持久化操作，避免了单个线程的IO问题。<br>4.相比于AOF机制，如果数据集很大，RDB的启动效率更高。<br>缺点：<br>1.无法保证数据的高可用性，即最大限度的避免数据丢失。如果在持久化之前出现宕机现象，此前未来得及写入磁盘的数据都将丢失。<br>2.fork子进程完成持久化操作时，如果数据集较大时，可能会导致服务器停止服务几百毫秒到1秒。</p>
+</li>
+<li><p>AOF持久化<br>过程：AOF以日志的形式来记录每个写操作，将redis执行过的所有写指令记录下来，只许追加文件但不允许改写文件，redis启动之后就会读取该文件重构数据集。默认是不开启的，需要将appendonly改为yes就开启了aof，重启后生效。<br><a href="https://imgse.com/i/pCtUCGR"><img src="https://s1.ax1x.com/2023/06/24/pCtUCGR.png" alt="pCtUCGR.png"></a><br>优点：<br>1.更高的数据安全性，保证数据在redis重启前后是一致的。<br>2.日志写操作采用的是append方式，写入过程中出现宕机也不会破坏日志文件中已存在的内容。<br>3.如果日志过大，redis会自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。<br>4.AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。<br>缺点：<br>1.对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>2.根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p>
+</li>
+</ol>
+<h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><p>1.主从模式<br>至少需要两台服务器，一台主节点（master），一台从节点（slave）。master主要负责写，slave主要负责读，主从模式实现了读写分离。<br><a href="https://imgse.com/i/pCtUkM6"><img src="https://s1.ax1x.com/2023/06/24/pCtUkM6.png" alt="pCtUkM6.png"></a><br>主从复制的作用：<br>数据冗余：实现了数据的热备份，是持久化之外的另一种数据冗余方式<br>故障恢复：master故障时，slave可以提供服务，实现故障快速恢复<br>负载均衡：master负责写，slave负责读。在写少读多的场景下可以极大提高redis吞吐量<br>高可用基石：主从复制是redis哨兵模式和集群模式的基础。<br>主从复制实现原理：<br>主从复制过程主要可以分为3个阶段：连接建立阶段、数据同步阶段、命令传播阶段。<br>连接建立阶段：在主从节点之间建立连接，为数据同步做准备。<br>数据同步阶段：执行数据的全量（或增量）复制（复制RDB文件）<br>命令传播阶段：主节点将已执行的命令发送给从节点，从节点接收命令并执行，从而实现主从节点的数据一致性<br>主从模式中，一个主节点可以有多个从节点。为了减少主从复制对主节点的性能影响，一个从节点可以作为另外一个从节点的主节点进行主从复制。<br>不足之处：主节点宕机之后，需要手动拉起从节点来提供业务，不能达到高可用。</p>
+<p>2.哨兵模式<br><a href="https://imgse.com/i/pCtUZZD"><img src="https://s1.ax1x.com/2023/06/24/pCtUZZD.png" alt="pCtUZZD.png"></a><br>哨兵模式的原理<br>Sentinel是一种特殊的redis节点，每个sentinel节点会维护与其他redis节点（包括master&#x2F;slave&#x2F;sentinel）的心跳。<br>当一个sentinel节点与master节点的心跳丢失时，这个sentinel节点就会认为master节点出现了故障，处于不可用的状态，这种判定叫作主观下线（即sentinel节点自己主观认为master下线了），之后，这个sentinel节点会与其他sentinel节点交换信息，如果发现认为主节点发生故障的sentinel节点的个数超过了某个阈值（通常为sentinel节点总数的1&#x2F;2+1，即超过半数），则sentinel会认为master节点已经处于客观下线的状态，即大家都认为master故障不可用了。<br>之后，sentinel节点中会选举处一个sentinel leader来执行redis主节点的故障转移。<br>被选举出的 Sentinel 领导者进行故障转移的具体步骤如下：<br>（1）在从节点列表中选出一个节点作为新的主节点</p>
+<ul>
+<li>过滤不健康或者不满足要求的节点；</li>
+<li>选择 slave-priority（优先级）最高的从节点， 如果存在则返回， 不存在则继续；</li>
+<li>选择复制偏移量最大的从节点 ， 如果存在则返回， 不存在则继续；</li>
+<li>选择 runid 最小的从节点。<br>（2）Sentinel 领导者节点会对选出来的从节点执行 slaveof no one 命令让其成为主节点。<br>（3）Sentinel 领导者节点会向剩余的从节点发送命令，让他们从新的主节点上复制数据。<br>（4）Sentinel 领导者会将原来的主节点更新为从节点， 并对其进行监控， 当其恢复后命令它去复制新的主节点。</li>
+</ul>
+<p>3.集群模式<br>如图所示集群模式其实就是多个主从复制的结构组合起来的，每一个主从复制结构可以看成一个节点，那么上面的Cluster集群中就有三个节点。<br><a href="https://imgse.com/i/pCtUmIH"><img src="https://s1.ax1x.com/2023/06/24/pCtUmIH.png" alt="pCtUmIH.png"></a></p>
 ]]></content>
       <tags>
-        <tag>RxJava</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何解决hexo首页显示博客的全部文章</title>
-    <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
-<span id="more"></span>
-
-<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p><code>首页在主题的_config.yml中把设置打开：（安装时默认就打开了） excerpt_description: true</code></p>
-<h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
-<h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>深入理解进程和线程</title>
-    <url>/2022/09/21/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B/</url>
-    <content><![CDATA[<span id="more"></span>
-
-<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p>平时helloworld这样的程序在现代系统上运行时，操作系统会提供一种假象，就好像系统上只有这个程序在运行。程序看上去是独占地使用处理器、主存和IO设备。处理器看上去就像在不间断地一条接一条执行程序中的指令，即该程序的代码和数据是系统内存中唯一的对象，这些假象是通过进程的概念来实现的，进程是计算机科学中最重要和最成功的概念之一。<br>进程是操作系统对一个正在运行的程序的一种抽象。在一个系统上可以同时运行多个进程，而每个进程都好像在独占地使用硬件。而并发运行，则是说一个进程的指令和另一个进程的指令是交错执行的。在大多数系统中。需要运行的进程数是多于可以运行它们的CPU个数的。传统系统在一个时刻只能执行一个程序，而先进的多核处理器同时能够执行多个程序。无论是在单核还是在多核系统中，一个CPU看上去都像是在并发执行多个进程，这是通过处理器在进程间切换来实现的。操作系统实现这种交错执行的机制称为上下文切换。（为了简化，下面的讨论我们只考虑包含一个CPU的单处理器系统的情况）<br>操作系统保持跟踪进程运行所需的所有状态信息。这种状态，也就是上下文，包括许多信息，比如PC和寄存器文件的当前值，以及主存的内容。在任何一个时刻，单处理器系统都只能执行一个进程的的代码，当操作系统决定要把控制权从当前进程转移到某个新进程时，就会进行上下文切换，及保存当前进程的上下文，恢复新进程的上下文，然后将控制权传递到新进程。新进程就会从它上次停止的地方开始。下图展示了程序运行场景的基本理念。<br><img src="https://s3.bmp.ovh/imgs/2022/09/25/9a7e5808598c7948.jpg"><br>示例场景中有两个并发的进程：shell进程和hello进程。最开始，只有shell进程在运行，即等待命令行上的输入。当我们让它运行hello程序时，shell通过调用一个专门的函数，即系统调用，来执行我们的请求，系统调用会将控制权传递给操作系统。操作系统保存shell进程的上下文，创建一个新的hello进程以及其上下文，然后将控制权传给新的hell咯进程。hello进程终止后，操作系统恢复shell进程的上下文，并将控制权传回给它，shell进程会继续等待下一个命令行输入。<br>如上图所示，从一个进程到另一个进程的转换是由操作系统内核管理的，内核时操作系统代码常驻主存的部分。当应用程序需要操作系统的某些操作时，比如读写文件，它就执行一条特殊的系统调用（system call）指令，将控制权传递给内核。然后内核执行被请求的操作并返回应用程序。注意，内核不是一个独立的进程。相反，它是系统管理全部进程所用代码和数据结构的集合。<br>实现进程这个抽象概念需要低级硬件和操作系统软件之间紧密合作。</p>
-<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>尽管通常我们认为一个进程只有单一的控制流，但是在现代系统中，一个进程实际上可以由多个称为线程的执行单元组成，每个线程都运行在进程的上下文中，并共享同样的代码和全局数据。由于网络服务器中对并行处理的需求，线程称为越来越重要的编程模型，因为多线程之间比多进程之间更容易共享数据，也因为线程一般来说都比进程更高效。当有多处理器可用的时候，多线程也是一种使得程序可以运行得更快得方法。</p>
-<h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><p>虚拟内存是一个抽象概念，它为每个进程提供一个假象，即每个进程都在独占地使用主存。每个进程看到内存都是一致得，称为虚拟地址空间。下图所示是Linux进程的虚拟地址空间（其他Unix系统的设计也与此类似）。在Linux中，地址空间最上面的区域是保留给操作系统中的代码和数据的，这对所有进程来说都是一样的。地址空间的底部区域存放用户进程定义的代码和数据。请注意，途中的地址是从下往上增大的。<br><img src="https://s3.bmp.ovh/imgs/2022/09/25/39151a55fce31299.png"><br>每个进程看到的虚拟地址空间由大量准确定义的区构成，每个区都有专门的功能，以下从最低的地址开始，逐步向上介绍：</p>
-<h3 id="程序代码和数据"><a href="#程序代码和数据" class="headerlink" title="程序代码和数据"></a>程序代码和数据</h3><p>对所有的进程来说，代码是从同一固定地址开始，紧接着的是和PC全局变量相对应的数据位置。代码和数据区是直接按照可执行目标文件的内容初始化的，在示例中就是可执行文件hello，</p>
-<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>代码和数据区后紧随着的是运行时堆。代码和数据区在进程一开始运行时就被制定了大小，与此不同，当调用像malloc和free这样的C标准库函数时，堆可以在运行时动态地扩展和收缩。</p>
-<h3 id="共享库"><a href="#共享库" class="headerlink" title="共享库"></a>共享库</h3><p>大约在地址空间中的中间部分是一块用来存放像C标准库和数学库这样的共享库的代码和数据的区域，共享库的概念非常强大，</p>
-<h3 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h3><p>位于用户虚拟地址空间顶部的是用户栈，编译器用它来实现函数调用，和堆一样，用户栈在程序执行期间可以动态地扩展和收缩。特别地，每次我们调用一个函数时，栈就会增长；从一个函数返回时，栈就会收缩。</p>
-<h3 id="内存虚拟内存"><a href="#内存虚拟内存" class="headerlink" title="内存虚拟内存"></a>内存虚拟内存</h3><p>地址空间顶部的区域是为内核保留的，不允许应用程序读写这个区域的内容或者直接调用呢耦合代码定义的函数。相反，它们必须调用内核来执行这些操作</p>
-<p>虚拟内存的运作需要硬件和操作系统软件之间精密复杂的交互，包括对处理器生成的每个地址的硬件编译。其基本思想是把一个进程虚拟内存的内容存储在磁盘上，然后主存作为磁盘的高速缓存，</p>
-<h3 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h3><p>文件就是字节序列，仅此而已。每个IO设备，包括磁盘，键盘，显示器，甚至网络，都可以看成是文件，系统中所有输入输出都是通过使用一小组称为Unix I&#x2F;O的系统函数调用读写文件按来实现的<br>文件这个简单而精致的概念是非常强大的，因为它向应用程序中提供了一个统一的试图，来看待系统中可能含有的所有各式各样的I&#x2F;O设备。例如，处理磁盘文件内容的应用程序员可以非常幸福，因为他们无需了解具体的磁盘技术，进一步说，同一个程序可以在使用不同磁盘技术的不同系统上运行。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>设计模式系列 — 单例模式</title>
-    <url>/2022/12/12/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97-%E2%80%94-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<p>开篇给大家一个思考题：为什么不用静态方法而用单例模式？</p>
-<span id="more"></span>
-
-<p>单例的定义：在当前进程中，通过单例模式创建的类有且只有一个实例。</p>
-<p>单例有如下几个特点：<br>1.在Java应用中，单例模式能保证在一个JVM中，该对象只有一个实例存在<br>2.构造器必须是私有的，外部类无法通过调用构造器创建该实例<br>3.没有公开的set方法，外部类无法调用set方法创建该实例<br>4.提供一个公开的get方法获取唯一的这个实例</p>
-<p>那单例模式有什么好处呢？<br>1.某些类创建比较频繁，对于一些大型的对象，这是一笔很大的系统开销<br>2.省去了new操作符，降低了系统内存的使用频率，减轻GC压力<br>3.系统中某些类，如Spring里的controller，控制着处理流程，如果该类可以创建多个的话，系统就全乱了<br>4.避免了对资源的重复占用</p>
-<p>好了，单例模式的定义也清楚了，好处也了解了，先看一个饿汉式的写法：</p>
-<h2 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">  // 创建一个实例对象</span><br><span class="line">    private static Singleton instance = new Singleton();</span><br><span class="line">    /**</span><br><span class="line">     * 私有构造方法，防止被实例化</span><br><span class="line">     */</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    /**</span><br><span class="line">     * 静态get方法</span><br><span class="line">     */</span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>之所以叫饿汉式大家可以理解为它饿，他想提前把对象new出来，这样别人哪怕是第一次获取这个类对象的时候直接就存在这个类了，省去了创建类这一步开销。</p>
-<p>下面介绍懒汉式</p>
-<h2 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h2><p>线程不安全的模式</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;  </span><br><span class="line">    private static Singleton instance;  </span><br><span class="line">    private Singleton ()&#123;&#125;  </span><br><span class="line">  </span><br><span class="line">    public static Singleton getInstance() &#123;  </span><br><span class="line">    if (instance == null) &#123;  </span><br><span class="line">        instance = new Singleton();  </span><br><span class="line">    &#125;  </span><br><span class="line">    return instance;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>懒汉式大家可以理解为它懒，别人第一次调用的时候他发现自己的实例是空的，然后去初始化了，再赋值，后面的调用就和饿汉没区别了。</p>
-<p>懒汉和饿汉的对比：大家可以发现两者的区别基本上就是第一次创作时候的开销问题，以及线程安全问题（线程不安全模式的懒汉）。<br>那有了这个对比，那他们的场景就好理解了，在很多电商场景，如果这个数据是经常访问的热点数据，那我就可以再系统启动的时候使用饿汉模式提前加载（类似缓存的预热）这样哪怕是第一个用户调用都不会存在创建开销，而且调用频繁也不存在内存浪费了。</p>
-<p>而懒汉式呢我们可以用在不怎么热的地方，比如那个数据你不确定很长一段时间是不是有人调用，那就用懒汉，如果你使用了饿汉，但是过了几个月还没有人调用，提前加载的类再内存中是由资源浪费的。</p>
-<h2 id="线程安全问题"><a href="#线程安全问题" class="headerlink" title="线程安全问题"></a>线程安全问题</h2><p>上面的懒汉我是故意没有加锁的，大家肯定都知道懒汉的线程安全问题<br><a href="https://imgse.com/i/z4IcQK"><img src="https://s1.ax1x.com/2022/12/13/z4IcQK.jpg" alt="z4IcQK.jpg"></a><br>在运行过程中可能存在这么一种情况：多个线程去调用getInstance方法来获取Singleton的实例，那么就有可能发生一种情况，当第一个线程在执行if(instance &#x3D;&#x3D; null)时，此时instance是为null的进入语句。</p>
-<p>在还没有执行instance &#x3D; new Singleton()时（此时instance是为null的）第二个线程也进入了if(instance &#x3D;&#x3D; null)这个语句，因为之前进入这个语句的线程中还没有执行instance &#x3D; new Singleton()，所以它会执行instance &#x3D; new Singleton()来实例化Singleton对象，因为第二个线程也进入了if语句所以它会实例化Singleton对象。</p>
-<p>这样就导致了实例化两个Singleton对象，那怎么解决呢？</p>
-<p>简单粗暴，加锁就好了，这是加锁之后的代码。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">    private static Singleton instance = null;</span><br><span class="line">    /**</span><br><span class="line">     * 私有构造方法，防止被实例化</span><br><span class="line">     */</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    /**</span><br><span class="line">     * 静态get方法</span><br><span class="line">     */</span><br><span class="line">    public static synchronized Singleton getInstance()&#123;</span><br><span class="line">        if(instance == null)&#123;</span><br><span class="line">            instance = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这是一种典型的时间换空间的写法，不管三七二十一，每次创建实例时先锁起来，在进行判断，严重降低了系统的处理速度。</p>
-<p>有没有更好的处理方式呢？<br>有，通过双检锁做两次判断，代码如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">    private static Singleton instance = null;</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        //先检查实例是否存在，如果不存在才进入下面的同步块</span><br><span class="line">        if(instance == null)&#123;</span><br><span class="line">            //同步块，线程安全的创建实例</span><br><span class="line">            synchronized (Singleton.class) &#123;</span><br><span class="line">                //再次检查实例是否存在，如果不存在才真正的创建实例</span><br><span class="line">                if(instance == null)&#123;</span><br><span class="line">                    instance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>将synchronized关键字加在了内部，也就是说当调用的时候是不需要加锁的，只有在instance为null，并创建对象的时候才需要加锁，性能有一定的提升。</p>
-<p>但是，这样就没有问题了吗？</p>
-<p>看下面的情况：在Java指令中创建对象和赋值操作是分开进行的，也就是说instance &#x3D; new Singleton();语句是分两部执行的。</p>
-<p>但是JVM并不保证这两个操作的先后顺序，也就是说有可能JVM会为新的Singleton实例分配空间，然后直接赋值给instance成员，然后再去初始化这个Singleton实例。</p>
-<p>这样就可能出错了，我们以A、B两个线程为例：<br>1.A、B线程同时进入了第一个if判断<br>2.A首先进入synchronized块，由于instance为null，所以它执行instance &#x3D; new Singleton();<br>3.由于JVM内部的优化机制，JVM先画了一些分配给Singleton实例的空白内存，并赋值给instance成员（注意此时JVM没有开始初始化这个实例），然后A离开了synchronized块。<br><a href="https://imgse.com/i/z4oQOO"><img src="https://s1.ax1x.com/2022/12/13/z4oQOO.jpg" alt="z4oQOO.jpg"></a><br>4.B进入synchronized块，由于instance此时不是null，因此它马上离开了synchronized块并将结果返回给调用该方法的程序。<br>5.此时B线程打算使用singleton实例，却发现它并没有被初始化，于是出现了错误。<br>加上volatile修饰Singleton，再做一次优化：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">    private volatile static Singleton instance = null;</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        //先检查实例是否存在，如果不存在才进入下面的同步块</span><br><span class="line">        if(instance == null)&#123;</span><br><span class="line">            //同步块，线程安全的创建实例</span><br><span class="line">            synchronized (Singleton.class) &#123;</span><br><span class="line">                //再次检查实例是否存在，如果不存在才真正的创建实例</span><br><span class="line">                if(instance == null)&#123;</span><br><span class="line">                    instance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过volatile修饰的变量，不会被线程本地缓存，所有线程对该对象的读写都会第一时间同步到主内存，从而保证多个线程间对该对象的准确性</p>
-<h2 id="volatile的作用"><a href="#volatile的作用" class="headerlink" title="volatile的作用"></a>volatile的作用</h2><p>防止指令重排序，因为instance &#x3D; new Singleton()不是原子操作<br>保证内存可见</p>
-<p>这个是比较完美的写法了，这种方式能够安全的创建唯一的一个实例，又不会对性能有太大的影响。</p>
-<p>但是由于volatile关键字可能会屏蔽掉虚拟机中一些必要的代码优化，所以运行效率并不是很高，还有更优的写法吗？</p>
-<p>通过静态内部类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;  </span><br><span class="line">  </span><br><span class="line">    /* 私有构造方法，防止被实例化 */  </span><br><span class="line">    private Singleton() &#123;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    /* 此处使用一个内部类来维护单例 */  </span><br><span class="line">    private static class SingletonFactory &#123;  </span><br><span class="line">        private static Singleton instance = new Singleton();  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    /* 获取实例 */  </span><br><span class="line">    public static Singleton getInstance() &#123;  </span><br><span class="line">        return SingletonFactory.instance;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    /* 如果该对象被用于序列化，可以保证对象在序列化前后保持一致 */  </span><br><span class="line">    public Object readResolve() &#123;  </span><br><span class="line">        return getInstance();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-<p>使用内部类来维护单例的实现，JVM内部的机制能够保证当一个类加载的时候，这个类的加载过程是线程互斥的。</p>
-<p>这样当我们第一次调用getInstance的时候，JVM能够帮我们保证instance只被创建一次，并且会保证把赋值给instance的内存初始化完毕，这样我们就不用担心上面的问题。</p>
-<p>同时该方法也只会在第一次调用的时候使用互斥机制，这样就解决了低性能问题。这样我们暂时总结一个完美的单例模式。</p>
-<p>还有更完美的写法吗？通过枚举</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public enum Singleton &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 定义一个枚举的元素，它就代表了Singleton的一个实例。</span><br><span class="line">     */</span><br><span class="line">    Instance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用枚举来实现单实例控制会更加简洁，而且JVM从根本上提供保障，绝对防止多次实例化，是更简洁，高效，安全的实现单例的方式。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>最后大家应该都知道单例模式的写法了，也知道优劣势和使用场景了，那开头的那个问题大家心里有答案了么？</p>
-<p>什么？连问题都忘了？问题：为什么不用静态方法而用单例模式？</p>
-<p>两者其实都能实现我们加载的最终目的，但是他们一个是基于对象，一个是面向对象的，就像我们不面向对象也能解决问题一样，面向对象的代码提供一个更好的编程思想。</p>
-<p>如果一个方法和他所在类的实例对象无关，那么它就应该是静态的，反之他就应该是非静态的。如果我们确实应该使用非静态的方法，但是在创建类时又确实只需要维护一份实例时，就需要用单例模式了。</p>
-<p>我们的电商系统中就有很多类，有很多配置和属性，这些配置和属性是一定存在了，又是公共的，同时需要在整个生命周期中都存在，所以只需要一份就行，这个时候如果需要我再需要的时候new一个，再给他分配值，显然是浪费内存并且再赋值没什么意义。</p>
-<p>所以我们用单例模式或静态方法去维持一份这些值有且只有这一份值，但此时这些配置和属性又是通过面向对象的编码方式得到的，我们就应该使用单例模式，或者不是面向对象的，但他本身的属性应该是面对对象的，我们使用静态方法虽然能同样解决问题，但是最好的解决方案也应该是使用单例模式。</p>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>设计模式系列——工厂模式</title>
-    <url>/2022/12/21/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<p>学习技术深度的时候（看一些框架的源码）总感觉只理解了表面，而没有理解里面的思想。<br>这里大家应该都知道我想说什么，就是设计模式。</p>
-<span id="more"></span>
-
-<p>今天聊一下工厂模式，工厂模式在我们的电商领域的应用是非常广泛的，写之前我看了自己电脑项目的代码，确实随处可见。<br>工厂模式主要可以分为三大类：<br>简单工厂模式<br>工厂方法模式<br>抽象工厂模式</p>
-<p>今天我也主要围绕这三种模式来举例了解一下</p>
-<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>工厂模式主要是用于对实现逻辑的封装，并且通过对公共的接口提供对象的实例化的服务，在我添加新的类时不需要大动干戈，只要修改一点就好。</p>
-<p>举个电商业务是怎么创建商品的：<br><a href="https://imgse.com/i/zXVPc8"><img src="https://s1.ax1x.com/2022/12/21/zXVPc8.jpg" alt="zXVPc8.jpg"></a><br>在这个简单工厂里面，如果要创建活动商品1以及活动商品2，我们要创建商品的时候只要调用简单工厂里面的创建商品方法，根据类型创建出不同的商品然后实例化返回就可以了。</p>
-<p>简单工厂几种实现方式：</p>
-<h3 id="静态工厂模式"><a href="#静态工厂模式" class="headerlink" title="静态工厂模式"></a>静态工厂模式</h3><p>我们还是以创建商品为例子</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class SimpleFacttory &#123;</span><br><span class="line">	public static Share createProduct(EnumProdutType type) &#123;</span><br><span class="line">		if (EnumProductType.activityone.equals(type)) &#123;</span><br><span class="line">			return new ProductOne();</span><br><span class="line">		&#125; else if (EnumProductType.acctivityTwo.equals(type)) &#123;</span><br><span class="line">			return new ProductTwo();</span><br><span class="line">		&#125;</span><br><span class="line">		return null;</span><br><span class="line">	&#125;</span><br><span class="line">	public enum EnumProductType &#123;</span><br><span class="line">		activituOne, activityTwo;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这种方式创建看起来其实也没有什么问题，根据类型创建不同的商品，但是有一个问题不知道大家发现没有？</p>
-<p>是不是我没增加一种类型还要去createProduct方法上修改if else？这不是违背我们的开闭原则吗？</p>
-<p>所以这种方式不好，我们还有接下来的两种：<br>使用反射机制<br>直接注册商品对象，添加一个Type类型方法，根据type类型返回自身相同类型的方法。同样的我们还是以创建商品为例：反射实现<br>同样的我们还是以创建商品为例：反射实现</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class SimpleFactoryReflection &#123;</span><br><span class="line"></span><br><span class="line">    private static final Map&lt;EnumProductType, Class&gt; activityIdMap = new HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    public  static void addProductKey(EnumProductType EnumProduct, Class product) &#123;</span><br><span class="line">        activityIdMap.put(EnumProduct, product);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static activityOne product(EnumProductType type) throws IllegalAccessException, InstantiationException &#123;</span><br><span class="line">        Class productClass = activityIdMap.get(type);</span><br><span class="line">        return (activityOne) productClass.newInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws InstantiationException, IllegalAccessException &#123;</span><br><span class="line">        addProductKey(EnumProductType.activityOne, activityOne.class);</span><br><span class="line">        activityOne product = product(EnumProductType.activityOne);</span><br><span class="line">        System.out.println(product.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class Producet&#123;</span><br><span class="line">        private String name;</span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class activityOne extends Producet &#123;</span><br><span class="line">        private String stock;</span><br><span class="line">        @Override</span><br><span class="line">        public String toString() &#123;</span><br><span class="line">            return &quot;activityOne&#123;&quot; +</span><br><span class="line">                    &quot;stock=&#x27;&quot; + stock + &#x27;\&#x27;&#x27; +</span><br><span class="line">                    &#x27;&#125;&#x27;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public class activityTwo extends Producet &#123;</span><br><span class="line">        private String stock;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumProductType &#123;</span><br><span class="line">        activityOne, activityTwo;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>看上面的代码，我发现反射其实也很容易就实现了，但是在一些特定的情况下，并不适用，而且在某些特定的情况下是无法实现的，而且反射机制也会降低程序的运行效果，在对想能要求很高的场景下应该避免这种实现。</p>
-<p>这里还有一个问题是使用反射不当是很容易导致线上机器出问题的，因为我们反射创建的对象属性是被SoftReference软引用的，所以当**-XX:SoftRefLRUPolicyMSPerMB**没有设置好的话，会让机器的CPU一直很高。当然它的默认值是1000，也就根据大家的情况而定吧。</p>
-<p>剩下的一种其实跟反射实现很像，就是为了避免使用反射，在Map的对象中不是存的要添加的类，而是将要添加的每种类对象实例，这个就不写demo了。</p>
-<h3 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h3><p>工厂方法模式是对静态工厂模式上的一种改进，我们工厂类直接被抽象化，需要具体特定化的逻辑代码转移到实现抽象方法的子类中，这样我们就不要再去修改工厂类（即：不用再去做什么if else修改）这也是我们当前比较常用的一种方式。<br>还是以我们创建商品为例：<br><a href="https://imgse.com/i/zxHvsP"><img src="https://s1.ax1x.com/2022/12/26/zxHvsP.jpg" alt="zxHvsP.jpg"></a><br>看这张图，其实说白了就是再创建一个工厂，用来创建工厂类对象<br>接下来看代码实现：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public abstract class FactoryMethod &#123;</span><br><span class="line"></span><br><span class="line">    protected abstract Product createProduct(String name);</span><br><span class="line"></span><br><span class="line">    public Product product(String activity, String name) &#123;</span><br><span class="line">        Product product = createProduct(activity);</span><br><span class="line">        product.setProductName(name);</span><br><span class="line">        return product;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class Product &#123;</span><br><span class="line">        public String productName;</span><br><span class="line"></span><br><span class="line">        public String getProductName() &#123;</span><br><span class="line">            return productName;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setProductName(String productName) &#123;</span><br><span class="line">            this.productName = productName;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumProductType &#123;</span><br><span class="line">        activityOne(&quot;one&quot;),</span><br><span class="line">        activityTwo(&quot;two&quot;);</span><br><span class="line"></span><br><span class="line">        private String name;</span><br><span class="line"></span><br><span class="line">        EnumProductType(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里先创建一个抽象工厂方法</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ProductFactory extends FactoryMethod&#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Product createProduct(String activityId) &#123;</span><br><span class="line">        if (EnumProductType.activityOne.getName().equals(activityId)) &#123;</span><br><span class="line">            //这里可以处理我们自己的想要的业务逻辑代码</span><br><span class="line">            return new OneProduct();</span><br><span class="line">        &#125; else if (EnumProductType.activityTwo.getName().equals(activityId)) &#123;</span><br><span class="line">            return new TwoProduct();</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class OneProduct extends Product &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class TwoProduct extends Product &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FactoryMethod factoryMethod = new ProductFactory();</span><br><span class="line">        Product product = factoryMethod.product(&quot;one&quot;, &quot;one&quot;);</span><br><span class="line">        System.out.println(product.getProductName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>再创建一个商品工厂去继承抽象工厂方法。</p>
-<p>当还有其他类型的时候我们只需要去继承我们创建的工厂方法就可以了。<br>这个代码大家肯定都能实现出来，但是我们真正需要学习的是前辈们这种工厂模式的思想。把这种思想运用到我们真实的业务场景中，学以致用才能对我们有真正的提升。</p>
-<p>举个例子</p>
-<p>假设现在需要做一个分享商品图片，我们知道商品的类型有很多，比如无SKU商品，有SKU商品，下单分享，邀请分享…等一下列的场景，那我们怎么去设计这个代码做到更加的易懂，易读，今后扩展性好呢？<br>注：sku和spu是电商里面的名词，spu差不多跟item也就是商品是一个维度，一个商品item有很多sku，比如：iphone是一个商品是item也是spu，白色的iphone 12 64G就是一个具体的sku</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public interface Share &#123;</span><br><span class="line">    //获取分享类型</span><br><span class="line"></span><br><span class="line">    String getShareFunctionType();</span><br><span class="line"></span><br><span class="line">    String mainProcess(String shareName);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第一步我们应该都是定义一个创建分享模板</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ShareFactory &#123;</span><br><span class="line">    private List&lt;Share&gt; shareFunctionList;</span><br><span class="line"></span><br><span class="line">    //根据分享类型获取对应的分享处理方式</span><br><span class="line">    public Share getShareFunction(String type) &#123;</span><br><span class="line">        for(Share shareFunction : shareFunctionList) &#123;</span><br><span class="line">            if (shareFunction.getShareFunctionType().equals(type)) &#123;</span><br><span class="line">                return shareFunction;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumShareType &#123;</span><br><span class="line">        SUCCESS_ORDER(&quot;successOrder&quot;);</span><br><span class="line">        private String name;</span><br><span class="line"></span><br><span class="line">        EnumShareType(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第二步我们再创建一个分享工厂根据我们的类型获取我们预先加载在Spring容器中的bean实例<br>public class SuccessOrderShare implements Share {<br>    public String getShareFunctionType() {<br>        return ShareFactory.EnumShareType.SUCCESS_ORDER.getName();<br>    }</p>
-<pre><code>public String mainProcess(String shareName) &#123;
-    return shareNmae;
-&#125;
-</code></pre>
-<p>}<br><a href="https://imgse.com/i/pSCBWPf"><img src="https://s1.ax1x.com/2023/01/01/pSCBWPf.jpg" alt="pSCBWPf.jpg"></a></p>
-<p>最后就是定义我们不同的类型来实现分享图片。<br>其实我们学习设计模式就是这种思想，有了这种思想上面提到的三点又是才能体现出来对我们今后的成长，面对复杂业务设计以及思考能力才能提升。</p>
-<p>那么问题来了，什么时候改用工厂方法模式，而非简单工厂模式呢？<br>这里引用设计模式之美里面的一句话：当对象的创建逻辑比较复杂，不只是简单的new一下就可以，而是要组合其他类对象，做各种初始化操作的时候，我们推荐使用工厂方法模式，将复杂的创建逻辑拆分到多个工厂类中，让每个工厂类都不至于过于复杂。<br>而使用简单工厂模式，将所有的创建逻辑都放到一个工厂类中，会导致这个工厂类变得很复杂。</p>
-<h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2><p>看完工厂方法模式，在理解抽象工厂模式就更加简单，因为它其实就是工厂方法的一个延伸。<br>工厂方法类中只有一个唱响方法，要想实现多种不同的类对象，只能去创建不同的具体工厂方法的子类来实例化，而抽象工厂则是让一个工厂负责创建多个不同类型的对象。<br><a href="https://imgse.com/i/pSCDpL9"><img src="https://s1.ax1x.com/2023/01/01/pSCDpL9.jpg" alt="pSCDpL9.jpg"></a><br>样子可能有点丑，但是能说明问题，其实看上去可以分为以上几个部分组成：<br>抽象工厂类<br>具体工厂类<br>抽象类<br>抽象工厂类我个人可以理解为一个刚出厂的手机，具体抽象工厂则是认为是我们每个人对这个手机壁纸自定义设置，最后抽象类我理解就是手机壁纸。<br>我们每个人可以自定义不同的壁纸：例如动图，静图风景等等。</p>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>设计模式系列——流程引擎</title>
-    <url>/2023/01/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E6%B5%81%E7%A8%8B%E5%BC%95%E6%93%8E/</url>
-    <content><![CDATA[<p>在电商里面处理复杂的业务逻辑场景有很多，我们还是以创建商品为例子。很多人可能会问创建商品很复杂吗？</p>
-<span id="more"></span>
-
-<p>创建商品的流程：<br>参数必填性校验<br>参数数据转换<br>商品基础信息校验<br>商品与商家之间的校验<br>类目信息校验<br>商品交易信息校验（这个看公司业务决定）<br>SKU相关信息校验<br>商品是否需要有特定标签校验（看公司业务决定）<br>商品类型校验（普通，卡片，视频…….）<br>商品风控校验<br>保存商品信息<br>保存SKU信息<br>保存商品详情信息<br>重量模版<br>运费<br>配送区域<br>。。。。。。。<br>这里商品类型里面还涉及到各个业务场景校验，我们就先不谈了。针对这样的情况我们应该怎么去写这个代码呢？我翻看了一下以前大学写的一些代码整体的代码格式大概也就是这个样子<br><a href="https://imgse.com/i/pSCrA7n"><img src="https://s1.ax1x.com/2023/01/01/pSCrA7n.jpg" alt="pSCrA7n.jpg"></a><br>这么写其实也没有什么问题，功能也能实现。但是这么写其实有很多弊端：<br>1.代码可读性不高<br>2.代码扩展性不高<br>3.耦合性太强，有些东西不好公用<br>4.整体创建执行流程事件太长，串行调用下游服务</p>
-<p> 看到这样代码我们首先都是吐槽一番，然后还是老老实实去改，有动手能力强的会想着去优化一下。再看看这个流程，其实在创建商品的时候我们很多校验和保存数据是没有依赖且互不影响的，我们完全可以去并行执行。</p>
-<p>节省创建商品的流程时间，提高用户体验。（PS：就好比两条告诉一条堵车，一条畅通无阻，选哪条？）<br>所以针对这么并行问题我还是给大家画了一个流程图：<br><a href="https://imgse.com/i/pSCsXJP"><img src="https://s1.ax1x.com/2023/01/01/pSCsXJP.jpg" alt="pSCsXJP.jpg"></a><br>通过这张图我们看到创建一个商品流程，我们调用的下游服务可能是有十几二十几或者更多，假设我们一次RPC调用的平均返回时间是50毫秒，串行执行时间可能就1-2秒了，那么我们并行执行的话也就200到300毫秒了。</p>
-<p>所以本着这种思想可能会有人问，为什么我不能异步，不能用消息？创建商品假设用异步消息的话，如果消费失败那用户创建商品成功保存其他信息失败了，那对用户来说不是体验更加不好了</p>
-<p>说了这么多开始撸代码：<br><a href="https://imgse.com/i/pSCykiq"><img src="https://s1.ax1x.com/2023/01/01/pSCykiq.jpg" alt="pSCykiq.jpg"></a><br>先创建一个Context上下文，作为我们调用下游服务的返回结果<br><a href="https://imgse.com/i/pSCyAJ0"><img src="https://s1.ax1x.com/2023/01/01/pSCyAJ0.jpg" alt="pSCyAJ0.jpg"></a><br>第二步创建我们的流程节点，这相当于就是保存我们整个流程中需要执行下游服务的节点，以Map作为保存数据，NodeConf节点设置参数，自定义请求服务器超时时间（因为并行我们用的线程池或者通过get设置时间get返回值结果）<br><a href="https://imgse.com/i/pSPnMDJ"><img src="https://s1.ax1x.com/2023/01/02/pSPnMDJ.jpg" alt="pSPnMDJ.jpg"></a><br>第三步引擎类，这个也是我们的核心类。通过我们添加的node节点判断我们哪些流程是需要串行的哪些是需要并行的，通过线程池创建线程放入Feature中，来1达到同步执行的效果</p>
-<p>在使用线程池的时候我们需要考虑不要设置的参数过大，开启另外的线程也是会占用机器内存的，一个线程按照1兆来算的话，你开启几百上千个，也会占用很大一部分内存。尽可能的去采用池化的思想，这里就按大家实际场景去做测试了。</p>
-<p><a href="https://imgse.com/i/pSPnJC6"><img src="https://s1.ax1x.com/2023/01/02/pSPnJC6.jpg" alt="pSPnJC6.jpg"></a><br>第四步执行call方法，也就是执行我们的node节点</p>
-<p><a href="https://imgse.com/i/pSPnY8K"><img src="https://s1.ax1x.com/2023/01/02/pSPnY8K.jpg" alt="pSPnY8K.jpg"></a><br>第五步创建节点接口，这里我们定义一个ResultKey，这个Key也就是跟我流程中的这个节点绑定，在获取数据的时候也就是通过这个key来标识</p>
-<p><a href="https://imgse.com/i/pSPnNvD"><img src="https://s1.ax1x.com/2023/01/02/pSPnNvD.jpg" alt="pSPnNvD.jpg"></a><br>第六步因为我们在节点里面存的Class类，所以我们得通过实现ApplicationContextAware类来获取Spring容器中得bean实例</p>
-<p><a href="https://imgse.com/i/pSPn68f"><img src="https://s1.ax1x.com/2023/01/02/pSPn68f.jpg" alt="pSPn68f.jpg"></a><br>第七步那就是来创建两个测试node节点</p>
-<p><a href="https://imgse.com/i/pSPRVmT"><img src="https://s1.ax1x.com/2023/01/02/pSPRVmT.jpg" alt="pSPRVmT.jpg"></a><br><a href="https://imgse.com/i/pSPRZ0U"><img src="https://s1.ax1x.com/2023/01/02/pSPRZ0U.jpg" alt="pSPRZ0U.jpg"></a><br>最后当然就是我们得测试结果了，这里我们创建两个节点NodeOne和NodeTwo作为模拟真实业务场景得节点，通过一个后面得three作为一个group需要并执行的节点。<br>看完代码最后再给大家来一个总体的流程图吧<br><a href="https://imgse.com/i/pSPRutJ"><img src="https://s1.ax1x.com/2023/01/02/pSPRutJ.jpg" alt="pSPRutJ.jpg"></a><br>看完是不是觉得感觉自己顿悟，以后面对再复杂的流程业务也能拿下了。</p>
-<p>思考：<br>其实这里还有很多优化点，每个人遇到的复杂的场景可能也不一样，只能说给大家提供一个思想吧，针对不同的场景大家再去做改造吧</p>
-<p>扩展：<br>细心的同学可能都会发现这都是强依赖性，能不能有弱依赖在里面呢？<br>答案：<br>当然可以有弱依赖了，在FlowNode.NodeConf中我们既然可以设置超时时间，我们也可以再添加一个参数来确定是都是弱依赖。在我们的future.get获取结果的时候当出现异常可以catch住，强依赖则终止流程返回错误信息，否则记录错误日志，流程continue</p>
-<p>我们流程保存现在是用的静态代码块，可不可以换其他的方式保存节点呢？</p>
-<p>答案：这个当然也可以，我们保存在数据库，ACM，Apollo等等都是可以的。这个取决于你们自己的业务和成本问题。因为流程我们一般是不会经常换的，所以我还是建议代码写死就可以了</p>
-<p>采用线程池去调用下游服务，会不会造成服务链路追踪失败呢？</p>
-<p>答案：这个不能说绝对，但是如果是保存再ThreadLocal中那肯定会失效的，ThreadLocal中的KEY也就是跟当前线程的ID有关，都开启新的线程了，那肯定也就是丢失了</p>
-<p>如果采用ThreadLocal在节点中是不是就失效了</p>
-<p>答案：第三点已经给出答案了</p>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -4853,6 +4613,246 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 ]]></content>
       <tags>
         <tag>web3</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>函数响应式编程——RxJava</title>
+    <url>/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/</url>
+    <content><![CDATA[<p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
+<span id="more"></span>
+<p>RxJava是ReactiveX的一种Java实现，ReactiveX是Reactive Extensions的缩写，一般简写为Rx。<br>微软的定义是：Rx是一个函数库，让开发者可以利用可观察序列和LINQ风格查询操作符来编写异步和基于事件的程序。开发者可以用Observables表示异步数据流，用<br>LINQ操作符查询一部数据流，用Schedulers参数化一部数据流的并发处理，Rx可以这样定义：Rx &#x3D; Observables+LINQ+Schedulers。</p>
+<p>1.为何要用RxJava<br>说到异步操作，我们会想到Android的AsyncTask和Handler。但是随着请求的数量越来越多，代码逻辑将会变得越来越复杂而RxJava却仍旧能保持清晰的逻辑。<br>RxJava的原理就是创建一个Observable对象来干活，然后使用各种操作符建立起来的链式操作，就如同流水线一样，把你想要处理的数据一步一步地加工成你<br>想要的成品，然后发射给Subscriber处理</p>
+<p>2.RxJava与观察者模式<br>RxJava的异步操作是通过扩展的观察者模式来实现的。RxJava有4个角色Observable、Observer、Subscriber和Suject，这4个角色后面会具体讲解。<br>Observable和Observer 通过subscribe方法实现订阅关系，Observable就可以在需要的时候通知Observer</p>
+<p>3.RxJava的基本实现<br>1）创建Observer(观察者)<br>它决定事件触发的时候将有怎样的行为，其中onCompleted、onError和onNext是必须要实现的方法。<br>2）创建Observable(被观察者)<br>它决定什么时候触发事件以及触发怎样的事件。RxJava使用create方法，just方法，或者from方来创建一个Observable<br>2）Subscribe(订阅)<br>订阅只需要一行代码就可以了<br>observable.subscribe(subscriber)</p>
+<p>3.Subject<br>subject既可以是一个Observer，也可以是一个Observerable,它是连接Observer和Observerable的桥梁，因此，Subject可以被理解为Subject&#x3D;Observable+Observer。<br>RxJava提供了以下4种Subject:</p>
+<ol>
+<li>PublishSubject<br>publishsubject只会把在订阅发生的事件点之后来自原始Observable的数据发生给观察者。如果要确保来自原始Observable的所有数据都被分发，<br>则可以当所有观察者都已经订阅时才开始发射数据，或者改用ReplaySubject。<br>2）BehaviorSubject<br>当Observer订阅BehaviorSubject时，它开始发射原始Observable最近发射的数据<br>3）ReplaySubject<br>不管Observer何时订阅ReplaySubject，ReplaySubject均会发射所有来自原始Observable的数据给Observer。如果使用ReplaySubject作为Observer，注意不要在多个线程中调用onNext、onComplete和onError方法。这可能会导致顺序错乱，并且违反了Observer规则。<br>4）AsyncSubject<br>当Observable完成时，AsyncSubject只会发射来自原始Observable的最后一个数据</li>
+</ol>
+<p>4.RxJava操作符<br>RxJava操作符的类型分为创建操作符、变换操作符、过滤操作符、组合操作符、错误处理操作符、辅助操作符、条件和布尔操作符、算术和聚合操作符及连接操作符等，<br>而这些操作符类型下又有很多操作符，每个操作符可能还有很多变体。</p>
+<p>创建操作符：create,just,from,defer,range,interval,start,repeat,timer<br>变换操作符：map,flatMap,concatMap,switchMap等<br>过滤操作符：filter,elementAt,distince,skip,take<br>组合操作符：startWith,merge,concat,zip</p>
+]]></content>
+      <tags>
+        <tag>RxJava</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用Android sharesheet在Android应用程序中分享内容和链接</title>
+    <url>/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/</url>
+    <content><![CDATA[<p>为何要使用Android sharesheet<br>主要有三点原因：</p>
+<ol>
+<li>谷歌官方推荐使用</li>
+<li>Target SDK 30 以上，包名可见性发生了变更，默认情况下，应用与应用是不可见的，换句话说，如果使用queryIntentActivities()方法，不一定能够获取到所有intent对应的activity，这样就给分享intent造成了麻烦。</li>
+<li>Android sharesheet提供了包括界面、结果收集、固定前置和屏蔽指定app在内的全套功能，可以节省设计和开发资源<span id="more"></span></li>
+</ol>
+<h2 id="使用Android-sharesheet的基础步骤"><a href="#使用Android-sharesheet的基础步骤" class="headerlink" title="使用Android sharesheet的基础步骤"></a>使用Android sharesheet的基础步骤</h2><p>Android sharesheet的使用十分简单，大致分为两个步骤：准备intent，使用intent调起分享弹窗。<br>将会使用3个例子来展现sharesheet的使用，本别是：分享一段文字(可以包含某个链接)，分享一个视频，分享多个视频</p>
+<h3 id="准备intent："><a href="#准备intent：" class="headerlink" title="准备intent："></a>准备intent：</h3><h3 id="分享一段文字："><a href="#分享一段文字：" class="headerlink" title="分享一段文字："></a>分享一段文字：</h3><p>如果只是想分享一段文字，并且文字中包含了一个跳转链接，是比较简单的：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//linkWtihText 就是想要分享的文字，实际使用时常常包含一段跳转链接</span><br><span class="line">val sendIntent: Intent = Intent().apply &#123;</span><br><span class="line">    action = Intent.ACTION_SEND</span><br><span class="line">    putExtra(Intent.EXTRA_TEXT, linkWtihText)</span><br><span class="line">    type = &quot;text/plain&quot;</span><br><span class="line">&#125;</span><br><span class="line">//使用sendIntent来制作分享跳转使用的intent</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, &quot;null&quot;)</span><br><span class="line">//添加flag</span><br><span class="line">shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br></pre></td></tr></table></figure>
+
+<h3 id="分享一个视频："><a href="#分享一个视频：" class="headerlink" title="分享一个视频："></a>分享一个视频：</h3><p>其实质是分享一个视频媒体文件，所以分享一个音乐、一张图片等也是类似的步骤。首先，我们需要制作一个待分享的文件的uri，此处使用FileProvider：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//把路径转换成可以用来分享的Uri，path：待分享的文件路径</span><br><span class="line">private fun createFileUriWithPath(context: Context, path: String): Uri &#123;</span><br><span class="line">    val shareFile = File(path)</span><br><span class="line">    return FileProvider.getUriForFile(</span><br><span class="line">        context,</span><br><span class="line">        &quot;com.miui.localvideoplayer.shareprovider&quot;,</span><br><span class="line">        shareFile</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，基于以上方法制作的uri，制作分享intent：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">val shareUri = createFileUriWithPath(appContext, path)</span><br><span class="line">val sendIntent = Intent()</span><br><span class="line">sendIntent.action = Intent.ACTION_SEND</span><br><span class="line">sendIntent.putExtra(Intent.EXTRA_STREAM, shareUri)</span><br><span class="line">sendIntent.data = shareUri</span><br><span class="line">//此处需要对uri赋予可读取的权限</span><br><span class="line">sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)</span><br><span class="line">sendIntent.type = &quot;video/*&quot;</span><br><span class="line">//使用sendIntent来制作分享跳转使用的intent</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, &quot;null&quot;)</span><br><span class="line">//添加flag</span><br><span class="line">shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br></pre></td></tr></table></figure>
+
+<h3 id="分享多个视频："><a href="#分享多个视频：" class="headerlink" title="分享多个视频："></a>分享多个视频：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//shareList: ArrayList&lt;String&gt; 待分享的文件路径列表</span><br><span class="line"></span><br><span class="line">if (shareList.size == 1) &#123;</span><br><span class="line">    //如果列表中只有一个文件，那么请将其当作单个文件分享，以获取更多的接受方</span><br><span class="line">    shareSingleVideoFile(context, shareList[0])</span><br><span class="line">    return</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">val shareUriList = java.util.ArrayList&lt;Uri&gt;()</span><br><span class="line">for (path in shareList) &#123;</span><br><span class="line">    //仍然需要用到上文提到的制作uri的方法，将uri们保存在一个list里</span><br><span class="line">    val shareUri = createFileUriWithPath(appContext, path)</span><br><span class="line">    shareUriList.add(shareUri)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">val sendIntent = Intent()</span><br><span class="line">//此处的action为ACTION_SEND_MULTIPLE</span><br><span class="line">sendIntent.action = Intent.ACTION_SEND_MULTIPLE</span><br><span class="line">sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, shareUriList)</span><br><span class="line">sendIntent.type = &quot;video/*&quot;</span><br><span class="line">sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, &quot;null&quot;)</span><br><span class="line">shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用intent调起分享弹窗："><a href="#使用intent调起分享弹窗：" class="headerlink" title="使用intent调起分享弹窗："></a>使用intent调起分享弹窗：</h3><p>使用context.startActivity方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mContext.startActivity(shareIntent)</span><br></pre></td></tr></table></figure>
+
+<h2 id="将某些接收端固定前置-x2F-将某些接收端屏蔽"><a href="#将某些接收端固定前置-x2F-将某些接收端屏蔽" class="headerlink" title="将某些接收端固定前置&#x2F;将某些接收端屏蔽"></a>将某些接收端固定前置&#x2F;将某些接收端屏蔽</h2><p>在实际的使用中，我们经常想要将某些应用前置在我们的分享弹窗中，例如，我希望用户把我们的链接分享到facebook,whatsapp,messenger,telegram中，这样可以方便我们进行裂变转播，sharesheet也可以做到。<br>实现方法也十分简单，只要给shareInent增加一个key为Intent.EXTRA_INITIAL_INTENTS的extra，并且往里传入一个sendIntent的typedArray，就可以了<br>首先，制作需要前置分享的app的intent list</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fun getExtraInitialIntent(text: String): ArrayList&lt;Intent&gt; &#123;</span><br><span class="line">    val intentShareList = ArrayList&lt;Intent&gt;()</span><br><span class="line">    //需要前置的receiver app的包名</span><br><span class="line">    var shareItems = </span><br><span class="line">        arrayOf(</span><br><span class="line">            &quot;com.facebook.katana&quot;,</span><br><span class="line">            &quot;com.whatsapp&quot;,</span><br><span class="line">            &quot;com.facebook.orca&quot;,</span><br><span class="line">            &quot;org.telegram.messenger&quot;</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line">    for (packageName in shareItems) &#123;</span><br><span class="line">        val intent = Intent()</span><br><span class="line">        intent.action = Intent.ACTION_SEND</span><br><span class="line">        intent.type = &quot;text/plain&quot;</span><br><span class="line">        intent.setPackage(packageName)</span><br><span class="line">        intent.putExtra(Intent.EXTRA_TEXT, text)</span><br><span class="line">        intentShareList.add(intent)</span><br><span class="line">    &#125;</span><br><span class="line">    return intentShareList</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，将其转换为TypedArray并且携带给shareIntent</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shareIntent.putExtra(</span><br><span class="line">    Intent.EXTRA_INITIAL_INTENTS,</span><br><span class="line">    getExtraInitialIntent(arrayListOf(path)).toTypedArray()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>同样的，我们也可以在sharesheet中排除某个receiver，比如，如果选择小米文档查看器作为receiver，那么它将把分享的文字内容当作一段地址来尝试读取某个文件，显然，这不符合我们的业务需求，并且会造成bug。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">private fun getExtraExcludeComponents(intent: Intent): ArrayList&lt;ComponentName&gt; &#123;</span><br><span class="line">    val excludeList = ArrayList&lt;ComponentName&gt;()</span><br><span class="line">    val extraExcludedItems = arrayOf(&quot;cn.wps.xiaomi.abroad.lite&quot;)</span><br><span class="line">    val pm = FrameworkApplication.getAppContext().packageManager</span><br><span class="line">    val targets = pm.queryIntentActivities(intent, 0)</span><br><span class="line">    for (resolveInfo in targets) &#123;</span><br><span class="line">        val targetPackage = resolveInfo.activityInfo.packageName</span><br><span class="line">        val appName = resolveInfo.activityInfo.name</span><br><span class="line">        for (packageName in extraExcludedItems) &#123;</span><br><span class="line">            if (packageName.equals(targetPackage, true)) &#123;</span><br><span class="line">                excludeList.add(ComponentName(targetPackage, appName))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return excludeList</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在制作shareIntent时，加入extra，使用EXTRA_EXCLUDE_COMPONENTS关键字，将其排除。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shareIntent.putExtra(</span><br><span class="line">                    Intent.EXTRA_EXCLUDE_COMPONENTS,</span><br><span class="line">                    getExtraExcludeComponents(sendIntent).toTypedArray()</span><br><span class="line">                )</span><br></pre></td></tr></table></figure>
+
+<h2 id="收集分享的结果"><a href="#收集分享的结果" class="headerlink" title="收集分享的结果"></a>收集分享的结果</h2><p>用户在点击分享后，需要在分享弹窗中选择一个渠道进行分享，例如，选择Facebook进行分享，而我们如果想要收集用户最后点击的选项，那么可以在Intent.createChooser(sendIntent, “null”, “null”)方法中传入一个广播接收器，从而可以接受用户点击后发出的广播。<br>首先，我们需要一个广播接收器类：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">class LocalShareBroadCastReceiver : BroadcastReceiver() &#123;</span><br><span class="line">    override fun onReceive(context: Context?, intent: Intent?) &#123;</span><br><span class="line">        val clickedComponentName = intent?.getParcelableExtra&lt;ComponentName&gt;(Intent.EXTRA_CHOSEN_COMPONENT)</span><br><span class="line">        val packageName = clickedComponentName?.packageName</span><br><span class="line">        //packageName就是用户最终点选的包名，此处可以进行打点等统计操作</span><br><span class="line">        context?.unregisterReceiver(this)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其次，我们需要创建一个接收器实例，并且动态注册，之后再返回一个intentSender用于构造shareIntent</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//建议将localShareBroadCastReceiver 保存成为static final常量，在每次分享操作时，检查是否被注册。多次注册广播接收器会使得用户在第二次分享的时候执行两次onReceive中的操作</span><br><span class="line">val localShareBroadCastReceiver = LocalShareBroadCastReceiver()</span><br><span class="line"></span><br><span class="line">val sender = registerShareReceiver(</span><br><span class="line">    appContext, &quot;com.videoplayer.SHARE_ACTION_LOCAL&quot;,</span><br><span class="line">    localShareBroadCastReceiver</span><br><span class="line">)</span><br><span class="line">val shareIntent = Intent.createChooser(sendIntent, &quot;null&quot;, sender)</span><br></pre></td></tr></table></figure>
+
+<p>其中，registerShareReceiver方法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fun registerShareReceiver(</span><br><span class="line">    context: Context,</span><br><span class="line">    action: String,</span><br><span class="line">    receiver: BroadcastReceiver</span><br><span class="line">): IntentSender &#123;</span><br><span class="line">    val receiverIntent = Intent(action)</span><br><span class="line">    receiverIntent.putExtra(&quot;test&quot;, &quot;test&quot;)</span><br><span class="line">    val pi = PendingIntent.getBroadcast(</span><br><span class="line">        FrameworkApplication.getAppContext(),</span><br><span class="line">        10000,</span><br><span class="line">        receiverIntent,</span><br><span class="line">        //Android 12 以上，一定要加PendingIntent.FLAG_MUTABLE，不然将不会收到回调</span><br><span class="line">        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE</span><br><span class="line">    )</span><br><span class="line">    context.registerReceiver(</span><br><span class="line">        receiver,</span><br><span class="line">        IntentFilter(action)</span><br><span class="line">    )</span><br><span class="line">    return pi.intentSender;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如前文注释中提到的，多次注册广播接收器会使得用户在第二次分享的时候执行两次onReceive中的操作，因此建议将localShareBroadCastReceiver 保存成为static final常量，在每次分享操作时，尝试反注册，保证每次分享操作仅有1个receiver进行监听。<br>Android开发者：应用数据和文件<br><a href="https://developer.android.google.cn/training/sharing">https://developer.android.google.cn/training/sharing</a> </p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何解决hexo首页显示博客的全部文章</title>
+    <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
+<span id="more"></span>
+
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p><code>首页在主题的_config.yml中把设置打开：（安装时默认就打开了） excerpt_description: true</code></p>
+<h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
+<h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>深入理解进程和线程</title>
+    <url>/2022/09/21/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B/</url>
+    <content><![CDATA[<span id="more"></span>
+
+<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p>平时helloworld这样的程序在现代系统上运行时，操作系统会提供一种假象，就好像系统上只有这个程序在运行。程序看上去是独占地使用处理器、主存和IO设备。处理器看上去就像在不间断地一条接一条执行程序中的指令，即该程序的代码和数据是系统内存中唯一的对象，这些假象是通过进程的概念来实现的，进程是计算机科学中最重要和最成功的概念之一。<br>进程是操作系统对一个正在运行的程序的一种抽象。在一个系统上可以同时运行多个进程，而每个进程都好像在独占地使用硬件。而并发运行，则是说一个进程的指令和另一个进程的指令是交错执行的。在大多数系统中。需要运行的进程数是多于可以运行它们的CPU个数的。传统系统在一个时刻只能执行一个程序，而先进的多核处理器同时能够执行多个程序。无论是在单核还是在多核系统中，一个CPU看上去都像是在并发执行多个进程，这是通过处理器在进程间切换来实现的。操作系统实现这种交错执行的机制称为上下文切换。（为了简化，下面的讨论我们只考虑包含一个CPU的单处理器系统的情况）<br>操作系统保持跟踪进程运行所需的所有状态信息。这种状态，也就是上下文，包括许多信息，比如PC和寄存器文件的当前值，以及主存的内容。在任何一个时刻，单处理器系统都只能执行一个进程的的代码，当操作系统决定要把控制权从当前进程转移到某个新进程时，就会进行上下文切换，及保存当前进程的上下文，恢复新进程的上下文，然后将控制权传递到新进程。新进程就会从它上次停止的地方开始。下图展示了程序运行场景的基本理念。<br><img src="https://s3.bmp.ovh/imgs/2022/09/25/9a7e5808598c7948.jpg"><br>示例场景中有两个并发的进程：shell进程和hello进程。最开始，只有shell进程在运行，即等待命令行上的输入。当我们让它运行hello程序时，shell通过调用一个专门的函数，即系统调用，来执行我们的请求，系统调用会将控制权传递给操作系统。操作系统保存shell进程的上下文，创建一个新的hello进程以及其上下文，然后将控制权传给新的hell咯进程。hello进程终止后，操作系统恢复shell进程的上下文，并将控制权传回给它，shell进程会继续等待下一个命令行输入。<br>如上图所示，从一个进程到另一个进程的转换是由操作系统内核管理的，内核时操作系统代码常驻主存的部分。当应用程序需要操作系统的某些操作时，比如读写文件，它就执行一条特殊的系统调用（system call）指令，将控制权传递给内核。然后内核执行被请求的操作并返回应用程序。注意，内核不是一个独立的进程。相反，它是系统管理全部进程所用代码和数据结构的集合。<br>实现进程这个抽象概念需要低级硬件和操作系统软件之间紧密合作。</p>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>尽管通常我们认为一个进程只有单一的控制流，但是在现代系统中，一个进程实际上可以由多个称为线程的执行单元组成，每个线程都运行在进程的上下文中，并共享同样的代码和全局数据。由于网络服务器中对并行处理的需求，线程称为越来越重要的编程模型，因为多线程之间比多进程之间更容易共享数据，也因为线程一般来说都比进程更高效。当有多处理器可用的时候，多线程也是一种使得程序可以运行得更快得方法。</p>
+<h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><p>虚拟内存是一个抽象概念，它为每个进程提供一个假象，即每个进程都在独占地使用主存。每个进程看到内存都是一致得，称为虚拟地址空间。下图所示是Linux进程的虚拟地址空间（其他Unix系统的设计也与此类似）。在Linux中，地址空间最上面的区域是保留给操作系统中的代码和数据的，这对所有进程来说都是一样的。地址空间的底部区域存放用户进程定义的代码和数据。请注意，途中的地址是从下往上增大的。<br><img src="https://s3.bmp.ovh/imgs/2022/09/25/39151a55fce31299.png"><br>每个进程看到的虚拟地址空间由大量准确定义的区构成，每个区都有专门的功能，以下从最低的地址开始，逐步向上介绍：</p>
+<h3 id="程序代码和数据"><a href="#程序代码和数据" class="headerlink" title="程序代码和数据"></a>程序代码和数据</h3><p>对所有的进程来说，代码是从同一固定地址开始，紧接着的是和PC全局变量相对应的数据位置。代码和数据区是直接按照可执行目标文件的内容初始化的，在示例中就是可执行文件hello，</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>代码和数据区后紧随着的是运行时堆。代码和数据区在进程一开始运行时就被制定了大小，与此不同，当调用像malloc和free这样的C标准库函数时，堆可以在运行时动态地扩展和收缩。</p>
+<h3 id="共享库"><a href="#共享库" class="headerlink" title="共享库"></a>共享库</h3><p>大约在地址空间中的中间部分是一块用来存放像C标准库和数学库这样的共享库的代码和数据的区域，共享库的概念非常强大，</p>
+<h3 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h3><p>位于用户虚拟地址空间顶部的是用户栈，编译器用它来实现函数调用，和堆一样，用户栈在程序执行期间可以动态地扩展和收缩。特别地，每次我们调用一个函数时，栈就会增长；从一个函数返回时，栈就会收缩。</p>
+<h3 id="内存虚拟内存"><a href="#内存虚拟内存" class="headerlink" title="内存虚拟内存"></a>内存虚拟内存</h3><p>地址空间顶部的区域是为内核保留的，不允许应用程序读写这个区域的内容或者直接调用呢耦合代码定义的函数。相反，它们必须调用内核来执行这些操作</p>
+<p>虚拟内存的运作需要硬件和操作系统软件之间精密复杂的交互，包括对处理器生成的每个地址的硬件编译。其基本思想是把一个进程虚拟内存的内容存储在磁盘上，然后主存作为磁盘的高速缓存，</p>
+<h3 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h3><p>文件就是字节序列，仅此而已。每个IO设备，包括磁盘，键盘，显示器，甚至网络，都可以看成是文件，系统中所有输入输出都是通过使用一小组称为Unix I&#x2F;O的系统函数调用读写文件按来实现的<br>文件这个简单而精致的概念是非常强大的，因为它向应用程序中提供了一个统一的试图，来看待系统中可能含有的所有各式各样的I&#x2F;O设备。例如，处理磁盘文件内容的应用程序员可以非常幸福，因为他们无需了解具体的磁盘技术，进一步说，同一个程序可以在使用不同磁盘技术的不同系统上运行。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>设计模式系列 — 单例模式</title>
+    <url>/2022/12/12/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97-%E2%80%94-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p>开篇给大家一个思考题：为什么不用静态方法而用单例模式？</p>
+<span id="more"></span>
+
+<p>单例的定义：在当前进程中，通过单例模式创建的类有且只有一个实例。</p>
+<p>单例有如下几个特点：<br>1.在Java应用中，单例模式能保证在一个JVM中，该对象只有一个实例存在<br>2.构造器必须是私有的，外部类无法通过调用构造器创建该实例<br>3.没有公开的set方法，外部类无法调用set方法创建该实例<br>4.提供一个公开的get方法获取唯一的这个实例</p>
+<p>那单例模式有什么好处呢？<br>1.某些类创建比较频繁，对于一些大型的对象，这是一笔很大的系统开销<br>2.省去了new操作符，降低了系统内存的使用频率，减轻GC压力<br>3.系统中某些类，如Spring里的controller，控制着处理流程，如果该类可以创建多个的话，系统就全乱了<br>4.避免了对资源的重复占用</p>
+<p>好了，单例模式的定义也清楚了，好处也了解了，先看一个饿汉式的写法：</p>
+<h2 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">  // 创建一个实例对象</span><br><span class="line">    private static Singleton instance = new Singleton();</span><br><span class="line">    /**</span><br><span class="line">     * 私有构造方法，防止被实例化</span><br><span class="line">     */</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    /**</span><br><span class="line">     * 静态get方法</span><br><span class="line">     */</span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之所以叫饿汉式大家可以理解为它饿，他想提前把对象new出来，这样别人哪怕是第一次获取这个类对象的时候直接就存在这个类了，省去了创建类这一步开销。</p>
+<p>下面介绍懒汉式</p>
+<h2 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h2><p>线程不安全的模式</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;  </span><br><span class="line">    private static Singleton instance;  </span><br><span class="line">    private Singleton ()&#123;&#125;  </span><br><span class="line">  </span><br><span class="line">    public static Singleton getInstance() &#123;  </span><br><span class="line">    if (instance == null) &#123;  </span><br><span class="line">        instance = new Singleton();  </span><br><span class="line">    &#125;  </span><br><span class="line">    return instance;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>懒汉式大家可以理解为它懒，别人第一次调用的时候他发现自己的实例是空的，然后去初始化了，再赋值，后面的调用就和饿汉没区别了。</p>
+<p>懒汉和饿汉的对比：大家可以发现两者的区别基本上就是第一次创作时候的开销问题，以及线程安全问题（线程不安全模式的懒汉）。<br>那有了这个对比，那他们的场景就好理解了，在很多电商场景，如果这个数据是经常访问的热点数据，那我就可以再系统启动的时候使用饿汉模式提前加载（类似缓存的预热）这样哪怕是第一个用户调用都不会存在创建开销，而且调用频繁也不存在内存浪费了。</p>
+<p>而懒汉式呢我们可以用在不怎么热的地方，比如那个数据你不确定很长一段时间是不是有人调用，那就用懒汉，如果你使用了饿汉，但是过了几个月还没有人调用，提前加载的类再内存中是由资源浪费的。</p>
+<h2 id="线程安全问题"><a href="#线程安全问题" class="headerlink" title="线程安全问题"></a>线程安全问题</h2><p>上面的懒汉我是故意没有加锁的，大家肯定都知道懒汉的线程安全问题<br><a href="https://imgse.com/i/z4IcQK"><img src="https://s1.ax1x.com/2022/12/13/z4IcQK.jpg" alt="z4IcQK.jpg"></a><br>在运行过程中可能存在这么一种情况：多个线程去调用getInstance方法来获取Singleton的实例，那么就有可能发生一种情况，当第一个线程在执行if(instance &#x3D;&#x3D; null)时，此时instance是为null的进入语句。</p>
+<p>在还没有执行instance &#x3D; new Singleton()时（此时instance是为null的）第二个线程也进入了if(instance &#x3D;&#x3D; null)这个语句，因为之前进入这个语句的线程中还没有执行instance &#x3D; new Singleton()，所以它会执行instance &#x3D; new Singleton()来实例化Singleton对象，因为第二个线程也进入了if语句所以它会实例化Singleton对象。</p>
+<p>这样就导致了实例化两个Singleton对象，那怎么解决呢？</p>
+<p>简单粗暴，加锁就好了，这是加锁之后的代码。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">    private static Singleton instance = null;</span><br><span class="line">    /**</span><br><span class="line">     * 私有构造方法，防止被实例化</span><br><span class="line">     */</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    /**</span><br><span class="line">     * 静态get方法</span><br><span class="line">     */</span><br><span class="line">    public static synchronized Singleton getInstance()&#123;</span><br><span class="line">        if(instance == null)&#123;</span><br><span class="line">            instance = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一种典型的时间换空间的写法，不管三七二十一，每次创建实例时先锁起来，在进行判断，严重降低了系统的处理速度。</p>
+<p>有没有更好的处理方式呢？<br>有，通过双检锁做两次判断，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">    private static Singleton instance = null;</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        //先检查实例是否存在，如果不存在才进入下面的同步块</span><br><span class="line">        if(instance == null)&#123;</span><br><span class="line">            //同步块，线程安全的创建实例</span><br><span class="line">            synchronized (Singleton.class) &#123;</span><br><span class="line">                //再次检查实例是否存在，如果不存在才真正的创建实例</span><br><span class="line">                if(instance == null)&#123;</span><br><span class="line">                    instance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将synchronized关键字加在了内部，也就是说当调用的时候是不需要加锁的，只有在instance为null，并创建对象的时候才需要加锁，性能有一定的提升。</p>
+<p>但是，这样就没有问题了吗？</p>
+<p>看下面的情况：在Java指令中创建对象和赋值操作是分开进行的，也就是说instance &#x3D; new Singleton();语句是分两部执行的。</p>
+<p>但是JVM并不保证这两个操作的先后顺序，也就是说有可能JVM会为新的Singleton实例分配空间，然后直接赋值给instance成员，然后再去初始化这个Singleton实例。</p>
+<p>这样就可能出错了，我们以A、B两个线程为例：<br>1.A、B线程同时进入了第一个if判断<br>2.A首先进入synchronized块，由于instance为null，所以它执行instance &#x3D; new Singleton();<br>3.由于JVM内部的优化机制，JVM先画了一些分配给Singleton实例的空白内存，并赋值给instance成员（注意此时JVM没有开始初始化这个实例），然后A离开了synchronized块。<br><a href="https://imgse.com/i/z4oQOO"><img src="https://s1.ax1x.com/2022/12/13/z4oQOO.jpg" alt="z4oQOO.jpg"></a><br>4.B进入synchronized块，由于instance此时不是null，因此它马上离开了synchronized块并将结果返回给调用该方法的程序。<br>5.此时B线程打算使用singleton实例，却发现它并没有被初始化，于是出现了错误。<br>加上volatile修饰Singleton，再做一次优化：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line">    private volatile static Singleton instance = null;</span><br><span class="line">    private Singleton()&#123;&#125;</span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        //先检查实例是否存在，如果不存在才进入下面的同步块</span><br><span class="line">        if(instance == null)&#123;</span><br><span class="line">            //同步块，线程安全的创建实例</span><br><span class="line">            synchronized (Singleton.class) &#123;</span><br><span class="line">                //再次检查实例是否存在，如果不存在才真正的创建实例</span><br><span class="line">                if(instance == null)&#123;</span><br><span class="line">                    instance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过volatile修饰的变量，不会被线程本地缓存，所有线程对该对象的读写都会第一时间同步到主内存，从而保证多个线程间对该对象的准确性</p>
+<h2 id="volatile的作用"><a href="#volatile的作用" class="headerlink" title="volatile的作用"></a>volatile的作用</h2><p>防止指令重排序，因为instance &#x3D; new Singleton()不是原子操作<br>保证内存可见</p>
+<p>这个是比较完美的写法了，这种方式能够安全的创建唯一的一个实例，又不会对性能有太大的影响。</p>
+<p>但是由于volatile关键字可能会屏蔽掉虚拟机中一些必要的代码优化，所以运行效率并不是很高，还有更优的写法吗？</p>
+<p>通过静态内部类</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Singleton &#123;  </span><br><span class="line">  </span><br><span class="line">    /* 私有构造方法，防止被实例化 */  </span><br><span class="line">    private Singleton() &#123;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    /* 此处使用一个内部类来维护单例 */  </span><br><span class="line">    private static class SingletonFactory &#123;  </span><br><span class="line">        private static Singleton instance = new Singleton();  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    /* 获取实例 */  </span><br><span class="line">    public static Singleton getInstance() &#123;  </span><br><span class="line">        return SingletonFactory.instance;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    /* 如果该对象被用于序列化，可以保证对象在序列化前后保持一致 */  </span><br><span class="line">    public Object readResolve() &#123;  </span><br><span class="line">        return getInstance();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>使用内部类来维护单例的实现，JVM内部的机制能够保证当一个类加载的时候，这个类的加载过程是线程互斥的。</p>
+<p>这样当我们第一次调用getInstance的时候，JVM能够帮我们保证instance只被创建一次，并且会保证把赋值给instance的内存初始化完毕，这样我们就不用担心上面的问题。</p>
+<p>同时该方法也只会在第一次调用的时候使用互斥机制，这样就解决了低性能问题。这样我们暂时总结一个完美的单例模式。</p>
+<p>还有更完美的写法吗？通过枚举</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public enum Singleton &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 定义一个枚举的元素，它就代表了Singleton的一个实例。</span><br><span class="line">     */</span><br><span class="line">    Instance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用枚举来实现单实例控制会更加简洁，而且JVM从根本上提供保障，绝对防止多次实例化，是更简洁，高效，安全的实现单例的方式。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>最后大家应该都知道单例模式的写法了，也知道优劣势和使用场景了，那开头的那个问题大家心里有答案了么？</p>
+<p>什么？连问题都忘了？问题：为什么不用静态方法而用单例模式？</p>
+<p>两者其实都能实现我们加载的最终目的，但是他们一个是基于对象，一个是面向对象的，就像我们不面向对象也能解决问题一样，面向对象的代码提供一个更好的编程思想。</p>
+<p>如果一个方法和他所在类的实例对象无关，那么它就应该是静态的，反之他就应该是非静态的。如果我们确实应该使用非静态的方法，但是在创建类时又确实只需要维护一份实例时，就需要用单例模式了。</p>
+<p>我们的电商系统中就有很多类，有很多配置和属性，这些配置和属性是一定存在了，又是公共的，同时需要在整个生命周期中都存在，所以只需要一份就行，这个时候如果需要我再需要的时候new一个，再给他分配值，显然是浪费内存并且再赋值没什么意义。</p>
+<p>所以我们用单例模式或静态方法去维持一份这些值有且只有这一份值，但此时这些配置和属性又是通过面向对象的编码方式得到的，我们就应该使用单例模式，或者不是面向对象的，但他本身的属性应该是面对对象的，我们使用静态方法虽然能同样解决问题，但是最好的解决方案也应该是使用单例模式。</p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>设计模式系列——工厂模式</title>
+    <url>/2022/12/21/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p>学习技术深度的时候（看一些框架的源码）总感觉只理解了表面，而没有理解里面的思想。<br>这里大家应该都知道我想说什么，就是设计模式。</p>
+<span id="more"></span>
+
+<p>今天聊一下工厂模式，工厂模式在我们的电商领域的应用是非常广泛的，写之前我看了自己电脑项目的代码，确实随处可见。<br>工厂模式主要可以分为三大类：<br>简单工厂模式<br>工厂方法模式<br>抽象工厂模式</p>
+<p>今天我也主要围绕这三种模式来举例了解一下</p>
+<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>工厂模式主要是用于对实现逻辑的封装，并且通过对公共的接口提供对象的实例化的服务，在我添加新的类时不需要大动干戈，只要修改一点就好。</p>
+<p>举个电商业务是怎么创建商品的：<br><a href="https://imgse.com/i/zXVPc8"><img src="https://s1.ax1x.com/2022/12/21/zXVPc8.jpg" alt="zXVPc8.jpg"></a><br>在这个简单工厂里面，如果要创建活动商品1以及活动商品2，我们要创建商品的时候只要调用简单工厂里面的创建商品方法，根据类型创建出不同的商品然后实例化返回就可以了。</p>
+<p>简单工厂几种实现方式：</p>
+<h3 id="静态工厂模式"><a href="#静态工厂模式" class="headerlink" title="静态工厂模式"></a>静态工厂模式</h3><p>我们还是以创建商品为例子</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class SimpleFacttory &#123;</span><br><span class="line">	public static Share createProduct(EnumProdutType type) &#123;</span><br><span class="line">		if (EnumProductType.activityone.equals(type)) &#123;</span><br><span class="line">			return new ProductOne();</span><br><span class="line">		&#125; else if (EnumProductType.acctivityTwo.equals(type)) &#123;</span><br><span class="line">			return new ProductTwo();</span><br><span class="line">		&#125;</span><br><span class="line">		return null;</span><br><span class="line">	&#125;</span><br><span class="line">	public enum EnumProductType &#123;</span><br><span class="line">		activituOne, activityTwo;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种方式创建看起来其实也没有什么问题，根据类型创建不同的商品，但是有一个问题不知道大家发现没有？</p>
+<p>是不是我没增加一种类型还要去createProduct方法上修改if else？这不是违背我们的开闭原则吗？</p>
+<p>所以这种方式不好，我们还有接下来的两种：<br>使用反射机制<br>直接注册商品对象，添加一个Type类型方法，根据type类型返回自身相同类型的方法。同样的我们还是以创建商品为例：反射实现<br>同样的我们还是以创建商品为例：反射实现</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class SimpleFactoryReflection &#123;</span><br><span class="line"></span><br><span class="line">    private static final Map&lt;EnumProductType, Class&gt; activityIdMap = new HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    public  static void addProductKey(EnumProductType EnumProduct, Class product) &#123;</span><br><span class="line">        activityIdMap.put(EnumProduct, product);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static activityOne product(EnumProductType type) throws IllegalAccessException, InstantiationException &#123;</span><br><span class="line">        Class productClass = activityIdMap.get(type);</span><br><span class="line">        return (activityOne) productClass.newInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws InstantiationException, IllegalAccessException &#123;</span><br><span class="line">        addProductKey(EnumProductType.activityOne, activityOne.class);</span><br><span class="line">        activityOne product = product(EnumProductType.activityOne);</span><br><span class="line">        System.out.println(product.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class Producet&#123;</span><br><span class="line">        private String name;</span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class activityOne extends Producet &#123;</span><br><span class="line">        private String stock;</span><br><span class="line">        @Override</span><br><span class="line">        public String toString() &#123;</span><br><span class="line">            return &quot;activityOne&#123;&quot; +</span><br><span class="line">                    &quot;stock=&#x27;&quot; + stock + &#x27;\&#x27;&#x27; +</span><br><span class="line">                    &#x27;&#125;&#x27;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public class activityTwo extends Producet &#123;</span><br><span class="line">        private String stock;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumProductType &#123;</span><br><span class="line">        activityOne, activityTwo;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>看上面的代码，我发现反射其实也很容易就实现了，但是在一些特定的情况下，并不适用，而且在某些特定的情况下是无法实现的，而且反射机制也会降低程序的运行效果，在对想能要求很高的场景下应该避免这种实现。</p>
+<p>这里还有一个问题是使用反射不当是很容易导致线上机器出问题的，因为我们反射创建的对象属性是被SoftReference软引用的，所以当**-XX:SoftRefLRUPolicyMSPerMB**没有设置好的话，会让机器的CPU一直很高。当然它的默认值是1000，也就根据大家的情况而定吧。</p>
+<p>剩下的一种其实跟反射实现很像，就是为了避免使用反射，在Map的对象中不是存的要添加的类，而是将要添加的每种类对象实例，这个就不写demo了。</p>
+<h3 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h3><p>工厂方法模式是对静态工厂模式上的一种改进，我们工厂类直接被抽象化，需要具体特定化的逻辑代码转移到实现抽象方法的子类中，这样我们就不要再去修改工厂类（即：不用再去做什么if else修改）这也是我们当前比较常用的一种方式。<br>还是以我们创建商品为例：<br><a href="https://imgse.com/i/zxHvsP"><img src="https://s1.ax1x.com/2022/12/26/zxHvsP.jpg" alt="zxHvsP.jpg"></a><br>看这张图，其实说白了就是再创建一个工厂，用来创建工厂类对象<br>接下来看代码实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public abstract class FactoryMethod &#123;</span><br><span class="line"></span><br><span class="line">    protected abstract Product createProduct(String name);</span><br><span class="line"></span><br><span class="line">    public Product product(String activity, String name) &#123;</span><br><span class="line">        Product product = createProduct(activity);</span><br><span class="line">        product.setProductName(name);</span><br><span class="line">        return product;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class Product &#123;</span><br><span class="line">        public String productName;</span><br><span class="line"></span><br><span class="line">        public String getProductName() &#123;</span><br><span class="line">            return productName;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setProductName(String productName) &#123;</span><br><span class="line">            this.productName = productName;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumProductType &#123;</span><br><span class="line">        activityOne(&quot;one&quot;),</span><br><span class="line">        activityTwo(&quot;two&quot;);</span><br><span class="line"></span><br><span class="line">        private String name;</span><br><span class="line"></span><br><span class="line">        EnumProductType(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里先创建一个抽象工厂方法</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ProductFactory extends FactoryMethod&#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Product createProduct(String activityId) &#123;</span><br><span class="line">        if (EnumProductType.activityOne.getName().equals(activityId)) &#123;</span><br><span class="line">            //这里可以处理我们自己的想要的业务逻辑代码</span><br><span class="line">            return new OneProduct();</span><br><span class="line">        &#125; else if (EnumProductType.activityTwo.getName().equals(activityId)) &#123;</span><br><span class="line">            return new TwoProduct();</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class OneProduct extends Product &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class TwoProduct extends Product &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FactoryMethod factoryMethod = new ProductFactory();</span><br><span class="line">        Product product = factoryMethod.product(&quot;one&quot;, &quot;one&quot;);</span><br><span class="line">        System.out.println(product.getProductName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再创建一个商品工厂去继承抽象工厂方法。</p>
+<p>当还有其他类型的时候我们只需要去继承我们创建的工厂方法就可以了。<br>这个代码大家肯定都能实现出来，但是我们真正需要学习的是前辈们这种工厂模式的思想。把这种思想运用到我们真实的业务场景中，学以致用才能对我们有真正的提升。</p>
+<p>举个例子</p>
+<p>假设现在需要做一个分享商品图片，我们知道商品的类型有很多，比如无SKU商品，有SKU商品，下单分享，邀请分享…等一下列的场景，那我们怎么去设计这个代码做到更加的易懂，易读，今后扩展性好呢？<br>注：sku和spu是电商里面的名词，spu差不多跟item也就是商品是一个维度，一个商品item有很多sku，比如：iphone是一个商品是item也是spu，白色的iphone 12 64G就是一个具体的sku</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public interface Share &#123;</span><br><span class="line">    //获取分享类型</span><br><span class="line"></span><br><span class="line">    String getShareFunctionType();</span><br><span class="line"></span><br><span class="line">    String mainProcess(String shareName);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一步我们应该都是定义一个创建分享模板</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ShareFactory &#123;</span><br><span class="line">    private List&lt;Share&gt; shareFunctionList;</span><br><span class="line"></span><br><span class="line">    //根据分享类型获取对应的分享处理方式</span><br><span class="line">    public Share getShareFunction(String type) &#123;</span><br><span class="line">        for(Share shareFunction : shareFunctionList) &#123;</span><br><span class="line">            if (shareFunction.getShareFunctionType().equals(type)) &#123;</span><br><span class="line">                return shareFunction;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumShareType &#123;</span><br><span class="line">        SUCCESS_ORDER(&quot;successOrder&quot;);</span><br><span class="line">        private String name;</span><br><span class="line"></span><br><span class="line">        EnumShareType(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二步我们再创建一个分享工厂根据我们的类型获取我们预先加载在Spring容器中的bean实例<br>public class SuccessOrderShare implements Share {<br>    public String getShareFunctionType() {<br>        return ShareFactory.EnumShareType.SUCCESS_ORDER.getName();<br>    }</p>
+<pre><code>public String mainProcess(String shareName) &#123;
+    return shareNmae;
+&#125;
+</code></pre>
+<p>}<br><a href="https://imgse.com/i/pSCBWPf"><img src="https://s1.ax1x.com/2023/01/01/pSCBWPf.jpg" alt="pSCBWPf.jpg"></a></p>
+<p>最后就是定义我们不同的类型来实现分享图片。<br>其实我们学习设计模式就是这种思想，有了这种思想上面提到的三点又是才能体现出来对我们今后的成长，面对复杂业务设计以及思考能力才能提升。</p>
+<p>那么问题来了，什么时候改用工厂方法模式，而非简单工厂模式呢？<br>这里引用设计模式之美里面的一句话：当对象的创建逻辑比较复杂，不只是简单的new一下就可以，而是要组合其他类对象，做各种初始化操作的时候，我们推荐使用工厂方法模式，将复杂的创建逻辑拆分到多个工厂类中，让每个工厂类都不至于过于复杂。<br>而使用简单工厂模式，将所有的创建逻辑都放到一个工厂类中，会导致这个工厂类变得很复杂。</p>
+<h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2><p>看完工厂方法模式，在理解抽象工厂模式就更加简单，因为它其实就是工厂方法的一个延伸。<br>工厂方法类中只有一个唱响方法，要想实现多种不同的类对象，只能去创建不同的具体工厂方法的子类来实例化，而抽象工厂则是让一个工厂负责创建多个不同类型的对象。<br><a href="https://imgse.com/i/pSCDpL9"><img src="https://s1.ax1x.com/2023/01/01/pSCDpL9.jpg" alt="pSCDpL9.jpg"></a><br>样子可能有点丑，但是能说明问题，其实看上去可以分为以上几个部分组成：<br>抽象工厂类<br>具体工厂类<br>抽象类<br>抽象工厂类我个人可以理解为一个刚出厂的手机，具体抽象工厂则是认为是我们每个人对这个手机壁纸自定义设置，最后抽象类我理解就是手机壁纸。<br>我们每个人可以自定义不同的壁纸：例如动图，静图风景等等。</p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>设计模式系列——流程引擎</title>
+    <url>/2023/01/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E6%B5%81%E7%A8%8B%E5%BC%95%E6%93%8E/</url>
+    <content><![CDATA[<p>在电商里面处理复杂的业务逻辑场景有很多，我们还是以创建商品为例子。很多人可能会问创建商品很复杂吗？</p>
+<span id="more"></span>
+
+<p>创建商品的流程：<br>参数必填性校验<br>参数数据转换<br>商品基础信息校验<br>商品与商家之间的校验<br>类目信息校验<br>商品交易信息校验（这个看公司业务决定）<br>SKU相关信息校验<br>商品是否需要有特定标签校验（看公司业务决定）<br>商品类型校验（普通，卡片，视频…….）<br>商品风控校验<br>保存商品信息<br>保存SKU信息<br>保存商品详情信息<br>重量模版<br>运费<br>配送区域<br>。。。。。。。<br>这里商品类型里面还涉及到各个业务场景校验，我们就先不谈了。针对这样的情况我们应该怎么去写这个代码呢？我翻看了一下以前大学写的一些代码整体的代码格式大概也就是这个样子<br><a href="https://imgse.com/i/pSCrA7n"><img src="https://s1.ax1x.com/2023/01/01/pSCrA7n.jpg" alt="pSCrA7n.jpg"></a><br>这么写其实也没有什么问题，功能也能实现。但是这么写其实有很多弊端：<br>1.代码可读性不高<br>2.代码扩展性不高<br>3.耦合性太强，有些东西不好公用<br>4.整体创建执行流程事件太长，串行调用下游服务</p>
+<p> 看到这样代码我们首先都是吐槽一番，然后还是老老实实去改，有动手能力强的会想着去优化一下。再看看这个流程，其实在创建商品的时候我们很多校验和保存数据是没有依赖且互不影响的，我们完全可以去并行执行。</p>
+<p>节省创建商品的流程时间，提高用户体验。（PS：就好比两条告诉一条堵车，一条畅通无阻，选哪条？）<br>所以针对这么并行问题我还是给大家画了一个流程图：<br><a href="https://imgse.com/i/pSCsXJP"><img src="https://s1.ax1x.com/2023/01/01/pSCsXJP.jpg" alt="pSCsXJP.jpg"></a><br>通过这张图我们看到创建一个商品流程，我们调用的下游服务可能是有十几二十几或者更多，假设我们一次RPC调用的平均返回时间是50毫秒，串行执行时间可能就1-2秒了，那么我们并行执行的话也就200到300毫秒了。</p>
+<p>所以本着这种思想可能会有人问，为什么我不能异步，不能用消息？创建商品假设用异步消息的话，如果消费失败那用户创建商品成功保存其他信息失败了，那对用户来说不是体验更加不好了</p>
+<p>说了这么多开始撸代码：<br><a href="https://imgse.com/i/pSCykiq"><img src="https://s1.ax1x.com/2023/01/01/pSCykiq.jpg" alt="pSCykiq.jpg"></a><br>先创建一个Context上下文，作为我们调用下游服务的返回结果<br><a href="https://imgse.com/i/pSCyAJ0"><img src="https://s1.ax1x.com/2023/01/01/pSCyAJ0.jpg" alt="pSCyAJ0.jpg"></a><br>第二步创建我们的流程节点，这相当于就是保存我们整个流程中需要执行下游服务的节点，以Map作为保存数据，NodeConf节点设置参数，自定义请求服务器超时时间（因为并行我们用的线程池或者通过get设置时间get返回值结果）<br><a href="https://imgse.com/i/pSPnMDJ"><img src="https://s1.ax1x.com/2023/01/02/pSPnMDJ.jpg" alt="pSPnMDJ.jpg"></a><br>第三步引擎类，这个也是我们的核心类。通过我们添加的node节点判断我们哪些流程是需要串行的哪些是需要并行的，通过线程池创建线程放入Feature中，来1达到同步执行的效果</p>
+<p>在使用线程池的时候我们需要考虑不要设置的参数过大，开启另外的线程也是会占用机器内存的，一个线程按照1兆来算的话，你开启几百上千个，也会占用很大一部分内存。尽可能的去采用池化的思想，这里就按大家实际场景去做测试了。</p>
+<p><a href="https://imgse.com/i/pSPnJC6"><img src="https://s1.ax1x.com/2023/01/02/pSPnJC6.jpg" alt="pSPnJC6.jpg"></a><br>第四步执行call方法，也就是执行我们的node节点</p>
+<p><a href="https://imgse.com/i/pSPnY8K"><img src="https://s1.ax1x.com/2023/01/02/pSPnY8K.jpg" alt="pSPnY8K.jpg"></a><br>第五步创建节点接口，这里我们定义一个ResultKey，这个Key也就是跟我流程中的这个节点绑定，在获取数据的时候也就是通过这个key来标识</p>
+<p><a href="https://imgse.com/i/pSPnNvD"><img src="https://s1.ax1x.com/2023/01/02/pSPnNvD.jpg" alt="pSPnNvD.jpg"></a><br>第六步因为我们在节点里面存的Class类，所以我们得通过实现ApplicationContextAware类来获取Spring容器中得bean实例</p>
+<p><a href="https://imgse.com/i/pSPn68f"><img src="https://s1.ax1x.com/2023/01/02/pSPn68f.jpg" alt="pSPn68f.jpg"></a><br>第七步那就是来创建两个测试node节点</p>
+<p><a href="https://imgse.com/i/pSPRVmT"><img src="https://s1.ax1x.com/2023/01/02/pSPRVmT.jpg" alt="pSPRVmT.jpg"></a><br><a href="https://imgse.com/i/pSPRZ0U"><img src="https://s1.ax1x.com/2023/01/02/pSPRZ0U.jpg" alt="pSPRZ0U.jpg"></a><br>最后当然就是我们得测试结果了，这里我们创建两个节点NodeOne和NodeTwo作为模拟真实业务场景得节点，通过一个后面得three作为一个group需要并执行的节点。<br>看完代码最后再给大家来一个总体的流程图吧<br><a href="https://imgse.com/i/pSPRutJ"><img src="https://s1.ax1x.com/2023/01/02/pSPRutJ.jpg" alt="pSPRutJ.jpg"></a><br>看完是不是觉得感觉自己顿悟，以后面对再复杂的流程业务也能拿下了。</p>
+<p>思考：<br>其实这里还有很多优化点，每个人遇到的复杂的场景可能也不一样，只能说给大家提供一个思想吧，针对不同的场景大家再去做改造吧</p>
+<p>扩展：<br>细心的同学可能都会发现这都是强依赖性，能不能有弱依赖在里面呢？<br>答案：<br>当然可以有弱依赖了，在FlowNode.NodeConf中我们既然可以设置超时时间，我们也可以再添加一个参数来确定是都是弱依赖。在我们的future.get获取结果的时候当出现异常可以catch住，强依赖则终止流程返回错误信息，否则记录错误日志，流程continue</p>
+<p>我们流程保存现在是用的静态代码块，可不可以换其他的方式保存节点呢？</p>
+<p>答案：这个当然也可以，我们保存在数据库，ACM，Apollo等等都是可以的。这个取决于你们自己的业务和成本问题。因为流程我们一般是不会经常换的，所以我还是建议代码写死就可以了</p>
+<p>采用线程池去调用下游服务，会不会造成服务链路追踪失败呢？</p>
+<p>答案：这个不能说绝对，但是如果是保存再ThreadLocal中那肯定会失效的，ThreadLocal中的KEY也就是跟当前线程的ID有关，都开启新的线程了，那肯定也就是丢失了</p>
+<p>如果采用ThreadLocal在节点中是不是就失效了</p>
+<p>答案：第三点已经给出答案了</p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
       </tags>
   </entry>
 </search>
