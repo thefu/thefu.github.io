@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Protobuf（Protocol Buffers）是 Google 推出的高效序列化协议。Rust中，prost 是最主流的 Protobuf 实现，提供了编译期代码生成和运行时序列化&#x2F;反序列化能力。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust中Protobuf使用简介">
+<meta property="og:url" content="https://thefu.top/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="Protobuf（Protocol Buffers）是 Google 推出的高效序列化协议。Rust中，prost 是最主流的 Protobuf 实现，提供了编译期代码生成和运行时序列化&#x2F;反序列化能力。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2024-01-26T11:33:37.000Z">
+<meta property="article:modified_time" content="2025-11-26T14:41:08.689Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://thefu.top/2024/01/26/Rust中Protobuf使用简介/"/>
+
+
+
+
+
+  <title>Rust中Protobuf使用简介 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TheFu's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">sicauthefu</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rust中Protobuf使用简介</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-01-26T19:33:37+08:00">
+                2024-01-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Protobuf（Protocol Buffers）是 Google 推出的高效序列化协议。Rust中，prost 是最主流的 Protobuf 实现，提供了编译期代码生成和运行时序列化&#x2F;反序列化能力。</p>
+<span id="more"></span>
+
+<h2 id="Protobuf-简介"><a href="#Protobuf-简介" class="headerlink" title="Protobuf 简介"></a>Protobuf 简介</h2><p>Protobuf 是一种数据序列化协议，具有以下特点：</p>
+<ul>
+<li><strong>高效性</strong>：比 JSON、XML 更紧凑，序列化速度更快</li>
+<li><strong>向后兼容性</strong>：支持新旧版本共存</li>
+<li><strong>语言中立</strong>：支持多种编程语言（Java、Python、C++、Go、Rust等）</li>
+<li><strong>模式演进</strong>：灵活支持字段添加和修改</li>
+</ul>
+<h2 id="1-工具与环境"><a href="#1-工具与环境" class="headerlink" title="1. 工具与环境"></a>1. 工具与环境</h2><p>使用 Rust + Protobuf 需要以下工具：</p>
+<h3 id="必备工具"><a href="#必备工具" class="headerlink" title="必备工具"></a>必备工具</h3><ul>
+<li><strong>protoc</strong>：Protobuf 官方编译器（负责解析 <code>.proto</code> 文件）</li>
+<li><strong>prost</strong>：Rust 的 Protobuf 运行时库（提供序列化&#x2F;反序列化逻辑）</li>
+<li><strong>prost-build</strong>：Rust 的 Protobuf 编译工具（集成 <code>protoc</code>，生成 Rust 代码）</li>
+</ul>
+<h3 id="Windows-下-protoc-安装"><a href="#Windows-下-protoc-安装" class="headerlink" title="Windows 下 protoc 安装"></a>Windows 下 protoc 安装</h3><p>使用 winget 安装（推荐）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 搜索 protoc</span></span><br><span class="line">winget search protoc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 安装</span></span><br><span class="line">winget install Google.Protobuf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证安装</span></span><br><span class="line">protoc --version</span><br><span class="line"><span class="comment"># 输出 libprotoc 33.0 或更高版本即可</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="其他系统安装方式"><a href="#其他系统安装方式" class="headerlink" title="其他系统安装方式"></a>其他系统安装方式</h3><ul>
+<li><strong>macOS</strong>：<code>brew install protobuf</code></li>
+<li><strong>Linux</strong>：<code>apt-get install protobuf-compiler</code>（Ubuntu&#x2F;Debian）</li>
+</ul>
+<h2 id="2-项目中使用"><a href="#2-项目中使用" class="headerlink" title="2. 项目中使用"></a>2. 项目中使用</h2><h3 id="配置-Cargo-toml"><a href="#配置-Cargo-toml" class="headerlink" title="配置 Cargo.toml"></a>配置 Cargo.toml</h3><p>在项目的 <code>Cargo.toml</code> 中添加依赖：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[dependencies]</span></span><br><span class="line"><span class="attr">prost</span> = <span class="string">&quot;0.14.1&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[build-dependencies]</span></span><br><span class="line"><span class="attr">prost-build</span> = <span class="string">&quot;0.14.1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="创建-Proto-文件"><a href="#创建-Proto-文件" class="headerlink" title="创建 Proto 文件"></a>创建 Proto 文件</h3><p>在项目中创建 <code>proto/hello.proto</code> 文件：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> hello;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">MyMessage</span> &#123;</span><br><span class="line">  <span class="type">string</span> name = <span class="number">1</span>;</span><br><span class="line">  <span class="type">int32</span> id = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Proto 文件说明：</strong></p>
+<ul>
+<li><code>syntax = &quot;proto3&quot;</code>：使用 proto3 语法</li>
+<li><code>package hello</code>：定义包名（对应 Rust 中的 module）</li>
+<li><code>message</code>：定义消息结构（对应 Rust 中的 struct）</li>
+<li><code>string name = 1</code>：字段类型 + 字段名 + 字段序号</li>
+</ul>
+<h3 id="编写-build-rs-脚本"><a href="#编写-build-rs-脚本" class="headerlink" title="编写 build.rs 脚本"></a>编写 build.rs 脚本</h3><p>在项目根目录创建 <code>build.rs</code> 用于编译 proto 文件为 Rust 代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> prost_build;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;cargo:rerun-if-changed=proto/hello.proto&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建输出目录</span></span><br><span class="line">    std::fs::<span class="title function_ invoke__">create_dir_all</span>(<span class="string">&quot;src/pb&quot;</span>)</span><br><span class="line">        .<span class="title function_ invoke__">expect</span>(<span class="string">&quot;Failed to create output directory&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 编译 proto 文件</span></span><br><span class="line">    prost_build::Config::<span class="title function_ invoke__">new</span>()</span><br><span class="line">        .<span class="title function_ invoke__">out_dir</span>(<span class="string">&quot;src/pb&quot;</span>)</span><br><span class="line">        .<span class="title function_ invoke__">compile_protos</span>(&amp;[<span class="string">&quot;proto/hello.proto&quot;</span>], &amp;[<span class="string">&quot;proto/&quot;</span>])</span><br><span class="line">        .<span class="title function_ invoke__">expect</span>(<span class="string">&quot;Failed to compile proto files&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>build.rs 参数说明：</strong></p>
+<ul>
+<li><code>out_dir(&quot;src/pb&quot;)</code>：编译生成的 Rust 文件存放位置</li>
+<li><code>compile_protos(&amp;[&quot;proto/hello.proto&quot;], &amp;[&quot;proto/&quot;])</code>：<ul>
+<li>第一个参数：要编译的 proto 文件（支持多个）</li>
+<li>第二个参数：proto 文件所在的目录</li>
+</ul>
+</li>
+</ul>
+<p><strong>build 成功后</strong>，会在 <code>src/pb</code> 下创建 <code>hello.rs</code> 文件（与 proto 文件中的 package 名称相同）。</p>
+<h3 id="使用生成的代码"><a href="#使用生成的代码" class="headerlink" title="使用生成的代码"></a>使用生成的代码</h3><h4 id="方法1：使用-include-宏"><a href="#方法1：使用-include-宏" class="headerlink" title="方法1：使用 include! 宏"></a>方法1：使用 include! 宏</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">include!(<span class="string">&quot;pb/hello.rs&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> prost::Message;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">msg</span> = MyMessage &#123;</span><br><span class="line">        name: <span class="string">&quot;Protobuf example&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        id: <span class="number">123</span>,</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">encoded</span> = msg.<span class="title function_ invoke__">encode_to_vec</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Encoded Msg: &#123;:?&#125;&quot;</span>, encoded);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">decoded</span> = MyMessage::<span class="title function_ invoke__">decode</span>(&amp;encoded[..]).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Decoded Msg: &#123;:?&#125;&quot;</span>, decoded);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法2：使用-mod-和-use（推荐）"><a href="#方法2：使用-mod-和-use（推荐）" class="headerlink" title="方法2：使用 mod 和 use（推荐）"></a>方法2：使用 mod 和 use（推荐）</h4><p><strong>1. 在 src&#x2F;pb 下创建 mod.rs：</strong></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">mod</span> hello;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 在 src&#x2F;main.rs 中引入：</strong></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> pb;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> pb::hello::MyMessage;</span><br><span class="line"><span class="keyword">use</span> prost::Message;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">msg</span> = MyMessage &#123;</span><br><span class="line">        name: <span class="string">&quot;Protobuf example&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        id: <span class="number">123</span>,</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 序列化</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">encoded</span> = msg.<span class="title function_ invoke__">encode_to_vec</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Encoded Msg: &#123;:?&#125;&quot;</span>, encoded);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反序列化</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">decoded</span> = MyMessage::<span class="title function_ invoke__">decode</span>(&amp;encoded[..]).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Decoded Msg: &#123;:?&#125;&quot;</span>, decoded);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-常见-Proto-类型映射"><a href="#3-常见-Proto-类型映射" class="headerlink" title="3. 常见 Proto 类型映射"></a>3. 常见 Proto 类型映射</h2><table>
+<thead>
+<tr>
+<th>Proto 类型</th>
+<th>Rust 类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>string</code></td>
+<td><code>String</code></td>
+<td>字符串</td>
+</tr>
+<tr>
+<td><code>bytes</code></td>
+<td><code>Vec&lt;u8&gt;</code></td>
+<td>字节数组</td>
+</tr>
+<tr>
+<td><code>int32</code> &#x2F; <code>int64</code></td>
+<td><code>i32</code> &#x2F; <code>i64</code></td>
+<td>整数</td>
+</tr>
+<tr>
+<td><code>uint32</code> &#x2F; <code>uint64</code></td>
+<td><code>u32</code> &#x2F; <code>u64</code></td>
+<td>无符号整数</td>
+</tr>
+<tr>
+<td><code>float</code> &#x2F; <code>double</code></td>
+<td><code>f32</code> &#x2F; <code>f64</code></td>
+<td>浮点数</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>bool</code></td>
+<td>布尔值</td>
+</tr>
+<tr>
+<td><code>repeated</code></td>
+<td><code>Vec&lt;T&gt;</code></td>
+<td>数组&#x2F;列表</td>
+</tr>
+</tbody></table>
+<h2 id="4-常用序列化方法"><a href="#4-常用序列化方法" class="headerlink" title="4. 常用序列化方法"></a>4. 常用序列化方法</h2><h3 id="序列化（Encode）"><a href="#序列化（Encode）" class="headerlink" title="序列化（Encode）"></a>序列化（Encode）</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> prost::Message;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">msg</span> = MyMessage &#123; ... &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 编码为字节向量</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">bytes</span> = msg.<span class="title function_ invoke__">encode_to_vec</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 编码并写入 Writer</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">buf</span> = <span class="type">Vec</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line">msg.<span class="title function_ invoke__">encode</span>(&amp;<span class="keyword">mut</span> buf).<span class="title function_ invoke__">unwrap</span>();</span><br></pre></td></tr></table></figure>
+
+<h3 id="反序列化（Decode）"><a href="#反序列化（Decode）" class="headerlink" title="反序列化（Decode）"></a>反序列化（Decode）</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 从字节切片解码</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">decoded</span> = MyMessage::<span class="title function_ invoke__">decode</span>(&amp;bytes[..]).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从 Reader 解码</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">decoded</span> = MyMessage::<span class="title function_ invoke__">decode</span>(&amp;<span class="keyword">mut</span> reader).<span class="title function_ invoke__">unwrap</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-更复杂的例子"><a href="#5-更复杂的例子" class="headerlink" title="5. 更复杂的例子"></a>5. 更复杂的例子</h2><p><strong>proto 文件：</strong></p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> user;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="type">int32</span> id = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> name = <span class="number">2</span>;</span><br><span class="line">  <span class="type">string</span> email = <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">repeated</span> <span class="type">string</span> tags = <span class="number">4</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">UserList</span> &#123;</span><br><span class="line">  <span class="keyword">repeated</span> User users = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Rust 使用代码：</strong></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> prost::Message;</span><br><span class="line"><span class="keyword">use</span> pb::user::&#123;User, UserList&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">user1</span> = User &#123;</span><br><span class="line">        id: <span class="number">1</span>,</span><br><span class="line">        name: <span class="string">&quot;Alice&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        email: <span class="string">&quot;alice@example.com&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        tags: <span class="built_in">vec!</span>[<span class="string">&quot;admin&quot;</span>.<span class="title function_ invoke__">to_string</span>(), <span class="string">&quot;user&quot;</span>.<span class="title function_ invoke__">to_string</span>()],</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">user2</span> = User &#123;</span><br><span class="line">        id: <span class="number">2</span>,</span><br><span class="line">        name: <span class="string">&quot;Bob&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        email: <span class="string">&quot;bob@example.com&quot;</span>.<span class="title function_ invoke__">to_string</span>(),</span><br><span class="line">        tags: <span class="built_in">vec!</span>[<span class="string">&quot;user&quot;</span>.<span class="title function_ invoke__">to_string</span>()],</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">user_list</span> = UserList &#123;</span><br><span class="line">        users: <span class="built_in">vec!</span>[user1, user2],</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 序列化</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">bytes</span> = user_list.<span class="title function_ invoke__">encode_to_vec</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Serialized: &#123;&#125; bytes&quot;</span>, bytes.<span class="title function_ invoke__">len</span>());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反序列化</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">decoded</span> = UserList::<span class="title function_ invoke__">decode</span>(&amp;bytes[..]).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">user</span> <span class="keyword">in</span> decoded.users &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;User: &#123;&#125; (&#123;&#125;)&quot;</span>, user.name, user.email);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong>Protobuf</strong> 是高效的数据序列化协议，适合网络传输和存储</li>
+<li><strong>prost</strong> 是 Rust 中最流行的 Protobuf 实现</li>
+<li><strong>build.rs</strong> 脚本在编译时自动生成 Rust 代码</li>
+<li><strong>序列化&#x2F;反序列化</strong> 通过 <code>Message</code> trait 的方法实现</li>
+<li>Protobuf 支持复杂嵌套结构、数组、向后兼容性等高级特性</li>
+<li>适用场景：微服务、RPC、消息队列、数据存储等</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"># Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/" rel="next" title="Rust中的闭包">
+                <i class="fa fa-chevron-left"></i> Rust中的闭包
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/" rel="prev" title="Rust中的for循环与迭代器">
+                Rust中的for循环与迭代器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/thefu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="sicauthefu@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=423228325&auto=1&height=66"></iframe>
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Protobuf 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%B7%A5%E5%85%B7%E4%B8%8E%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">1. 工具与环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%85%E5%A4%87%E5%B7%A5%E5%85%B7"><span class="nav-number">2.1.</span> <span class="nav-text">必备工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows-%E4%B8%8B-protoc-%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">Windows 下 protoc 安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F"><span class="nav-number">2.3.</span> <span class="nav-text">其他系统安装方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%A1%B9%E7%9B%AE%E4%B8%AD%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">2. 项目中使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-Cargo-toml"><span class="nav-number">3.1.</span> <span class="nav-text">配置 Cargo.toml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA-Proto-%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">创建 Proto 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99-build-rs-%E8%84%9A%E6%9C%AC"><span class="nav-number">3.3.</span> <span class="nav-text">编写 build.rs 脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%94%9F%E6%88%90%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="nav-number">3.4.</span> <span class="nav-text">使用生成的代码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%951%EF%BC%9A%E4%BD%BF%E7%94%A8-include-%E5%AE%8F"><span class="nav-number">3.4.1.</span> <span class="nav-text">方法1：使用 include! 宏</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%952%EF%BC%9A%E4%BD%BF%E7%94%A8-mod-%E5%92%8C-use%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">3.4.2.</span> <span class="nav-text">方法2：使用 mod 和 use（推荐）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B8%B8%E8%A7%81-Proto-%E7%B1%BB%E5%9E%8B%E6%98%A0%E5%B0%84"><span class="nav-number">4.</span> <span class="nav-text">3. 常见 Proto 类型映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%B8%B8%E7%94%A8%E5%BA%8F%E5%88%97%E5%8C%96%E6%96%B9%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">4. 常用序列化方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%88Encode%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">序列化（Encode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%88Decode%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">反序列化（Decode）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%9B%B4%E5%A4%8D%E6%9D%82%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-number">6.</span> <span class="nav-text">5. 更复杂的例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

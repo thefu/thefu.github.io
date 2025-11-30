@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="集合（Collections）是存储多个值的数据结构，主要存放在标准库 std::collections 模块中。集合的大小可以动态变化，且数据通常存储在堆上。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust中的集合Collection">
+<meta property="og:url" content="https://thefu.top/2023/09/26/Rust%E4%B8%AD%E7%9A%84%E9%9B%86%E5%90%88Collection/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="集合（Collections）是存储多个值的数据结构，主要存放在标准库 std::collections 模块中。集合的大小可以动态变化，且数据通常存储在堆上。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-09-26T11:51:49.000Z">
+<meta property="article:modified_time" content="2025-11-26T14:40:47.004Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://thefu.top/2023/09/26/Rust中的集合Collection/"/>
+
+
+
+
+
+  <title>Rust中的集合Collection | TheFu's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TheFu's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">sicauthefu</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/09/26/Rust%E4%B8%AD%E7%9A%84%E9%9B%86%E5%90%88Collection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rust中的集合Collection</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-09-26T19:51:49+08:00">
+                2023-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>集合（Collections）是存储多个值的数据结构，主要存放在标准库 <code>std::collections</code> 模块中。集合的大小可以动态变化，且数据通常存储在堆上。</p>
+<span id="more"></span>
+
+<h2 id="Rust-标准库中的主要集合类型"><a href="#Rust-标准库中的主要集合类型" class="headerlink" title="Rust 标准库中的主要集合类型"></a>Rust 标准库中的主要集合类型</h2><table>
+<thead>
+<tr>
+<th>集合类型</th>
+<th>说明</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Vec&lt;T&gt;</code></td>
+<td>动态数组</td>
+<td>元素有序、可变长、随机访问高效</td>
+</tr>
+<tr>
+<td><code>VecDeque&lt;T&gt;</code></td>
+<td>双端队列</td>
+<td>支持两端高效插入&#x2F;删除</td>
+</tr>
+<tr>
+<td><code>LinkedList&lt;T&gt;</code></td>
+<td>双向链表</td>
+<td>插入删除快，随机访问慢</td>
+</tr>
+<tr>
+<td><code>HashMap&lt;K,V&gt;</code></td>
+<td>哈希表</td>
+<td>基于哈希的键值存储，无序</td>
+</tr>
+<tr>
+<td><code>BTreeMap&lt;K,V&gt;</code></td>
+<td>平衡树映射</td>
+<td>基于排序的键值存储，有序</td>
+</tr>
+<tr>
+<td><code>HashSet&lt;T&gt;</code></td>
+<td>哈希集合</td>
+<td>不重复元素，无序</td>
+</tr>
+<tr>
+<td><code>BTreeSet&lt;T&gt;</code></td>
+<td>有序集合</td>
+<td>不重复元素，有序</td>
+</tr>
+<tr>
+<td><code>BinaryHeap&lt;T&gt;</code></td>
+<td>堆结构</td>
+<td>可用于优先队列（最大堆）</td>
+</tr>
+</tbody></table>
+<h2 id="1-动态数组-Vec-lt-T-gt"><a href="#1-动态数组-Vec-lt-T-gt" class="headerlink" title="1. 动态数组 Vec&lt;T&gt;"></a>1. 动态数组 Vec&lt;T&gt;</h2><p><code>Vec&lt;T&gt;</code> 是 Rust 中最常用的集合，本质是动态数组，支持在末尾高效插入&#x2F;删除元素，且可通过索引随机访问。</p>
+<h3 id="创建方式"><a href="#创建方式" class="headerlink" title="创建方式"></a>创建方式</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">v1</span> = <span class="type">Vec</span>::<span class="title function_ invoke__">new</span>();              <span class="comment">// 空 vector</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">v2</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];           <span class="comment">// 宏创建</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">v3</span> = <span class="type">Vec</span>::<span class="title function_ invoke__">with_capacity</span>(<span class="number">10</span>); <span class="comment">// 预分配容量</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空向量</td>
+<td><code>Vec&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>with_capacity(n)</code></td>
+<td>预分配容量</td>
+<td><code>Vec&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>push(value)</code></td>
+<td>末尾添加元素</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>pop()</code></td>
+<td>移除最后一个元素</td>
+<td><code>Option&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>insert(index, value)</code></td>
+<td>在指定位置插入</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>remove(index)</code></td>
+<td>移除指定位置</td>
+<td><code>T</code></td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>清空所有元素</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>len()</code></td>
+<td>返回长度</td>
+<td><code>usize</code></td>
+</tr>
+<tr>
+<td><code>capacity()</code></td>
+<td>返回容量</td>
+<td><code>usize</code></td>
+</tr>
+<tr>
+<td><code>reserve(n)</code></td>
+<td>扩容</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>shrink_to_fit()</code></td>
+<td>收缩容量</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>get(i)</code></td>
+<td>安全访问元素</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>get_mut(i)</code></td>
+<td>可变访问元素</td>
+<td><code>Option&lt;&amp;mut T&gt;</code></td>
+</tr>
+<tr>
+<td><code>first() / last()</code></td>
+<td>获取首&#x2F;尾元素</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>iter() / iter_mut()</code></td>
+<td>遍历元素</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>sort() / sort_by()</code></td>
+<td>排序</td>
+<td><code>()</code></td>
+</tr>
+</tbody></table>
+<h3 id="Vec-示例"><a href="#Vec-示例" class="headerlink" title="Vec 示例"></a>Vec 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 1. 创建和添加元素</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">v</span> = <span class="type">Vec</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    v.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">    v.<span class="title function_ invoke__">push</span>(<span class="number">2</span>);</span><br><span class="line">    v.<span class="title function_ invoke__">push</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Vec: &#123;:?&#125;&quot;</span>, v); <span class="comment">// [1, 2, 3]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 访问元素</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;First: &#123;&#125;&quot;</span>, v[<span class="number">0</span>]); <span class="comment">// 1</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Safe get: &#123;:?&#125;&quot;</span>, v.<span class="title function_ invoke__">get</span>(<span class="number">1</span>)); <span class="comment">// Some(&amp;2)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 修改元素</span></span><br><span class="line">    v[<span class="number">0</span>] = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. 删除元素</span></span><br><span class="line">    v.<span class="title function_ invoke__">pop</span>(); <span class="comment">// 删除末尾元素 3</span></span><br><span class="line">    v.<span class="title function_ invoke__">remove</span>(<span class="number">0</span>); <span class="comment">// 删除首元素 10</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5. 遍历</span></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">item</span> <span class="keyword">in</span> &amp;v &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, item);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 6. 排序</span></span><br><span class="line">    v.<span class="title function_ invoke__">sort</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 7. 容量管理</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Len: &#123;&#125;, Capacity: &#123;&#125;&quot;</span>, v.<span class="title function_ invoke__">len</span>(), v.<span class="title function_ invoke__">capacity</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-双端队列-VecDeque-lt-T-gt"><a href="#2-双端队列-VecDeque-lt-T-gt" class="headerlink" title="2. 双端队列 VecDeque&lt;T&gt;"></a>2. 双端队列 VecDeque&lt;T&gt;</h2><p><code>VecDeque&lt;T&gt;</code>（Double-ended Queue）是双端队列，底层使用环形缓冲区实现。支持在首尾两端高效插入&#x2F;删除元素。</p>
+<h3 id="创建和基本操作"><a href="#创建和基本操作" class="headerlink" title="创建和基本操作"></a>创建和基本操作</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::VecDeque;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">deque</span> = VecDeque::<span class="title function_ invoke__">new</span>();</span><br><span class="line">deque.<span class="title function_ invoke__">push_back</span>(<span class="number">2</span>);    <span class="comment">// 末尾入队</span></span><br><span class="line">deque.<span class="title function_ invoke__">push_front</span>(<span class="number">1</span>);   <span class="comment">// 头部入队</span></span><br><span class="line">deque.<span class="title function_ invoke__">pop_front</span>();     <span class="comment">// 从头部出队，返回 Some(1)</span></span><br><span class="line">deque.<span class="title function_ invoke__">pop_back</span>();      <span class="comment">// 从尾部出队，返回 Some(2)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-1"><a href="#常用方法-1" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空队列</td>
+<td><code>VecDeque&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>with_capacity(n)</code></td>
+<td>预分配容量</td>
+<td><code>VecDeque&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>push_back(value)</code></td>
+<td>末尾入队</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>push_front(value)</code></td>
+<td>头部入队</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>pop_back()</code></td>
+<td>从尾部出队</td>
+<td><code>Option&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>pop_front()</code></td>
+<td>从头部出队</td>
+<td><code>Option&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>front() / back()</code></td>
+<td>查看首尾元素</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>长度&#x2F;是否空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>get(i)</code></td>
+<td>安全索引访问</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>iter() / iter_mut()</code></td>
+<td>遍历</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>rotate_left(k) / rotate_right(k)</code></td>
+<td>循环旋转</td>
+<td><code>()</code></td>
+</tr>
+</tbody></table>
+<h3 id="VecDeque-示例"><a href="#VecDeque-示例" class="headerlink" title="VecDeque 示例"></a>VecDeque 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::VecDeque;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">deque</span> = VecDeque::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 从两端插入</span></span><br><span class="line">    deque.<span class="title function_ invoke__">push_back</span>(<span class="number">2</span>);</span><br><span class="line">    deque.<span class="title function_ invoke__">push_back</span>(<span class="number">3</span>);</span><br><span class="line">    deque.<span class="title function_ invoke__">push_front</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Deque: &#123;:?&#125;&quot;</span>, deque); <span class="comment">// [1, 2, 3]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从两端删除</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Front: &#123;:?&#125;&quot;</span>, deque.<span class="title function_ invoke__">pop_front</span>()); <span class="comment">// Some(1)</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Back: &#123;:?&#125;&quot;</span>, deque.<span class="title function_ invoke__">pop_back</span>());   <span class="comment">// Some(3)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 旋转</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">deque</span> = VecDeque::<span class="title function_ invoke__">from</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]);</span><br><span class="line">    deque.<span class="title function_ invoke__">rotate_left</span>(<span class="number">2</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;After rotate_left(2): &#123;:?&#125;&quot;</span>, deque); <span class="comment">// [3, 4, 5, 1, 2]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-双向链表-LinkedList-lt-T-gt"><a href="#3-双向链表-LinkedList-lt-T-gt" class="headerlink" title="3. 双向链表 LinkedList&lt;T&gt;"></a>3. 双向链表 LinkedList&lt;T&gt;</h2><p><code>LinkedList&lt;T&gt;</code> 是双向链表，元素通过指针连接，不连续存储。</p>
+<h3 id="性能考量"><a href="#性能考量" class="headerlink" title="性能考量"></a>性能考量</h3><ul>
+<li><strong>实际性能较差</strong>：因元素不连续，缓存友好性低，随机访问效率低（O(n)）</li>
+<li><strong>极少使用</strong>：除非明确需要链表的理论特性，否则优先用 <code>Vec</code> 或 <code>VecDeque</code></li>
+</ul>
+<h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::LinkedList;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">list</span> = LinkedList::<span class="title function_ invoke__">new</span>();</span><br><span class="line">list.<span class="title function_ invoke__">push_back</span>(<span class="number">1</span>);     <span class="comment">// 尾部添加：[1]</span></span><br><span class="line">list.<span class="title function_ invoke__">push_front</span>(<span class="number">0</span>);    <span class="comment">// 头部添加：[0, 1]</span></span><br><span class="line">list.<span class="title function_ invoke__">pop_back</span>();       <span class="comment">// 尾部移除：返回 Some(1)</span></span><br><span class="line">list.<span class="title function_ invoke__">pop_front</span>();      <span class="comment">// 头部移除：返回 Some(0)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-2"><a href="#常用方法-2" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空链表</td>
+<td><code>LinkedList&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>push_back(value)</code></td>
+<td>尾部插入</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>push_front(value)</code></td>
+<td>头部插入</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>pop_back() / pop_front()</code></td>
+<td>移除首&#x2F;尾</td>
+<td><code>Option&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>front() / back()</code></td>
+<td>获取首尾引用</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>获取长度&#x2F;是否为空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>清空链表</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>append(&amp;mut other)</code></td>
+<td>拼接另一个链表</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>iter() / iter_mut()</code></td>
+<td>遍历</td>
+<td>迭代器</td>
+</tr>
+</tbody></table>
+<h2 id="4-哈希表-HashMap-lt-K-V-gt"><a href="#4-哈希表-HashMap-lt-K-V-gt" class="headerlink" title="4. 哈希表 HashMap&lt;K,V&gt;"></a>4. 哈希表 HashMap&lt;K,V&gt;</h2><p><code>HashMap&lt;K, V&gt;</code> 基于哈希表实现，通过哈希函数将键映射到存储位置，查询和插入的平均时间复杂度为 O(1)。</p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><strong>无序存储</strong>（键的顺序不固定）</li>
+<li>键 <code>K</code> 需实现 <code>Hash</code> 和 <code>Eq</code> trait（用于哈希计算和相等性比较）</li>
+<li>性能依赖哈希函数的质量（避免哈希冲突）</li>
+</ul>
+<h3 id="创建方式-1"><a href="#创建方式-1" class="headerlink" title="创建方式"></a>创建方式</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::HashMap;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 基本创建</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">scores</span> = HashMap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">scores.<span class="title function_ invoke__">insert</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Alice&quot;</span>), <span class="number">90</span>);</span><br><span class="line">scores.<span class="title function_ invoke__">insert</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Bob&quot;</span>), <span class="number">85</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 从迭代器创建</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">teams</span> = <span class="built_in">vec!</span>[<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Blue&quot;</span>), <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Red&quot;</span>)];</span><br><span class="line"><span class="keyword">let</span> <span class="variable">initial_scores</span> = <span class="built_in">vec!</span>[<span class="number">10</span>, <span class="number">50</span>];</span><br><span class="line"><span class="keyword">let</span> <span class="variable">scores</span>: HashMap&lt;_, _&gt; = teams</span><br><span class="line">    .<span class="title function_ invoke__">into_iter</span>()</span><br><span class="line">    .<span class="title function_ invoke__">zip</span>(initial_scores.<span class="title function_ invoke__">into_iter</span>())</span><br><span class="line">    .<span class="title function_ invoke__">collect</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 使用 from_iter</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">map</span> = HashMap::<span class="title function_ invoke__">from_iter</span>(<span class="built_in">vec!</span>[(<span class="string">&quot;a&quot;</span>, <span class="number">1</span>), (<span class="string">&quot;b&quot;</span>, <span class="number">2</span>)]);</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-3"><a href="#常用方法-3" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空映射</td>
+<td><code>HashMap&lt;K,V&gt;</code></td>
+</tr>
+<tr>
+<td><code>with_capacity(n)</code></td>
+<td>预分配容量</td>
+<td><code>HashMap&lt;K,V&gt;</code></td>
+</tr>
+<tr>
+<td><code>insert(key, val)</code></td>
+<td>插入或更新键值</td>
+<td><code>Option&lt;V&gt;</code>（旧值）</td>
+</tr>
+<tr>
+<td><code>remove(key)</code></td>
+<td>删除键</td>
+<td><code>Option&lt;V&gt;</code></td>
+</tr>
+<tr>
+<td><code>get(key)</code></td>
+<td>获取值引用</td>
+<td><code>Option&lt;&amp;V&gt;</code></td>
+</tr>
+<tr>
+<td><code>get_mut(key)</code></td>
+<td>可变引用</td>
+<td><code>Option&lt;&amp;mut V&gt;</code></td>
+</tr>
+<tr>
+<td><code>contains_key(key)</code></td>
+<td>是否存在</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>entry(key)</code></td>
+<td>获取或创建 entry</td>
+<td><code>Entry&lt;K,V&gt;</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>长度&#x2F;是否空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>keys() / values() / iter()</code></td>
+<td>迭代键、值、键值对</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>清空</td>
+<td><code>()</code></td>
+</tr>
+</tbody></table>
+<h3 id="HashMap-示例"><a href="#HashMap-示例" class="headerlink" title="HashMap 示例"></a>HashMap 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">map</span> = HashMap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 插入</span></span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Alice&quot;</span>);</span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;age&quot;</span>, <span class="string">&quot;30&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 查询</span></span><br><span class="line">    <span class="keyword">match</span> map.<span class="title function_ invoke__">get</span>(<span class="string">&quot;name&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Some</span>(value) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;Name: &#123;&#125;&quot;</span>, value),</span><br><span class="line">        <span class="literal">None</span> =&gt; <span class="built_in">println!</span>(<span class="string">&quot;Not found&quot;</span>),</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 更新</span></span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;age&quot;</span>, <span class="string">&quot;31&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 遍历</span></span><br><span class="line">    <span class="title function_ invoke__">for</span> (key, value) <span class="keyword">in</span> &amp;map &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125;&quot;</span>, key, value);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 删除</span></span><br><span class="line">    map.<span class="title function_ invoke__">remove</span>(<span class="string">&quot;age&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Entry API（高效更新）</span></span><br><span class="line">    map.<span class="title function_ invoke__">entry</span>(<span class="string">&quot;city&quot;</span>).<span class="title function_ invoke__">or_insert</span>(<span class="string">&quot;Beijing&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-有序映射-BTreeMap-lt-K-V-gt"><a href="#5-有序映射-BTreeMap-lt-K-V-gt" class="headerlink" title="5. 有序映射 BTreeMap&lt;K,V&gt;"></a>5. 有序映射 BTreeMap&lt;K,V&gt;</h2><p><code>BTreeMap&lt;K, V&gt;</code> 基于 B 树实现，键值对按键的排序顺序存储，查询时间复杂度为 O(log n)。</p>
+<h3 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><strong>有序存储</strong>：键值对按键的自然顺序（或自定义排序）有序存储</li>
+<li>键 <code>K</code> 需实现 <code>Ord</code> trait（用于排序）</li>
+<li><strong>支持范围查询</strong>：如获取”大于 x 且小于 y”的键值对</li>
+</ul>
+<h3 id="基本操作-1"><a href="#基本操作-1" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::BTreeMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">map</span> = BTreeMap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">map.<span class="title function_ invoke__">insert</span>(<span class="number">3</span>, <span class="string">&quot;c&quot;</span>);</span><br><span class="line">map.<span class="title function_ invoke__">insert</span>(<span class="number">1</span>, <span class="string">&quot;a&quot;</span>);</span><br><span class="line">map.<span class="title function_ invoke__">insert</span>(<span class="number">2</span>, <span class="string">&quot;b&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 遍历：按键的升序输出 (1,&quot;a&quot;), (2,&quot;b&quot;), (3,&quot;c&quot;)</span></span><br><span class="line"><span class="title function_ invoke__">for</span> (k, v) <span class="keyword">in</span> &amp;map &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125;&quot;</span>, k, v);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 范围查询：获取键 &gt;1 且 &lt;=3 的键值对</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">range</span> = map.<span class="title function_ invoke__">range</span>(<span class="number">1</span>..=<span class="number">3</span>); <span class="comment">// 包含1和3</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-4"><a href="#常用方法-4" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空映射</td>
+<td><code>BTreeMap&lt;K,V&gt;</code></td>
+</tr>
+<tr>
+<td><code>insert(key, val)</code></td>
+<td>插入或替换</td>
+<td><code>Option&lt;V&gt;</code></td>
+</tr>
+<tr>
+<td><code>remove(key)</code></td>
+<td>删除键</td>
+<td><code>Option&lt;V&gt;</code></td>
+</tr>
+<tr>
+<td><code>get(key)</code></td>
+<td>获取引用</td>
+<td><code>Option&lt;&amp;V&gt;</code></td>
+</tr>
+<tr>
+<td><code>contains_key(key)</code></td>
+<td>检查存在</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>长度&#x2F;空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>iter()</code></td>
+<td>遍历有序键值</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>range(range)</code></td>
+<td>范围遍历</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>first_key_value() / last_key_value()</code></td>
+<td>最小&#x2F;最大键</td>
+<td><code>Option&lt;(&amp;K,&amp;V)&gt;</code></td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>清空</td>
+<td><code>()</code></td>
+</tr>
+</tbody></table>
+<h3 id="BTreeMap-示例"><a href="#BTreeMap-示例" class="headerlink" title="BTreeMap 示例"></a>BTreeMap 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::BTreeMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">map</span> = BTreeMap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="number">5</span>, <span class="string">&quot;five&quot;</span>);</span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="number">2</span>, <span class="string">&quot;two&quot;</span>);</span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="number">8</span>, <span class="string">&quot;eight&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 有序遍历</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Ordered iteration:&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">for</span> (k, v) <span class="keyword">in</span> &amp;map &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125;&quot;</span>, k, v); <span class="comment">// 输出 2, 5, 8</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 范围查询</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Range [2, 7]:&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">for</span> (k, v) <span class="keyword">in</span> map.<span class="title function_ invoke__">range</span>(<span class="number">2</span>..=<span class="number">7</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125;&quot;</span>, k, v); <span class="comment">// 输出 2, 5</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 最小最大元素</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>((k, v)) = map.<span class="title function_ invoke__">first_key_value</span>() &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;First: &#123;&#125;: &#123;&#125;&quot;</span>, k, v);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-哈希集合-HashSet-lt-T-gt"><a href="#6-哈希集合-HashSet-lt-T-gt" class="headerlink" title="6. 哈希集合 HashSet&lt;T&gt;"></a>6. 哈希集合 HashSet&lt;T&gt;</h2><p><code>HashSet&lt;T&gt;</code> 基于 <code>HashMap&lt;T, ()&gt;</code> 实现，存储唯一元素，无序。</p>
+<h3 id="特点-2"><a href="#特点-2" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><strong>元素唯一</strong>：插入重复元素会被忽略</li>
+<li>元素 <code>T</code> 需实现 <code>Hash</code> 和 <code>Eq</code> trait</li>
+<li>插入、查询、删除的平均时间复杂度为 O(1)</li>
+</ul>
+<h3 id="基本操作-2"><a href="#基本操作-2" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::HashSet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">set</span> = HashSet::<span class="title function_ invoke__">new</span>();</span><br><span class="line">set.<span class="title function_ invoke__">insert</span>(<span class="number">1</span>);</span><br><span class="line">set.<span class="title function_ invoke__">insert</span>(<span class="number">2</span>);</span><br><span class="line">set.<span class="title function_ invoke__">insert</span>(<span class="number">1</span>); <span class="comment">// 重复元素，插入失败</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 常用方法</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">has_one</span> = set.<span class="title function_ invoke__">contains</span>(&amp;<span class="number">1</span>);  <span class="comment">// true</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">removed</span> = set.<span class="title function_ invoke__">remove</span>(&amp;<span class="number">1</span>);    <span class="comment">// true，移除1</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">len</span> = set.<span class="title function_ invoke__">len</span>();             <span class="comment">// 1（剩余元素2）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-5"><a href="#常用方法-5" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空集合</td>
+<td><code>HashSet&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>insert(value)</code></td>
+<td>插入</td>
+<td><code>bool</code>(是否新插入)</td>
+</tr>
+<tr>
+<td><code>remove(value)</code></td>
+<td>删除</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>contains(value)</code></td>
+<td>是否存在</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>长度&#x2F;空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>清空</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>iter()</code></td>
+<td>遍历</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>union(&amp;other)</code></td>
+<td>并集</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>intersection(&amp;other)</code></td>
+<td>交集</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>difference(&amp;other)</code></td>
+<td>差集</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>symmetric_difference(&amp;other)</code></td>
+<td>对称差</td>
+<td>迭代器</td>
+</tr>
+</tbody></table>
+<h3 id="HashSet-示例"><a href="#HashSet-示例" class="headerlink" title="HashSet 示例"></a>HashSet 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::HashSet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">set1</span> = HashSet::<span class="title function_ invoke__">from</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">set2</span> = HashSet::<span class="title function_ invoke__">from</span>([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 插入和查询</span></span><br><span class="line">    set1.<span class="title function_ invoke__">insert</span>(<span class="number">5</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Contains 3: &#123;&#125;&quot;</span>, set1.<span class="title function_ invoke__">contains</span>(&amp;<span class="number">3</span>)); <span class="comment">// true</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 集合操作</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">union</span>: HashSet&lt;_&gt; = set1.<span class="title function_ invoke__">union</span>(&amp;set2).<span class="title function_ invoke__">cloned</span>().<span class="title function_ invoke__">collect</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Union: &#123;:?&#125;&quot;</span>, union); <span class="comment">// &#123;1, 2, 3, 4, 5&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">intersection</span>: HashSet&lt;_&gt; = set1.<span class="title function_ invoke__">intersection</span>(&amp;set2).<span class="title function_ invoke__">cloned</span>().<span class="title function_ invoke__">collect</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Intersection: &#123;:?&#125;&quot;</span>, intersection); <span class="comment">// &#123;2, 3&#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">difference</span>: HashSet&lt;_&gt; = set1.<span class="title function_ invoke__">difference</span>(&amp;set2).<span class="title function_ invoke__">cloned</span>().<span class="title function_ invoke__">collect</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Difference: &#123;:?&#125;&quot;</span>, difference); <span class="comment">// &#123;1, 5&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-有序集合-BTreeSet-lt-T-gt"><a href="#7-有序集合-BTreeSet-lt-T-gt" class="headerlink" title="7. 有序集合 BTreeSet&lt;T&gt;"></a>7. 有序集合 BTreeSet&lt;T&gt;</h2><p><code>BTreeSet&lt;T&gt;</code> 基于 <code>BTreeMap&lt;T, ()&gt;</code> 实现，存储唯一元素，且按元素顺序排序。</p>
+<h3 id="特点-3"><a href="#特点-3" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><strong>元素唯一且有序</strong>：按 <code>Ord</code> trait 排序</li>
+<li>元素 <code>T</code> 需实现 <code>Ord</code> trait</li>
+<li><strong>支持范围查询</strong>，查询时间复杂度为 O(log n)</li>
+</ul>
+<h3 id="基本操作-3"><a href="#基本操作-3" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::BTreeSet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">set</span> = BTreeSet::<span class="title function_ invoke__">new</span>();</span><br><span class="line">set.<span class="title function_ invoke__">insert</span>(<span class="number">3</span>);</span><br><span class="line">set.<span class="title function_ invoke__">insert</span>(<span class="number">1</span>);</span><br><span class="line">set.<span class="title function_ invoke__">insert</span>(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 遍历：按顺序输出 1, 2, 3</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">num</span> <span class="keyword">in</span> &amp;set &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 范围查询：获取 &gt;1 且 &lt;=3 的元素</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">range</span> = set.<span class="title function_ invoke__">range</span>(<span class="number">1</span>..=<span class="number">3</span>); <span class="comment">// 包含1和3</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-6"><a href="#常用方法-6" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空集合</td>
+<td><code>BTreeSet&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>insert(value)</code></td>
+<td>插入</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>remove(value)</code></td>
+<td>删除</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>contains(value)</code></td>
+<td>是否存在</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>长度&#x2F;空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>iter()</code></td>
+<td>遍历有序元素</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>range(range)</code></td>
+<td>范围遍历</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>first() / last()</code></td>
+<td>最小&#x2F;最大元素</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>union(&amp;other) / intersection(&amp;other)</code></td>
+<td>集合操作</td>
+<td>迭代器</td>
+</tr>
+</tbody></table>
+<h3 id="BTreeSet-示例"><a href="#BTreeSet-示例" class="headerlink" title="BTreeSet 示例"></a>BTreeSet 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::BTreeSet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">set</span> = BTreeSet::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    set.<span class="title function_ invoke__">insert</span>(<span class="number">5</span>);</span><br><span class="line">    set.<span class="title function_ invoke__">insert</span>(<span class="number">2</span>);</span><br><span class="line">    set.<span class="title function_ invoke__">insert</span>(<span class="number">8</span>);</span><br><span class="line">    set.<span class="title function_ invoke__">insert</span>(<span class="number">2</span>); <span class="comment">// 重复，不会插入</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 有序遍历</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Ordered:&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">num</span> <span class="keyword">in</span> &amp;set &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, num); <span class="comment">// 输出 2, 5, 8</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 范围查询</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Range [2, 6]:&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">num</span> <span class="keyword">in</span> set.<span class="title function_ invoke__">range</span>(<span class="number">2</span>..=<span class="number">6</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, num); <span class="comment">// 输出 2, 5</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 首尾元素</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;First: &#123;:?&#125;&quot;</span>, set.<span class="title function_ invoke__">first</span>()); <span class="comment">// 2</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Last: &#123;:?&#125;&quot;</span>, set.<span class="title function_ invoke__">last</span>());   <span class="comment">// 8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="8-二叉堆-BinaryHeap-lt-T-gt"><a href="#8-二叉堆-BinaryHeap-lt-T-gt" class="headerlink" title="8. 二叉堆 BinaryHeap&lt;T&gt;"></a>8. 二叉堆 BinaryHeap&lt;T&gt;</h2><p><code>BinaryHeap&lt;T&gt;</code> 实现优先队列功能。</p>
+<h3 id="特点-4"><a href="#特点-4" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><strong>默认是最大堆</strong></li>
+<li>可通过 <code>Reverse()</code> 包装改为最小堆</li>
+</ul>
+<h3 id="基本操作-4"><a href="#基本操作-4" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::BinaryHeap;</span><br><span class="line"><span class="keyword">use</span> std::cmp::Reverse;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 最大堆</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">max_heap</span> = BinaryHeap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">max_heap.<span class="title function_ invoke__">push</span>(<span class="number">10</span>);</span><br><span class="line">max_heap.<span class="title function_ invoke__">push</span>(<span class="number">5</span>);</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, max_heap.<span class="title function_ invoke__">pop</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 最小堆</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">min_heap</span> = BinaryHeap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">min_heap.<span class="title function_ invoke__">push</span>(<span class="title function_ invoke__">Reverse</span>(<span class="number">10</span>));</span><br><span class="line">min_heap.<span class="title function_ invoke__">push</span>(<span class="title function_ invoke__">Reverse</span>(<span class="number">5</span>));</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, min_heap.<span class="title function_ invoke__">pop</span>().<span class="title function_ invoke__">unwrap</span>().<span class="number">0</span>); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法-7"><a href="#常用方法-7" class="headerlink" title="常用方法"></a>常用方法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>返回类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>new()</code></td>
+<td>创建空堆</td>
+<td><code>BinaryHeap&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>from(vec)</code></td>
+<td>从 Vec 构建堆</td>
+<td><code>BinaryHeap&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>push(value)</code></td>
+<td>插入元素</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>pop()</code></td>
+<td>弹出最大元素</td>
+<td><code>Option&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>peek()</code></td>
+<td>查看最大元素</td>
+<td><code>Option&lt;&amp;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>len() / is_empty()</code></td>
+<td>长度&#x2F;空</td>
+<td><code>usize / bool</code></td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>清空</td>
+<td><code>()</code></td>
+</tr>
+<tr>
+<td><code>into_sorted_vec()</code></td>
+<td>升序取出所有元素</td>
+<td><code>Vec&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>drain_sorted()</code></td>
+<td>按排序迭代出元素</td>
+<td>迭代器</td>
+</tr>
+</tbody></table>
+<h3 id="BinaryHeap-示例"><a href="#BinaryHeap-示例" class="headerlink" title="BinaryHeap 示例"></a>BinaryHeap 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::BinaryHeap;</span><br><span class="line"><span class="keyword">use</span> std::cmp::Reverse;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 最大堆示例</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">heap</span> = BinaryHeap::<span class="title function_ invoke__">from</span>([<span class="number">10</span>, <span class="number">5</span>, <span class="number">20</span>, <span class="number">15</span>]);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Max: &#123;&#125;&quot;</span>, heap.<span class="title function_ invoke__">pop</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 20</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 最小堆示例（使用 Reverse）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">min_heap</span> = BinaryHeap::<span class="title function_ invoke__">from</span>([</span><br><span class="line">        <span class="title function_ invoke__">Reverse</span>(<span class="number">10</span>),</span><br><span class="line">        <span class="title function_ invoke__">Reverse</span>(<span class="number">5</span>),</span><br><span class="line">        <span class="title function_ invoke__">Reverse</span>(<span class="number">20</span>),</span><br><span class="line">    ]);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Min: &#123;&#125;&quot;</span>, min_heap.<span class="title function_ invoke__">pop</span>().<span class="title function_ invoke__">unwrap</span>().<span class="number">0</span>); <span class="comment">// 5</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 优先队列应用</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">pq</span> = BinaryHeap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    pq.<span class="title function_ invoke__">push</span>((<span class="number">1</span>, <span class="string">&quot;Low&quot;</span>));</span><br><span class="line">    pq.<span class="title function_ invoke__">push</span>((<span class="number">10</span>, <span class="string">&quot;High&quot;</span>));</span><br><span class="line">    pq.<span class="title function_ invoke__">push</span>((<span class="number">5</span>, <span class="string">&quot;Medium&quot;</span>));</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">let</span> <span class="variable">Some</span>((priority, task)) = pq.<span class="title function_ invoke__">pop</span>() &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task: &#123;&#125; (Priority: &#123;&#125;)&quot;</span>, task, priority);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="集合选择指南"><a href="#集合选择指南" class="headerlink" title="集合选择指南"></a>集合选择指南</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐集合</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通用有序集合</td>
+<td><code>Vec&lt;T&gt;</code></td>
+<td>简单高效，大多数场景首选</td>
+</tr>
+<tr>
+<td>双端队列（FIFO&#x2F;LIFO）</td>
+<td><code>VecDeque&lt;T&gt;</code></td>
+<td>两端高效操作</td>
+</tr>
+<tr>
+<td>键值存储（无序）</td>
+<td><code>HashMap&lt;K,V&gt;</code></td>
+<td>平均 O(1) 查询</td>
+</tr>
+<tr>
+<td>键值存储（有序）</td>
+<td><code>BTreeMap&lt;K,V&gt;</code></td>
+<td>支持范围查询，O(log n) 查询</td>
+</tr>
+<tr>
+<td>去重集合（无序）</td>
+<td><code>HashSet&lt;T&gt;</code></td>
+<td>快速去重和存在性检查</td>
+</tr>
+<tr>
+<td>去重集合（有序）</td>
+<td><code>BTreeSet&lt;T&gt;</code></td>
+<td>支持范围查询，有序遍历</td>
+</tr>
+<tr>
+<td>优先队列</td>
+<td><code>BinaryHeap&lt;T&gt;</code></td>
+<td>高效取最大&#x2F;最小值</td>
+</tr>
+<tr>
+<td>链表操作</td>
+<td><code>LinkedList&lt;T&gt;</code></td>
+<td>极少使用，除非明确需要</td>
+</tr>
+</tbody></table>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong>Vec</strong> 是最常用的集合，适合大多数场景</li>
+<li><strong>HashMap&#x2F;BTreeMap</strong> 用于键值存储，选择取决于是否需要有序性</li>
+<li><strong>HashSet&#x2F;BTreeSet</strong> 用于去重和集合操作</li>
+<li><strong>VecDeque</strong> 适合双端队列操作</li>
+<li><strong>BinaryHeap</strong> 实现优先队列功能</li>
+<li><strong>LinkedList</strong> 应避免使用，实际性能不如 Vec&#x2F;VecDeque</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"># Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/09/20/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/" rel="next" title="Rust中的 Send 和 Sync trait 详解">
+                <i class="fa fa-chevron-left"></i> Rust中的 Send 和 Sync trait 详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/" rel="prev" title="Rust异步编程之async与.await">
+                Rust异步编程之async与.await <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/thefu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="sicauthefu@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=423228325&auto=1&height=66"></iframe>
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Rust-%E6%A0%87%E5%87%86%E5%BA%93%E4%B8%AD%E7%9A%84%E4%B8%BB%E8%A6%81%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">Rust 标准库中的主要集合类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%8A%A8%E6%80%81%E6%95%B0%E7%BB%84-Vec-lt-T-gt"><span class="nav-number">2.</span> <span class="nav-text">1. 动态数组 Vec&lt;T&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">创建方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Vec-%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.3.</span> <span class="nav-text">Vec 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%8F%8C%E7%AB%AF%E9%98%9F%E5%88%97-VecDeque-lt-T-gt"><span class="nav-number">3.</span> <span class="nav-text">2. 双端队列 VecDeque&lt;T&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%92%8C%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">3.1.</span> <span class="nav-text">创建和基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-1"><span class="nav-number">3.2.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VecDeque-%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.3.</span> <span class="nav-text">VecDeque 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8-LinkedList-lt-T-gt"><span class="nav-number">4.</span> <span class="nav-text">3. 双向链表 LinkedList&lt;T&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E8%80%83%E9%87%8F"><span class="nav-number">4.1.</span> <span class="nav-text">性能考量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">4.2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-2"><span class="nav-number">4.3.</span> <span class="nav-text">常用方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%93%88%E5%B8%8C%E8%A1%A8-HashMap-lt-K-V-gt"><span class="nav-number">5.</span> <span class="nav-text">4. 哈希表 HashMap&lt;K,V&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">5.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F-1"><span class="nav-number">5.2.</span> <span class="nav-text">创建方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-3"><span class="nav-number">5.3.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap-%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.4.</span> <span class="nav-text">HashMap 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%9C%89%E5%BA%8F%E6%98%A0%E5%B0%84-BTreeMap-lt-K-V-gt"><span class="nav-number">6.</span> <span class="nav-text">5. 有序映射 BTreeMap&lt;K,V&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9-1"><span class="nav-number">6.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-1"><span class="nav-number">6.2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-4"><span class="nav-number">6.3.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BTreeMap-%E7%A4%BA%E4%BE%8B"><span class="nav-number">6.4.</span> <span class="nav-text">BTreeMap 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%93%88%E5%B8%8C%E9%9B%86%E5%90%88-HashSet-lt-T-gt"><span class="nav-number">7.</span> <span class="nav-text">6. 哈希集合 HashSet&lt;T&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9-2"><span class="nav-number">7.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-2"><span class="nav-number">7.2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-5"><span class="nav-number">7.3.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashSet-%E7%A4%BA%E4%BE%8B"><span class="nav-number">7.4.</span> <span class="nav-text">HashSet 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88-BTreeSet-lt-T-gt"><span class="nav-number">8.</span> <span class="nav-text">7. 有序集合 BTreeSet&lt;T&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9-3"><span class="nav-number">8.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-3"><span class="nav-number">8.2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-6"><span class="nav-number">8.3.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BTreeSet-%E7%A4%BA%E4%BE%8B"><span class="nav-number">8.4.</span> <span class="nav-text">BTreeSet 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E4%BA%8C%E5%8F%89%E5%A0%86-BinaryHeap-lt-T-gt"><span class="nav-number">9.</span> <span class="nav-text">8. 二叉堆 BinaryHeap&lt;T&gt;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9-4"><span class="nav-number">9.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-4"><span class="nav-number">9.2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95-7"><span class="nav-number">9.3.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BinaryHeap-%E7%A4%BA%E4%BE%8B"><span class="nav-number">9.4.</span> <span class="nav-text">BinaryHeap 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E9%80%89%E6%8B%A9%E6%8C%87%E5%8D%97"><span class="nav-number">10.</span> <span class="nav-text">集合选择指南</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

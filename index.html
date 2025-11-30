@@ -285,7 +285,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2025/11/26/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2025/11/27/web3-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -304,7 +304,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2025/11/26/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/" itemprop="url">Rust中的 Send 和 Sync trait 详解</a></h1>
+                <a class="post-title-link" href="/2025/11/27/web3-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" itemprop="url">web3-智能合约</a></h1>
         
 
         <div class="post-meta">
@@ -316,8 +316,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-11-26T15:50:08+08:00">
-                2025-11-26
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-11-27T10:53:54+08:00">
+                2025-11-27
               </time>
             
 
@@ -356,81 +356,514 @@
       
         
           
-            <p>Rust中的标记 trait（Marker Trait）<code>Send</code> 和 <code>Sync</code> 是并发安全的核心基石。用于标记类型的并发安全属性，让编译器在编译时检查线程间数据传递的合法性，从根源上避免数据竞争（Data Race）。</p>
-<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><ul>
-<li>**<code>Send</code>**：类型的值能不能在线程之间”移动所有权”。</li>
-<li>**<code>Sync</code>**：类型的值能不能在多个线程中”共享引用 &amp;T”。</li>
+            <h2 id="什么是智能合约"><a href="#什么是智能合约" class="headerlink" title="什么是智能合约"></a>什么是智能合约</h2><p>智能合约（Smart Contract）是部署在区块链上的自执行程序，用代码形式编写合约条款和规则。当预定条件满足时，智能合约会自动执行对应的逻辑，无需中介参与，具有透明性、不可篡改性和自动化执行的特点。</p>
+<h3 id="核心特征"><a href="#核心特征" class="headerlink" title="核心特征"></a>核心特征</h3><ul>
+<li><strong>自动执行</strong>：当条件满足时，无需人工干预即可自动执行</li>
+<li><strong>透明性</strong>：所有参与者都能查看合约代码和执行过程</li>
+<li><strong>不可篡改</strong>：部署到区块链后，代码和数据无法更改</li>
+<li><strong>去中心化</strong>：由网络中的节点共同执行和验证，无中心化机构</li>
+<li><strong>确定性</strong>：相同的输入在相同的执行环境下总能产生相同的结果</li>
 </ul>
-<h3 id="重要原则"><a href="#重要原则" class="headerlink" title="重要原则"></a>重要原则</h3><ul>
-<li>对同一个值进行<strong>并发访问（只读）</strong>是内存安全的。</li>
-<li><strong>并发修改</strong>仍然要靠锁&#x2F;原子&#x2F;其他机制。</li>
-</ul>
-<h2 id="1-Send-所有权在线程间的转移"><a href="#1-Send-所有权在线程间的转移" class="headerlink" title="1. Send - 所有权在线程间的转移"></a>1. Send - 所有权在线程间的转移</h2><p>一个类型 <code>T</code> 是 <code>Send</code>，表示把 <code>T</code> 的一个值从一个线程移动到另一个线程，不会引发数据竞争或内存安全问题。</p>
-<h3 id="Send-的特点"><a href="#Send-的特点" class="headerlink" title="Send 的特点"></a>Send 的特点</h3><ul>
-<li>移动的是<strong>所有权</strong>，而不是引用。</li>
-<li>移动之后，原线程不能再用这个值（所有权已经被 move）。</li>
-</ul>
-<h3 id="不是-Send-的类型（-Send）"><a href="#不是-Send-的类型（-Send）" class="headerlink" title="不是 Send 的类型（!Send）"></a>不是 Send 的类型（<code>!Send</code>）</h3><p>绝大多数类型自动实现 <code>Send</code>，以下一些例外：</p>
-<ul>
-<li>**<code>Rc&lt;T&gt;</code>**：引用计数是非原子操作，跨线程转移会导致计数竞争（数据竞争）。</li>
-<li>**<code>RefCell&lt;T&gt;</code> &#x2F; <code>Cell&lt;T&gt;</code>**：内部可变性无同步机制，跨线程转移后，多个线程可能同时修改数据。</li>
-<li>**裸指针 <code>*const T</code> &#x2F; <code>*mut T</code>**：无安全保证，直接跨线程转移可能导致悬垂指针或数据竞争。</li>
-<li>**<code>UnsafeCell&lt;T&gt;</code>**：内部可变性的底层实现，本身 <code>!Send</code>（但基于它的线程安全类型如 <code>Mutex</code> 会手动实现 <code>Send</code>）。</li>
-</ul>
-<h3 id="Send-示例"><a href="#Send-示例" class="headerlink" title="Send 示例"></a>Send 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">    <span class="comment">// Vec&lt;i32&gt; 是 Send，通过move把所有权移到线程中</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, v);</span><br><span class="line">    &#125;);</span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="智能合约的工作原理"><a href="#智能合约的工作原理" class="headerlink" title="智能合约的工作原理"></a>智能合约的工作原理</h2><h3 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">编写代码 → 编译 → 部署 → 交互 → 执行 → 记录</span><br></pre></td></tr></table></figure>
 
-<h2 id="2-Sync-引用在线程间的共享"><a href="#2-Sync-引用在线程间的共享" class="headerlink" title="2. Sync - 引用在线程间的共享"></a>2. Sync - 引用在线程间的共享</h2><p>一个类型 <code>T</code> 是 <code>Sync</code>，表示可以安全地被多个线程共享（即 <code>&amp;T</code> 是 <code>Send</code>）。即，如果一个类型的引用 <code>&amp;T</code> 能安全跨线程传递，那么这个类型就是 <code>Sync</code>（多个线程持有 <code>&amp;T</code> 不会导致数据竞争）。</p>
-<h3 id="不是-Sync-的类型（-Sync）"><a href="#不是-Sync-的类型（-Sync）" class="headerlink" title="不是 Sync 的类型（!Sync）"></a>不是 Sync 的类型（<code>!Sync</code>）</h3><p>任何允许通过共享引用 <code>&amp;T</code> 获得可变访问且没有同步保护的类型，都不是 <code>Sync</code>：</p>
-<ul>
-<li>**<code>Cell&lt;T&gt;</code> &#x2F; <code>RefCell&lt;T&gt;</code>**：允许通过 <code>&amp;T</code> 改变内部数据（”内部可变性”），但不保证线程安全。</li>
-<li>**<code>Rc&lt;T&gt;</code>**：通过共享引用可以克隆 <code>Rc</code> 得到更多引用，从而在多线程下导致竞争。</li>
-<li><strong>非线程安全的 FFI 对象</strong>，如果通过 <code>&amp;</code> 能调用会修改内部状态的方法。</li>
-</ul>
-<h3 id="Sync-示例"><a href="#Sync-示例" class="headerlink" title="Sync 示例"></a>Sync 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data</span> = Arc::<span class="title function_ invoke__">new</span>(Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>)); <span class="comment">// Arc&lt;Mutex&lt;i32&gt;&gt;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data_clone</span> = data.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = data_clone.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 加锁，独占访问</span></span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;).<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>编写</strong>：用 Solidity、Rust、Go 等语言编写合约代码</li>
+<li><strong>编译</strong>：编译为字节码（bytecode）</li>
+<li><strong>部署</strong>：将字节码发送到区块链网络，创建合约账户</li>
+<li><strong>交互</strong>：用户通过交易与合约交互，触发合约函数</li>
+<li><strong>执行</strong>：节点执行合约代码，修改状态</li>
+<li><strong>记录</strong>：执行结果被记录在区块链上</li>
+</ol>
+<h3 id="智能合约的创建和运行"><a href="#智能合约的创建和运行" class="headerlink" title="智能合约的创建和运行"></a>智能合约的创建和运行</h3><ol>
+<li>智能合约的代码写完后，要编译成bytecode;</li>
+<li>创建合约：外部账户发起一个转账交易到0x0的地址；转账的金额是0，但是要支付汽油费；合约的代码放在data域中；</li>
+<li>智能合约运行在EVM（Ethereum Virtual Machine）上</li>
+<li>以太坊是一个交易驱动的状态机，调用智能合约的交易发布到区块链上之后，每个矿工都会执行这个交易，从当前状态确定性的转移到下一个状态；</li>
+</ol>
+<h3 id="执行模式"><a href="#执行模式" class="headerlink" title="执行模式"></a>执行模式</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户发起交易 → 节点接收交易 → EVM 执行合约 → 状态更新 → 写入区块 → 共识确认</span><br></pre></td></tr></table></figure>
 
-<h2 id="3-Auto-Trait-自动推导"><a href="#3-Auto-Trait-自动推导" class="headerlink" title="3. Auto Trait - 自动推导"></a>3. Auto Trait - 自动推导</h2><p><code>Send</code> 和 <code>Sync</code> 都是 auto trait，编译器会根据类型的组成部分自动推导实现。</p>
-<h3 id="Send-和-Sync-的四种组合"><a href="#Send-和-Sync-的四种组合" class="headerlink" title="Send 和 Sync 的四种组合"></a>Send 和 Sync 的四种组合</h3><table>
+<h2 id="主流智能合约平台"><a href="#主流智能合约平台" class="headerlink" title="主流智能合约平台"></a>主流智能合约平台</h2><h3 id="Ethereum（以太坊）"><a href="#Ethereum（以太坊）" class="headerlink" title="Ethereum（以太坊）"></a>Ethereum（以太坊）</h3><ul>
+<li><strong>语言</strong>：Solidity（首选）、Vyper</li>
+<li><strong>虚拟机</strong>：EVM（以太坊虚拟机）</li>
+<li><strong>特点</strong>：最成熟、生态最活跃、Gas 费用相对较高</li>
+<li><strong>用途</strong>：DeFi、NFT、DAO、Token 标准（ERC-20、ERC-721 等）</li>
+</ul>
+<h3 id="Solana"><a href="#Solana" class="headerlink" title="Solana"></a>Solana</h3><ul>
+<li><strong>语言</strong>：Rust、C</li>
+<li><strong>特点</strong>：高吞吐量、低交易费用、并行处理能力强</li>
+<li><strong>用途</strong>：高频交易、实时应用、大规模 NFT 生成</li>
+</ul>
+<h3 id="Polygon（以太坊侧链）"><a href="#Polygon（以太坊侧链）" class="headerlink" title="Polygon（以太坊侧链）"></a>Polygon（以太坊侧链）</h3><ul>
+<li><strong>语言</strong>：Solidity</li>
+<li><strong>特点</strong>：EVM 兼容、更低费用、更快交易确认</li>
+<li><strong>用途</strong>：以太坊应用的扩展方案</li>
+</ul>
+<h3 id="Cosmos-x2F-Tendermint"><a href="#Cosmos-x2F-Tendermint" class="headerlink" title="Cosmos &#x2F; Tendermint"></a>Cosmos &#x2F; Tendermint</h3><ul>
+<li><strong>语言</strong>：Go、Rust</li>
+<li><strong>特点</strong>：模块化设计、跨链通信、灵活的共识机制</li>
+<li><strong>用途</strong>：专业级应用、跨链协议</li>
+</ul>
+<h3 id="NEAR-Protocol"><a href="#NEAR-Protocol" class="headerlink" title="NEAR Protocol"></a>NEAR Protocol</h3><ul>
+<li><strong>语言</strong>：Rust、AssemblyScript</li>
+<li><strong>特点</strong>：分片技术、易于扩展、开发者友好</li>
+<li><strong>用途</strong>：GameFi、社交应用、企业应用</li>
+</ul>
+<h2 id="Solidity-智能合约基础"><a href="#Solidity-智能合约基础" class="headerlink" title="Solidity 智能合约基础"></a>Solidity 智能合约基础</h2><h3 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">contract MyContract &#123;</span><br><span class="line">    // 状态变量</span><br><span class="line">    uint256 public count;</span><br><span class="line">    address public owner;</span><br><span class="line">    </span><br><span class="line">    // 事件</span><br><span class="line">    event CountChanged(uint256 newCount);</span><br><span class="line">    </span><br><span class="line">    // 修饰符</span><br><span class="line">    modifier onlyOwner() &#123;</span><br><span class="line">        require(msg.sender == owner, &quot;Only owner can call this&quot;);</span><br><span class="line">        _;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 构造函数</span><br><span class="line">    constructor() &#123;</span><br><span class="line">        owner = msg.sender;</span><br><span class="line">        count = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 公开函数</span><br><span class="line">    function increment() public &#123;</span><br><span class="line">        count += 1;</span><br><span class="line">        emit CountChanged(count);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 仅所有者可调用</span><br><span class="line">    function reset() public onlyOwner &#123;</span><br><span class="line">        count = 0;</span><br><span class="line">        emit CountChanged(count);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 只读函数（不修改状态）</span><br><span class="line">    function getCount() public view returns (uint256) &#123;</span><br><span class="line">        return count;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 纯函数（不读取状态）</span><br><span class="line">    function add(uint256 a, uint256 b) public pure returns (uint256) &#123;</span><br><span class="line">        return a + b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h3><h4 id="状态变量"><a href="#状态变量" class="headerlink" title="状态变量"></a>状态变量</h4><p>持久化存储在区块链上的数据，每次修改都会消耗 Gas 费用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">uint256 public balance;           // 无符号整数</span><br><span class="line">address public owner;              // 账户地址</span><br><span class="line">bool public isActive;              // 布尔值</span><br><span class="line">string public name;                // 字符串</span><br><span class="line">bytes32 public hash;               // 字节数据</span><br></pre></td></tr></table></figure>
+
+<h4 id="函数可见性"><a href="#函数可见性" class="headerlink" title="函数可见性"></a>函数可见性</h4><table>
 <thead>
 <tr>
-<th>组合</th>
+<th>修饰符</th>
 <th>说明</th>
-<th>例子</th>
+<th>调用方式</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>Send + Sync</code></td>
-<td>可以在线程间移动，也可以多线程共享引用</td>
-<td><code>i32</code>、<code>Mutex&lt;T&gt;</code>等</td>
+<td><code>public</code></td>
+<td>公开可见，任何人可调用</td>
+<td>外部、内部</td>
 </tr>
 <tr>
-<td><code>Send + !Sync</code></td>
-<td>可以在线程间移动，但不能多线程共享引用</td>
-<td>一些 <code>*mut T</code> 封装、<code>Sender&lt;T&gt;</code></td>
+<td><code>internal</code></td>
+<td>仅合约内部和继承合约可调用</td>
+<td>内部</td>
 </tr>
 <tr>
-<td><code>!Send + Sync</code></td>
-<td>不能跨线程移动；不移动，只读共享是安全的</td>
-<td>少数特殊 FFI 对象（较少见）</td>
+<td><code>external</code></td>
+<td>仅从合约外部调用</td>
+<td>外部</td>
 </tr>
 <tr>
-<td><code>!Send + !Sync</code></td>
-<td>既不能跨线程移动，也不能多线程共享引用</td>
-<td><code>Rc&lt;RefCell&lt;T&gt;&gt;</code> 等</td>
+<td><code>private</code></td>
+<td>仅当前合约内部可调用</td>
+<td>内部</td>
 </tr>
 </tbody></table>
-<h2 id="4-手动实现-Send-和-Sync"><a href="#4-手动实现-Send-和-Sync" class="headerlink" title="4. 手动实现 Send 和 Sync"></a>4. 手动实现 Send 和 Sync</h2><p>只有在特殊情况下（写底层库 &#x2F; FFI 封装 &#x2F; 自己的锁和原子数据结构时）才会需要手动实现 <code>Send</code> 和 <code>Sync</code>：</p>
-<ul>
-<li><code>unsafe impl Send</code> &#x2F; <code>unsafe impl Sync</code> 是非常严肃的承诺</li>
-<li>要自己保证所有可能的并发访问路径都不会产生数据竞争、悬垂指针等。</li>
-</ul>
-<h3 id="手动实现示例：用-Mutex-保护裸指针"><a href="#手动实现示例：用-Mutex-保护裸指针" class="headerlink" title="手动实现示例：用 Mutex 保护裸指针"></a>手动实现示例：用 Mutex 保护裸指针</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类型：用 Mutex 保护裸指针（裸指针本身 !Send/!Sync）</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SafePtr</span>&lt;T&gt;(Mutex&lt;*<span class="keyword">mut</span> T&gt;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T&gt; SafePtr&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">new</span>(value: T) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ptr</span> = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(value)); <span class="comment">// 裸指针指向堆内存</span></span><br><span class="line">        <span class="title function_ invoke__">SafePtr</span>(Mutex::<span class="title function_ invoke__">new</span>(ptr))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全访问：通过 Mutex 加锁，保证独占访问</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">get</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123; <span class="title function_ invoke__">Some</span>(&amp;**guard) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">set</span>(&amp;<span class="keyword">self</span>, new_value: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123;</span><br><span class="line">            std::ptr::<span class="title function_ invoke__">drop_in_place</span>(*guard);</span><br><span class="line">            *guard = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(new_value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动实现 Send 和 Sync，因为我们通过 Mutex 确保了线程安全</span></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Send</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Sync</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="函数修饰符"><a href="#函数修饰符" class="headerlink" title="函数修饰符"></a>函数修饰符</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">// view：读取状态，不消耗 Gas</span><br><span class="line">function getBalance() public view returns (uint256) &#123;</span><br><span class="line">    return balance;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// pure：不读取状态，不消耗 Gas</span><br><span class="line">function multiply(uint256 a, uint256 b) public pure returns (uint256) &#123;</span><br><span class="line">    return a * b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// payable：允许接收以太币（ETH）</span><br><span class="line">function deposit() public payable &#123;</span><br><span class="line">    require(msg.value &gt; 0, &quot;Must send ETH&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 自定义修饰符</span><br><span class="line">modifier onlyOwner() &#123;</span><br><span class="line">    require(msg.sender == owner);</span><br><span class="line">    _;  // 执行函数体</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function withdraw() public onlyOwner &#123;</span><br><span class="line">    // 只有 owner 能调用</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li><strong><code>Send</code></strong> 保证所有权可以安全地在线程间转移</li>
-<li><strong><code>Sync</code></strong> 保证引用可以安全地在多个线程间共享</li>
-<li>大多数类型会自动实现这些 trait</li>
-<li>只有在处理特殊情况（裸指针、FFI、自定义同步原语）时才需要手动实现</li>
-<li>手动实现 <code>unsafe impl Send/Sync</code> 时要特别谨慎，确保确实满足并发安全条件</li>
+<h4 id="事件（Events）"><a href="#事件（Events）" class="headerlink" title="事件（Events）"></a>事件（Events）</h4><p>允许离链系统监听和响应合约执行情况。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 事件声明</span><br><span class="line">event Transfer(address indexed from, address indexed to, uint256 value);</span><br><span class="line">event Approval(address indexed owner, address indexed spender, uint256 value);</span><br><span class="line"></span><br><span class="line">// 触发事件</span><br><span class="line">function transfer(address to, uint256 amount) public &#123;</span><br><span class="line">    balance -= amount;</span><br><span class="line">    emit Transfer(msg.sender, to, amount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="常见模式"><a href="#常见模式" class="headerlink" title="常见模式"></a>常见模式</h3><h4 id="ERC-20-Token-标准"><a href="#ERC-20-Token-标准" class="headerlink" title="ERC-20 Token 标准"></a>ERC-20 Token 标准</h4><p>最常见的代币标准，定义了代币的基本接口。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">interface IERC20 &#123;</span><br><span class="line">    function transfer(address to, uint256 amount) external returns (bool);</span><br><span class="line">    function approve(address spender, uint256 amount) external returns (bool);</span><br><span class="line">    function transferFrom(address from, address to, uint256 amount) external returns (bool);</span><br><span class="line">    function balanceOf(address account) external view returns (uint256);</span><br><span class="line">    function allowance(address owner, address spender) external view returns (uint256);</span><br><span class="line">    </span><br><span class="line">    event Transfer(address indexed from, address indexed to, uint256 value);</span><br><span class="line">    event Approval(address indexed owner, address indexed spender, uint256 value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="ERC-721-NFT-标准"><a href="#ERC-721-NFT-标准" class="headerlink" title="ERC-721 NFT 标准"></a>ERC-721 NFT 标准</h4><p>非同质化代币（NFT）标准，每个代币都是唯一的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">interface IERC721 &#123;</span><br><span class="line">    function safeTransferFrom(address from, address to, uint256 tokenId) external;</span><br><span class="line">    function transferFrom(address from, address to, uint256 tokenId) external;</span><br><span class="line">    function approve(address to, uint256 tokenId) external;</span><br><span class="line">    function setApprovalForAll(address operator, bool approved) external;</span><br><span class="line">    function balanceOf(address owner) external view returns (uint256);</span><br><span class="line">    function ownerOf(uint256 tokenId) external view returns (address);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="委托模式（Delegation）"><a href="#委托模式（Delegation）" class="headerlink" title="委托模式（Delegation）"></a>委托模式（Delegation）</h4><p>合约通过委托调用执行其他合约的逻辑，保持数据存储在当前合约。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 代理合约</span><br><span class="line">contract Proxy &#123;</span><br><span class="line">    address implementation;</span><br><span class="line">    </span><br><span class="line">    fallback() external payable &#123;</span><br><span class="line">        (bool success, ) = implementation.delegatecall(msg.data);</span><br><span class="line">        require(success);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="智能合约的安全考虑"><a href="#智能合约的安全考虑" class="headerlink" title="智能合约的安全考虑"></a>智能合约的安全考虑</h2><h3 id="常见漏洞"><a href="#常见漏洞" class="headerlink" title="常见漏洞"></a>常见漏洞</h3><h4 id="重入攻击（Reentrancy）"><a href="#重入攻击（Reentrancy）" class="headerlink" title="重入攻击（Reentrancy）"></a>重入攻击（Reentrancy）</h4><p>攻击者在函数执行完成前再次调用该函数，导致状态不一致。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 易受攻击的代码</span><br><span class="line">function withdraw() public &#123;</span><br><span class="line">    uint amount = balances[msg.sender];</span><br><span class="line">    (bool success, ) = msg.sender.call&#123;value: amount&#125;(&quot;&quot;);</span><br><span class="line">    require(success);</span><br><span class="line">    balances[msg.sender] = 0;  // 状态更新延迟，可被重入</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 安全的代码（检查-修改-交互模式）</span><br><span class="line">function withdraw() public &#123;</span><br><span class="line">    uint amount = balances[msg.sender];</span><br><span class="line">    balances[msg.sender] = 0;  // 先更新状态</span><br><span class="line">    (bool success, ) = msg.sender.call&#123;value: amount&#125;(&quot;&quot;);</span><br><span class="line">    require(success);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="整数溢出-x2F-下溢"><a href="#整数溢出-x2F-下溢" class="headerlink" title="整数溢出&#x2F;下溢"></a>整数溢出&#x2F;下溢</h4><p>在 Solidity 0.8.0 之前，需要手动检查或使用 SafeMath 库。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// SafeMath 库使用</span><br><span class="line">import &quot;@openzeppelin/contracts/utils/math/SafeMath.sol&quot;;</span><br><span class="line"></span><br><span class="line">contract Safe &#123;</span><br><span class="line">    using SafeMath for uint256;</span><br><span class="line">    </span><br><span class="line">    function add(uint256 a, uint256 b) public pure returns (uint256) &#123;</span><br><span class="line">        return a.add(b);  // 自动检查溢出</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="访问控制漏洞"><a href="#访问控制漏洞" class="headerlink" title="访问控制漏洞"></a>访问控制漏洞</h4><p>函数缺少权限检查，导致任何人都能调用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 不安全：任何人都能转账</span><br><span class="line">function transfer(address to, uint256 amount) public &#123;</span><br><span class="line">    balances[msg.sender] -= amount;</span><br><span class="line">    balances[to] += amount;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 安全：检查权限</span><br><span class="line">modifier onlyOwner() &#123;</span><br><span class="line">    require(msg.sender == owner, &quot;Only owner&quot;);</span><br><span class="line">    _;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function transfer(address to, uint256 amount) public onlyOwner &#123;</span><br><span class="line">    balances[msg.sender] -= amount;</span><br><span class="line">    balances[to] += amount;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h3><ul>
+<li><strong>审计代码</strong>：在部署前进行专业安全审计</li>
+<li><strong>使用成熟库</strong>：优先使用 OpenZeppelin 等经过审计的库</li>
+<li><strong>遵循设计模式</strong>：使用检查-修改-交互（CEI）模式</li>
+<li><strong>限制权限</strong>：最小权限原则，定义明确的访问控制</li>
+<li><strong>测试充分</strong>：编写单元测试和集成测试</li>
+<li><strong>版本锁定</strong>：明确指定 Solidity 版本，避免意外升级</li>
+<li><strong>监控 Gas 使用</strong>：优化合约以减少 Gas 消耗</li>
+<li><strong>应急方案</strong>：设计暂停机制和升级机制</li>
+</ul>
+<h2 id="智能合约开发工具"><a href="#智能合约开发工具" class="headerlink" title="智能合约开发工具"></a>智能合约开发工具</h2><h3 id="开发框架"><a href="#开发框架" class="headerlink" title="开发框架"></a>开发框架</h3><table>
+<thead>
+<tr>
+<th>框架</th>
+<th>特点</th>
+<th>主要功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Hardhat</strong></td>
+<td>Node.js 环境、灵活、插件丰富</td>
+<td>编译、测试、调试、部署</td>
+</tr>
+<tr>
+<td><strong>Truffle</strong></td>
+<td>完整工具套件、生态成熟</td>
+<td>编译、迁移、测试、部署</td>
+</tr>
+<tr>
+<td><strong>Foundry</strong></td>
+<td>Rust 实现、性能高、实验特性</td>
+<td>快速开发、模糊测试、Gas 分析</td>
+</tr>
+<tr>
+<td><strong>Brownie</strong></td>
+<td>Python 环境、易于学习</td>
+<td>编译、测试、部署、交互</td>
+</tr>
+</tbody></table>
+<h3 id="开发流程示例（Hardhat）"><a href="#开发流程示例（Hardhat）" class="headerlink" title="开发流程示例（Hardhat）"></a>开发流程示例（Hardhat）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初始化项目</span></span><br><span class="line">npm install -g hardhat</span><br><span class="line">npx hardhat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编写合约</span></span><br><span class="line"><span class="comment"># contracts/Token.sol</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编写测试</span></span><br><span class="line"><span class="comment"># test/Token.js</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line">npx hardhat compile</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line">npx hardhat <span class="built_in">test</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署</span></span><br><span class="line">npx hardhat run scripts/deploy.js --network mainnet</span><br></pre></td></tr></table></figure>
+
+<h3 id="验证和监控"><a href="#验证和监控" class="headerlink" title="验证和监控"></a>验证和监控</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Etherscan 上验证合约源码</span></span><br><span class="line">npx hardhat verify --network mainnet CONTRACT_ADDRESS <span class="string">&quot;constructor args&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 Tenderly 进行交易模拟和调试</span></span><br><span class="line">npx tenderly <span class="built_in">export</span> CONTRACT_ADDRESS</span><br></pre></td></tr></table></figure>
+
+<h2 id="Gas-优化"><a href="#Gas-优化" class="headerlink" title="Gas 优化"></a>Gas 优化</h2><h3 id="什么是-Gas"><a href="#什么是-Gas" class="headerlink" title="什么是 Gas"></a>什么是 Gas</h3><p>Gas 是在以太坊上执行操作所需的计算费用单位，用户需要支付 Gas 费用来执行交易。</p>
+<h3 id="Gas-成本示例"><a href="#Gas-成本示例" class="headerlink" title="Gas 成本示例"></a>Gas 成本示例</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>Gas 消耗</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读取存储</td>
+<td>2,100</td>
+<td>免费读取</td>
+</tr>
+<tr>
+<td>写入存储</td>
+<td>20,000</td>
+<td>首次写入</td>
+</tr>
+<tr>
+<td>更新存储</td>
+<td>5,000</td>
+<td>已存在的值更新</td>
+</tr>
+<tr>
+<td>算术运算</td>
+<td>3-5</td>
+<td>加、减、乘</td>
+</tr>
+<tr>
+<td>事件日志</td>
+<td>375+</td>
+<td>每个日志条目</td>
+</tr>
+<tr>
+<td>创建合约</td>
+<td>53,000</td>
+<td>创建新合约</td>
+</tr>
+</tbody></table>
+<h3 id="优化技巧"><a href="#优化技巧" class="headerlink" title="优化技巧"></a>优化技巧</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">// 1. 减少存储写入</span><br><span class="line">function batchUpdate(uint256[] memory values) public &#123;</span><br><span class="line">    uint256 length = values.length;</span><br><span class="line">    for (uint256 i = 0; i &lt; length; i++) &#123;</span><br><span class="line">        // 在内存中计算，最后一次写入存储</span><br><span class="line">    &#125;</span><br><span class="line">    result = calculateOnce(values);  // 一次写入</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 2. 使用紧凑的数据类型</span><br><span class="line">struct Packed &#123;</span><br><span class="line">    uint8 flag;      // 1 字节</span><br><span class="line">    uint8 status;    // 1 字节</span><br><span class="line">    uint128 value;   // 16 字节</span><br><span class="line">    // 总共 18 字节，共享一个 32 字节的存储槽</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 3. 避免不必要的计算</span><br><span class="line">function getDiscount(uint256 amount) public view returns (uint256) &#123;</span><br><span class="line">    // 不好：每次都计算</span><br><span class="line">    // return amount * 10 / 100;</span><br><span class="line">    </span><br><span class="line">    // 更好：预先计算常数</span><br><span class="line">    return amount * DISCOUNT_PERCENT / 100;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 4. 使用 calldata 代替 memory</span><br><span class="line">function process(bytes calldata data) public pure &#123;</span><br><span class="line">    // calldata 是只读的，不需要复制到内存</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="智能合约的真实应用"><a href="#智能合约的真实应用" class="headerlink" title="智能合约的真实应用"></a>智能合约的真实应用</h2><h3 id="DeFi（去中心化金融）"><a href="#DeFi（去中心化金融）" class="headerlink" title="DeFi（去中心化金融）"></a>DeFi（去中心化金融）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// Uniswap 风格的交换合约简化版</span><br><span class="line">contract SimpleSwap &#123;</span><br><span class="line">    mapping(address =&gt; uint256) public tokenABalance;</span><br><span class="line">    mapping(address =&gt; uint256) public tokenBBalance;</span><br><span class="line">    </span><br><span class="line">    event Swap(address indexed user, uint256 amountA, uint256 amountB);</span><br><span class="line">    </span><br><span class="line">    // x * y = k 恒定乘积公式</span><br><span class="line">    function swap(address tokenFrom, uint256 amountIn) public returns (uint256) &#123;</span><br><span class="line">        uint256 balanceIn = (tokenFrom == tokenA) ? tokenABalance[address(this)] : tokenBBalance[address(this)];</span><br><span class="line">        uint256 balanceOut = (tokenFrom == tokenA) ? tokenBBalance[address(this)] : tokenABalance[address(this)];</span><br><span class="line">        </span><br><span class="line">        uint256 amountOut = (amountIn * balanceOut) / (balanceIn + amountIn);</span><br><span class="line">        </span><br><span class="line">        emit Swap(msg.sender, amountIn, amountOut);</span><br><span class="line">        return amountOut;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="NFT-市场"><a href="#NFT-市场" class="headerlink" title="NFT 市场"></a>NFT 市场</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">// 简化的 NFT 市场合约</span><br><span class="line">contract NFTMarketplace &#123;</span><br><span class="line">    IERC721 public nftContract;</span><br><span class="line">    </span><br><span class="line">    struct Listing &#123;</span><br><span class="line">        address seller;</span><br><span class="line">        uint256 price;</span><br><span class="line">        bool active;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    mapping(uint256 =&gt; Listing) public listings;</span><br><span class="line">    </span><br><span class="line">    event Listed(uint256 indexed tokenId, address indexed seller, uint256 price);</span><br><span class="line">    event Purchased(uint256 indexed tokenId, address indexed buyer, uint256 price);</span><br><span class="line">    </span><br><span class="line">    function list(uint256 tokenId, uint256 price) public &#123;</span><br><span class="line">        require(nftContract.ownerOf(tokenId) == msg.sender);</span><br><span class="line">        listings[tokenId] = Listing(msg.sender, price, true);</span><br><span class="line">        emit Listed(tokenId, msg.sender, price);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function purchase(uint256 tokenId) public payable &#123;</span><br><span class="line">        Listing memory listing = listings[tokenId];</span><br><span class="line">        require(listing.active);</span><br><span class="line">        require(msg.value &gt;= listing.price);</span><br><span class="line">        </span><br><span class="line">        listings[tokenId].active = false;</span><br><span class="line">        nftContract.transferFrom(listing.seller, msg.sender, tokenId);</span><br><span class="line">        </span><br><span class="line">        (bool success, ) = listing.seller.call&#123;value: msg.value&#125;(&quot;&quot;);</span><br><span class="line">        require(success);</span><br><span class="line">        </span><br><span class="line">        emit Purchased(tokenId, msg.sender, msg.value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="DAO（去中心化自治组织）"><a href="#DAO（去中心化自治组织）" class="headerlink" title="DAO（去中心化自治组织）"></a>DAO（去中心化自治组织）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">// 简化的 DAO 投票合约</span><br><span class="line">contract SimpleDAO &#123;</span><br><span class="line">    IERC20 public governanceToken;</span><br><span class="line">    </span><br><span class="line">    struct Proposal &#123;</span><br><span class="line">        string description;</span><br><span class="line">        uint256 voteCount;</span><br><span class="line">        bool executed;</span><br><span class="line">        mapping(address =&gt; bool) voted;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    Proposal[] public proposals;</span><br><span class="line">    </span><br><span class="line">    function createProposal(string memory description) public &#123;</span><br><span class="line">        proposals.push();</span><br><span class="line">        proposals[proposals.length - 1].description = description;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function vote(uint256 proposalId) public &#123;</span><br><span class="line">        require(governanceToken.balanceOf(msg.sender) &gt; 0, &quot;No voting power&quot;);</span><br><span class="line">        require(!proposals[proposalId].voted[msg.sender], &quot;Already voted&quot;);</span><br><span class="line">        </span><br><span class="line">        proposals[proposalId].voted[msg.sender] = true;</span><br><span class="line">        proposals[proposalId].voteCount += 1;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function executeProposal(uint256 proposalId) public &#123;</span><br><span class="line">        require(proposals[proposalId].voteCount &gt; THRESHOLD);</span><br><span class="line">        require(!proposals[proposalId].executed);</span><br><span class="line">        </span><br><span class="line">        proposals[proposalId].executed = true;</span><br><span class="line">        // 执行提案逻辑</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="智能合约的发展趋势"><a href="#智能合约的发展趋势" class="headerlink" title="智能合约的发展趋势"></a>智能合约的发展趋势</h2><h3 id="1-跨链互操作性"><a href="#1-跨链互操作性" class="headerlink" title="1. 跨链互操作性"></a>1. 跨链互操作性</h3><ul>
+<li><strong>跨链桥接</strong>：允许合约跨越不同区块链交互</li>
+<li><strong>原子交换</strong>：不同区块链间的原子交易</li>
+<li><strong>通用资产</strong>：统一的跨链资产表示</li>
+</ul>
+<h3 id="2-零知识证明（ZK）"><a href="#2-零知识证明（ZK）" class="headerlink" title="2. 零知识证明（ZK）"></a>2. 零知识证明（ZK）</h3><ul>
+<li><strong>隐私保护</strong>：在不暴露数据的情况下证明正确性</li>
+<li><strong>可扩展性</strong>：通过 ZK-rollup 扩展交易吞吐量</li>
+<li><strong>合规性</strong>：满足监管要求的隐私交易</li>
+</ul>
+<h3 id="3-形式化验证"><a href="#3-形式化验证" class="headerlink" title="3. 形式化验证"></a>3. 形式化验证</h3><ul>
+<li><strong>数学证明</strong>：证明合约代码的正确性</li>
+<li><strong>减少漏洞</strong>：早期发现逻辑错误</li>
+<li><strong>提高安全性</strong>：关键合约的强制验证</li>
+</ul>
+<h3 id="4-高级语言和框架"><a href="#4-高级语言和框架" class="headerlink" title="4. 高级语言和框架"></a>4. 高级语言和框架</h3><ul>
+<li><strong>更好的开发者体验</strong>：DSL 和现代语言支持</li>
+<li><strong>更高的抽象度</strong>：减少低级错误</li>
+<li><strong>自动化审计</strong>：内置的安全检查</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>智能合约是 Web3 的基石，通过代码形式的自动化协议，实现了去中心化应用的核心功能。开发智能合约需要掌握：</p>
+<ul>
+<li><strong>基础知识</strong>：区块链原理、EVM、Gas 机制</li>
+<li><strong>编程技能</strong>：Solidity 或其他合约语言</li>
+<li><strong>安全意识</strong>：常见漏洞、最佳实践、审计流程</li>
+<li><strong>开发工具</strong>：编译、测试、部署、验证工具</li>
+<li><strong>性能优化</strong>：Gas 优化、算法优化、架构设计</li>
+<li><strong>实战应用</strong>：DeFi、NFT、DAO 等实际场景</li>
+</ul>
+<p>只有充分理解这些要素，才能开发安全、高效、有价值的智能合约应用。</p>
+<h2 id="常见问题解答"><a href="#常见问题解答" class="headerlink" title="常见问题解答"></a>常见问题解答</h2><h3 id="1-什么是智能合约？"><a href="#1-什么是智能合约？" class="headerlink" title="1. 什么是智能合约？"></a>1. 什么是智能合约？</h3><p>智能合约是运行在区块链上的一段代码，具有以下特点：</p>
+<ul>
+<li><strong>代码定义逻辑</strong>：代码逻辑定义了合约的执行规则和条款</li>
+<li><strong>账户状态</strong>：智能合约的账户保存了合约当前的状态：<ul>
+<li><code>balance</code>：当前余额</li>
+<li><code>nonce</code>：交易次数</li>
+<li><code>code</code>：合约代码</li>
+<li><code>storage</code>：存储数据，数据结构是一颗 MPT（Merkle Patricia Tree）</li>
+</ul>
+</li>
+<li><strong>编程语言</strong>：Solidity 是智能合约最常用的语言，语法上和 JavaScript 很接近</li>
+</ul>
+<h3 id="2-外部账户如何调用智能合约？"><a href="#2-外部账户如何调用智能合约？" class="headerlink" title="2. 外部账户如何调用智能合约？"></a>2. 外部账户如何调用智能合约？</h3><p>外部账户（EOA）通过创建一个交易来调用智能合约：</p>
+<ul>
+<li><strong>接收地址</strong>：交易的接收地址为要调用的智能合约的地址</li>
+<li><strong>data 域</strong>：填写要调用的函数及其参数的编码值（ABI 编码）</li>
+<li><strong>执行过程</strong>：节点接收交易后，解析 data 域，调用对应的合约函数</li>
+</ul>
+<h4 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 合约中的函数</span><br><span class="line">contract Counter &#123;</span><br><span class="line">    uint256 public count;</span><br><span class="line">    </span><br><span class="line">    function increment(uint256 amount) public &#123;</span><br><span class="line">        count += amount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 外部调用（通过交易）</span><br><span class="line">// 交易格式：</span><br><span class="line">// to: 0x1234...（合约地址）</span><br><span class="line">// data: 0x3ad0f3f6 + 参数编码（increment(10) 的编码）</span><br><span class="line">// value: 0（不发送 ETH）</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-一个合约如何调用另一个合约中的函数？"><a href="#3-一个合约如何调用另一个合约中的函数？" class="headerlink" title="3. 一个合约如何调用另一个合约中的函数？"></a>3. 一个合约如何调用另一个合约中的函数？</h3><p>注：以太坊中规定，一个交易只有外部账户才能够发起，合约账户不能够自己主动发起一个交易。</p>
+<p>合约间调用分为以下几种方式：</p>
+<h4 id="方式-1：直接调用（Call）"><a href="#方式-1：直接调用（Call）" class="headerlink" title="方式 1：直接调用（Call）"></a>方式 1：直接调用（Call）</h4><p>最常用的方式，执行目标合约的函数，状态变化在目标合约中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">// 目标合约</span><br><span class="line">contract TargetContract &#123;</span><br><span class="line">    uint256 public value = 0;</span><br><span class="line">    </span><br><span class="line">    function setValue(uint256 newValue) public &#123;</span><br><span class="line">        value = newValue;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function getValue() public view returns (uint256) &#123;</span><br><span class="line">        return value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 调用合约</span><br><span class="line">contract CallerContract &#123;</span><br><span class="line">    TargetContract target;</span><br><span class="line">    </span><br><span class="line">    constructor(address _target) &#123;</span><br><span class="line">        target = TargetContract(_target);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 方式 1：直接调用</span><br><span class="line">    function callTarget(uint256 newValue) public &#123;</span><br><span class="line">        target.setValue(newValue);  // 状态变化在 target 中</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 查询目标合约的状态</span><br><span class="line">    function queryTarget() public view returns (uint256) &#123;</span><br><span class="line">        return target.getValue();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式-2：委托调用（Delegatecall）"><a href="#方式-2：委托调用（Delegatecall）" class="headerlink" title="方式 2：委托调用（Delegatecall）"></a>方式 2：委托调用（Delegatecall）</h4><p>执行目标合约的代码，但状态变化在<strong>调用合约</strong>中。常用于代理模式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">// 逻辑合约</span><br><span class="line">contract Logic &#123;</span><br><span class="line">    uint256 public counter;</span><br><span class="line">    </span><br><span class="line">    function increment() public &#123;</span><br><span class="line">        counter += 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 代理合约</span><br><span class="line">contract Proxy &#123;</span><br><span class="line">    uint256 public counter;  // 与 Logic 合约的状态变量相同</span><br><span class="line">    address public implementation;</span><br><span class="line">    </span><br><span class="line">    constructor(address _logic) &#123;</span><br><span class="line">        implementation = _logic;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 使用 delegatecall 调用逻辑合约</span><br><span class="line">    function increment() public &#123;</span><br><span class="line">        (bool success, ) = implementation.delegatecall(</span><br><span class="line">            abi.encodeWithSignature(&quot;increment()&quot;)</span><br><span class="line">        );</span><br><span class="line">        require(success, &quot;Delegatecall failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 状态变化在 Proxy 中，不在 Logic 中</span><br><span class="line">    function getCounter() public view returns (uint256) &#123;</span><br><span class="line">        return counter;  // 返回 Proxy 的 counter</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式-3：低级调用（Low-level-Call）"><a href="#方式-3：低级调用（Low-level-Call）" class="headerlink" title="方式 3：低级调用（Low-level Call）"></a>方式 3：低级调用（Low-level Call）</h4><p>使用 <code>call</code> 方法进行低级调用，适合不知道目标合约 ABI 的场景。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">contract Caller &#123;</span><br><span class="line">    // 低级调用：发送 ETH 并调用函数</span><br><span class="line">    function lowLevelCall(address target, bytes memory data) public payable returns (bool) &#123;</span><br><span class="line">        (bool success, bytes memory result) = target.call&#123;value: msg.value&#125;(data);</span><br><span class="line">        return success;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 使用示例</span><br><span class="line">    function callWithData(address target) public &#123;</span><br><span class="line">        // 准备函数调用数据：setValue(42)</span><br><span class="line">        bytes memory payload = abi.encodeWithSignature(&quot;setValue(uint256)&quot;, 42);</span><br><span class="line">        </span><br><span class="line">        (bool success, ) = target.call(payload);</span><br><span class="line">        require(success, &quot;Call failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式-4：接口调用（推荐）"><a href="#方式-4：接口调用（推荐）" class="headerlink" title="方式 4：接口调用（推荐）"></a>方式 4：接口调用（推荐）</h4><p>定义接口，通过接口调用目标合约，最安全和清晰的方式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">// 目标合约接口</span><br><span class="line">interface ITarget &#123;</span><br><span class="line">    function setValue(uint256 newValue) external;</span><br><span class="line">    function getValue() external view returns (uint256);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 调用合约</span><br><span class="line">contract SafeCaller &#123;</span><br><span class="line">    ITarget target;</span><br><span class="line">    </span><br><span class="line">    constructor(address _target) &#123;</span><br><span class="line">        target = ITarget(_target);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 通过接口调用（最推荐）</span><br><span class="line">    function updateTarget(uint256 newValue) public &#123;</span><br><span class="line">        target.setValue(newValue);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function readTarget() public view returns (uint256) &#123;</span><br><span class="line">        return target.getValue();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-合约调用的成本和限制"><a href="#4-合约调用的成本和限制" class="headerlink" title="4. 合约调用的成本和限制"></a>4. 合约调用的成本和限制</h3><h4 id="Gas-成本"><a href="#Gas-成本" class="headerlink" title="Gas 成本"></a>Gas 成本</h4><table>
+<thead>
+<tr>
+<th>调用方式</th>
+<th>Gas 消耗</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Call</strong></td>
+<td>~600-700</td>
+<td>普通外部调用</td>
+</tr>
+<tr>
+<td><strong>Delegatecall</strong></td>
+<td>~600-700</td>
+<td>委托调用，代理模式</td>
+</tr>
+<tr>
+<td><strong>Static Call</strong></td>
+<td>~600-700</td>
+<td>只读调用（view&#x2F;pure）</td>
+</tr>
+<tr>
+<td><strong>Create</strong></td>
+<td>~53,000</td>
+<td>创建新合约</td>
+</tr>
+</tbody></table>
+<h4 id="限制条件"><a href="#限制条件" class="headerlink" title="限制条件"></a>限制条件</h4><ol>
+<li><strong>调用深度限制</strong>：最多 1024 层嵌套调用</li>
+<li><strong>Gas 限制</strong>：调用方必须提供足够的 Gas</li>
+<li><strong>异常处理</strong>：调用失败需要妥善处理</li>
+<li><strong>状态一致性</strong>：Delegatecall 需要确保存储布局一致</li>
+</ol>
+<h4 id="错误处理示例"><a href="#错误处理示例" class="headerlink" title="错误处理示例"></a>错误处理示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">contract SafeCallExample &#123;</span><br><span class="line">    function safeCall(address target, bytes memory data) public returns (bool) &#123;</span><br><span class="line">        // 方式 1：使用 try-catch（Solidity 0.6.0+）</span><br><span class="line">        try &#123;</span><br><span class="line">            (bool success, ) = target.call(data);</span><br><span class="line">            return success;</span><br><span class="line">        &#125; catch &#123;</span><br><span class="line">            // 处理调用失败</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 方式 2：检查返回值</span><br><span class="line">    function checkedCall(address target, bytes memory data) public returns (bool) &#123;</span><br><span class="line">        (bool success, bytes memory result) = target.call(data);</span><br><span class="line">        if (!success) &#123;</span><br><span class="line">            // 解析错误信息</span><br><span class="line">            if (result.length &gt; 0) &#123;</span><br><span class="line">                // 目标合约返回了错误</span><br><span class="line">                assembly &#123;</span><br><span class="line">                    revert(add(32, result), mload(result))</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                revert(&quot;Call failed&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-调用方式对比表"><a href="#5-调用方式对比表" class="headerlink" title="5. 调用方式对比表"></a>5. 调用方式对比表</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Call</th>
+<th>Delegatecall</th>
+<th>Interface</th>
+<th>Low-level</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>安全性</strong></td>
+<td>★★★★★</td>
+<td>★★★</td>
+<td>★★★★★</td>
+<td>★★</td>
+</tr>
+<tr>
+<td><strong>可读性</strong></td>
+<td>★★★★★</td>
+<td>★★★★</td>
+<td>★★★★★</td>
+<td>★★</td>
+</tr>
+<tr>
+<td><strong>灵活性</strong></td>
+<td>★★★</td>
+<td>★★★★★</td>
+<td>★★★</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>需要 ABI</strong></td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td><strong>典型用途</strong></td>
+<td>普通调用</td>
+<td>代理模式</td>
+<td>标准调用</td>
+<td>动态调用</td>
+</tr>
+<tr>
+<td><strong>推荐度</strong></td>
+<td>★★★★★</td>
+<td>★★★★</td>
+<td>★★★★★</td>
+<td>★★</td>
+</tr>
+</tbody></table>
+<h3 id="6-最佳实践"><a href="#6-最佳实践" class="headerlink" title="6. 最佳实践"></a>6. 最佳实践</h3><ul>
+<li><strong>优先使用接口调用</strong>：提供类型安全和清晰的 API</li>
+<li><strong>验证调用返回值</strong>：始终检查调用是否成功</li>
+<li><strong>避免过深的调用</strong>：注意堆栈深度限制</li>
+<li><strong>文档化合约依赖</strong>：说明与其他合约的交互方式</li>
+<li><strong>谨慎使用 Delegatecall</strong>：确保存储布局兼容</li>
+<li><strong>设置合适的 Gas 限制</strong>：提供足够但不过多的 Gas</li>
+<li><strong>实现重入保护</strong>：在必要时使用 ReentrancyGuard</li>
+</ul>
+<h3 id="7-智能合约是否支持多线程？"><a href="#7-智能合约是否支持多线程？" class="headerlink" title="7. 智能合约是否支持多线程？"></a>7. 智能合约是否支持多线程？</h3><p><strong>答案：智能合约不支持多线程。</strong></p>
+<h4 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h4><ol>
+<li><p><strong>确定性要求</strong></p>
+<ul>
+<li>区块链需要确保每个节点都能按照相同的方式执行合约</li>
+<li>多线程会引入不确定性（线程调度、竞态条件等）</li>
+<li>无法保证所有节点的执行结果一致</li>
+</ul>
+</li>
+<li><p><strong>单线程执行模型</strong></p>
+<ul>
+<li>智能合约在 EVM 上以单线程方式顺序执行</li>
+<li>每个交易的执行是原子的，不会被中断</li>
+<li>一个交易完全执行完毕后，才会执行下一个交易</li>
+</ul>
+</li>
+<li><p><strong>状态一致性</strong></p>
+<ul>
+<li>多线程会导致共享状态的竞争问题</li>
+<li>区块链无法通过锁或信号量等机制来同步</li>
+<li>单线程执行保证了状态的一致性</li>
+</ul>
+</li>
+</ol>
+<h4 id="代码示例对比"><a href="#代码示例对比" class="headerlink" title="代码示例对比"></a>代码示例对比</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 单线程执行示例</span><br><span class="line">contract Counter &#123;</span><br><span class="line">    uint256 public count = 0;</span><br><span class="line">    </span><br><span class="line">    // 这个函数总是原子地执行，不会被中断</span><br><span class="line">    function increment() public &#123;</span><br><span class="line">        uint256 temp = count;      // 步骤 1</span><br><span class="line">        temp = temp + 1;           // 步骤 2</span><br><span class="line">        count = temp;              // 步骤 3</span><br><span class="line">        // 执行过程不会被其他交易打断</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 如果支持多线程（理论）- 会导致问题</span><br><span class="line">// 假设有两个线程同时执行 increment()</span><br><span class="line">// 线程 1: 读取 count = 0 → 加 1 → 写入 count = 1</span><br><span class="line">// 线程 2: 读取 count = 0 → 加 1 → 写入 count = 1</span><br><span class="line">// 结果：count = 1（而不是 2）- 这是竞态条件</span><br></pre></td></tr></table></figure>
+
+<h4 id="并发性的解决方案"><a href="#并发性的解决方案" class="headerlink" title="并发性的解决方案"></a>并发性的解决方案</h4><p>虽然智能合约本身不支持多线程，但可以通过以下方式实现并发：</p>
+<ol>
+<li><p><strong>多个交易并发提交</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 用户 A 提交交易 1</span><br><span class="line">await contract.increment();</span><br><span class="line"></span><br><span class="line">// 用户 B 提交交易 2（与交易 1 并发提交）</span><br><span class="line">await contract.increment();</span><br><span class="line"></span><br><span class="line">// 矿工会依次执行这两个交易，最终 count = 2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>状态通道（State Channels）</strong></p>
+<ul>
+<li>参与者在链外执行多个交易</li>
+<li>最后一次性提交到区块链</li>
+<li>实现高并发和低费用</li>
+</ul>
+</li>
+<li><p><strong>侧链&#x2F;Rollup</strong></p>
+<ul>
+<li>使用 Layer 2 解决方案处理大量交易</li>
+<li>定期将状态同步回主链</li>
+</ul>
+</li>
+</ol>
+<h4 id="多线程执行的限制与解决方案总结"><a href="#多线程执行的限制与解决方案总结" class="headerlink" title="多线程执行的限制与解决方案总结"></a>多线程执行的限制与解决方案总结</h4><ul>
+<li><strong>智能合约采用单线程执行模型</strong></li>
+<li><strong>保证了区块链的一致性和确定性</strong></li>
+<li><strong>交易按顺序执行，每个交易是原子的</strong></li>
+<li><strong>并发通过多个交易的顺序执行来实现</strong></li>
+</ul>
+<h2 id="错误处理机制"><a href="#错误处理机制" class="headerlink" title="错误处理机制"></a>错误处理机制</h2><p>智能合约中的错误处理机制确保了状态的一致性和安全性。</p>
+<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><ol>
+<li><strong>原子性保证</strong>：一旦遇到异常，除特殊情况外，本次执行操作全部回滚</li>
+<li><strong>状态恢复</strong>：所有状态变更都会被撤销，就像交易从未发生</li>
+<li><strong>Gas 消耗</strong>：已消耗的 Gas 不会退回（作为执行成本的一部分）</li>
+</ol>
+<h3 id="抛出错误的语句"><a href="#抛出错误的语句" class="headerlink" title="抛出错误的语句"></a>抛出错误的语句</h3><h4 id="1-require-条件检查"><a href="#1-require-条件检查" class="headerlink" title="1. require() - 条件检查"></a>1. <code>require()</code> - 条件检查</h4><p>用于检查输入或外部组件引起的错误，<strong>会退回剩余 Gas</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">contract SafeTransfer &#123;</span><br><span class="line">    mapping(address =&gt; uint256) public balances;</span><br><span class="line">    </span><br><span class="line">    function withdraw(uint256 amount) public &#123;</span><br><span class="line">        // 检查用户是否有足够的余额</span><br><span class="line">        require(balances[msg.sender] &gt;= amount, &quot;Insufficient balance&quot;);</span><br><span class="line">        </span><br><span class="line">        // 检查转账是否成功</span><br><span class="line">        require(msg.sender.send(amount), &quot;Transfer failed&quot;);</span><br><span class="line">        </span><br><span class="line">        balances[msg.sender] -= amount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Gas 成本</strong>：约 3 Gas（如果条件满足）或 3 + 内存成本（如果失败）</p>
+<h4 id="2-assert-内部检查"><a href="#2-assert-内部检查" class="headerlink" title="2. assert() - 内部检查"></a>2. <code>assert()</code> - 内部检查</h4><p>用于检查内部错误和不变量，<strong>不会退回剩余 Gas</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">contract MathSafe &#123;</span><br><span class="line">    function add(uint256 a, uint256 b) public pure returns (uint256) &#123;</span><br><span class="line">        uint256 c = a + b;</span><br><span class="line">        </span><br><span class="line">        // 检查是否发生溢出（内部逻辑错误）</span><br><span class="line">        assert(c &gt;= a);  // 这个条件必须总是真的</span><br><span class="line">        </span><br><span class="line">        return c;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function updateState(uint256 newValue) public &#123;</span><br><span class="line">        uint256 oldValue = state;</span><br><span class="line">        state = newValue;</span><br><span class="line">        </span><br><span class="line">        // 验证内部不变量</span><br><span class="line">        assert(state != oldValue || newValue == oldValue);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Gas 成本</strong>：约 3 Gas（如果条件满足）或 Gas 全部消耗（如果失败）</p>
+<h4 id="3-revert-手动终止"><a href="#3-revert-手动终止" class="headerlink" title="3. revert() - 手动终止"></a>3. <code>revert()</code> - 手动终止</h4><p>无条件地终止运行并回滚状态变动，<strong>会退回剩余 Gas</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">contract RoleBasedAccess &#123;</span><br><span class="line">    address public owner;</span><br><span class="line">    </span><br><span class="line">    modifier onlyOwner() &#123;</span><br><span class="line">        if (msg.sender != owner) &#123;</span><br><span class="line">            revert(&quot;Only owner can call this function&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        _;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function criticalAction() public onlyOwner &#123;</span><br><span class="line">        // 手动检查并回滚</span><br><span class="line">        if (msg.value &lt; 1 ether) &#123;</span><br><span class="line">            revert(&quot;Minimum 1 ETH required&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        // 执行操作</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Gas 成本</strong>：约 0 Gas（无条件回滚）</p>
+<h4 id="4-try-catch-异常捕获（Solidity-0-6-0-）"><a href="#4-try-catch-异常捕获（Solidity-0-6-0-）" class="headerlink" title="4. try-catch - 异常捕获（Solidity 0.6.0+）"></a>4. <code>try-catch</code> - 异常捕获（Solidity 0.6.0+）</h4><p>捕获外部调用的异常，允许合约继续执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">contract TryCatchExample &#123;</span><br><span class="line">    OtherContract other;</span><br><span class="line">    </span><br><span class="line">    function callOther(uint256 value) public returns (bool) &#123;</span><br><span class="line">        try other.riskyFunction(value) returns (uint256 result) &#123;</span><br><span class="line">            // 调用成功</span><br><span class="line">            emit Success(result);</span><br><span class="line">            return true;</span><br><span class="line">        &#125; catch Error(string memory reason) &#123;</span><br><span class="line">            // 捕获 require/revert 的错误信息</span><br><span class="line">            emit Error(&quot;Require failed&quot;, reason);</span><br><span class="line">            return false;</span><br><span class="line">        &#125; catch Panic(uint errorCode) &#123;</span><br><span class="line">            // 捕获 assert 失败</span><br><span class="line">            emit Error(&quot;Assertion failed&quot;, errorCode);</span><br><span class="line">            return false;</span><br><span class="line">        &#125; catch &#123;</span><br><span class="line">            // 捕获其他错误（如低级调用失败）</span><br><span class="line">            emit Error(&quot;Unknown error&quot;, &quot;&quot;);</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="错误处理对比表"><a href="#错误处理对比表" class="headerlink" title="错误处理对比表"></a>错误处理对比表</h3><table>
+<thead>
+<tr>
+<th>错误类型</th>
+<th>说明</th>
+<th>Gas 退回</th>
+<th>典型用途</th>
+<th>错误信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>require</strong></td>
+<td>条件检查</td>
+<td>✓ 是</td>
+<td>输入验证、权限检查</td>
+<td>支持自定义消息</td>
+</tr>
+<tr>
+<td><strong>assert</strong></td>
+<td>内部验证</td>
+<td>✗ 否</td>
+<td>检查不变量、内部逻辑</td>
+<td>无消息</td>
+</tr>
+<tr>
+<td><strong>revert</strong></td>
+<td>主动回滚</td>
+<td>✓ 是</td>
+<td>复杂条件检查、自定义错误</td>
+<td>支持自定义消息</td>
+</tr>
+<tr>
+<td><strong>try-catch</strong></td>
+<td>异常捕获</td>
+<td>✓ 部分</td>
+<td>外部调用保护</td>
+<td>可捕获详细错误</td>
+</tr>
+</tbody></table>
+<h3 id="实现最佳实践"><a href="#实现最佳实践" class="headerlink" title="实现最佳实践"></a>实现最佳实践</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">contract ErrorHandlingBestPractices &#123;</span><br><span class="line">    // 1. 使用自定义错误（Solidity 0.8.4+）- 最省 Gas</span><br><span class="line">    error InsufficientBalance(uint256 available, uint256 required);</span><br><span class="line">    error Unauthorized(address caller);</span><br><span class="line">    </span><br><span class="line">    uint256 public balance;</span><br><span class="line">    address public owner;</span><br><span class="line">    </span><br><span class="line">    // 2. 在函数开头检查条件（fail-fast 原则）</span><br><span class="line">    function withdraw(uint256 amount) public &#123;</span><br><span class="line">        require(msg.sender == owner, &quot;Only owner&quot;);</span><br><span class="line">        require(balance &gt;= amount, &quot;Insufficient balance&quot;);</span><br><span class="line">        </span><br><span class="line">        // 修改状态</span><br><span class="line">        balance -= amount;</span><br><span class="line">        </span><br><span class="line">        // 最后才进行外部调用</span><br><span class="line">        (bool success, ) = msg.sender.call&#123;value: amount&#125;(&quot;&quot;);</span><br><span class="line">        require(success, &quot;Transfer failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 3. 使用自定义错误类型</span><br><span class="line">    function transfer(address to, uint256 amount) public &#123;</span><br><span class="line">        if (balance &lt; amount) &#123;</span><br><span class="line">            revert InsufficientBalance(balance, amount);</span><br><span class="line">        &#125;</span><br><span class="line">        if (msg.sender != owner) &#123;</span><br><span class="line">            revert Unauthorized(msg.sender);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        balance -= amount;</span><br><span class="line">        // ... transfer logic</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 4. 保护外部调用</span><br><span class="line">    function safeLowLevelCall(address target) public returns (bool) &#123;</span><br><span class="line">        (bool success, bytes memory data) = target.call(&quot;&quot;);</span><br><span class="line">        </span><br><span class="line">        if (!success) &#123;</span><br><span class="line">            // 解析错误信息</span><br><span class="line">            if (data.length &gt; 0) &#123;</span><br><span class="line">                assembly &#123;</span><br><span class="line">                    revert(add(32, data), mload(data))</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="嵌套调用与原子性"><a href="#嵌套调用与原子性" class="headerlink" title="嵌套调用与原子性"></a>嵌套调用与原子性</h2><h3 id="什么是嵌套调用"><a href="#什么是嵌套调用" class="headerlink" title="什么是嵌套调用"></a>什么是嵌套调用</h3><p>嵌套调用是指一个合约调用另一个合约中的函数。在区块链中，嵌套调用的处理方式直接影响到整个交易的原子性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 合约 A 调用合约 B 的函数</span><br><span class="line">contract A &#123;</span><br><span class="line">    B contractB;</span><br><span class="line">    </span><br><span class="line">    function callB() public &#123;</span><br><span class="line">        contractB.doSomething();  // 这就是嵌套调用</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract B &#123;</span><br><span class="line">    function doSomething() public &#123;</span><br><span class="line">        // 执行逻辑</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="原子性保证"><a href="#原子性保证" class="headerlink" title="原子性保证"></a>原子性保证</h3><p><strong>智能合约的执行具有原子性</strong>：执行过程中出现错误，会导致整个交易回滚。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">contract AtomicExample &#123;</span><br><span class="line">    uint256 public value1 = 0;</span><br><span class="line">    uint256 public value2 = 0;</span><br><span class="line">    </span><br><span class="line">    function transferAssets(address other) public &#123;</span><br><span class="line">        value1 -= 100;</span><br><span class="line">        other.transfer(msg.value);  // 如果这里失败...</span><br><span class="line">        value2 -= 50;               // ...这里不会执行</span><br><span class="line">        </span><br><span class="line">        // 整个交易会回滚，value1 和 value2 都恢复到原始状态</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="嵌套调用的连锁回滚"><a href="#嵌套调用的连锁回滚" class="headerlink" title="嵌套调用的连锁回滚"></a>嵌套调用的连锁回滚</h3><h4 id="会触发连锁式回滚的调用方式"><a href="#会触发连锁式回滚的调用方式" class="headerlink" title="会触发连锁式回滚的调用方式"></a>会触发连锁式回滚的调用方式</h4><h5 id="直接调用（最常见）"><a href="#直接调用（最常见）" class="headerlink" title="直接调用（最常见）"></a>直接调用（最常见）</h5><p>被调用合约的异常会导致调用合约也一起回滚。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">contract CallerA &#123;</span><br><span class="line">    BContractB b;</span><br><span class="line">    uint256 public state = 0;</span><br><span class="line">    </span><br><span class="line">    function callB() public &#123;</span><br><span class="line">        state = 1;</span><br><span class="line">        b.riskyFunction();  // 如果这个函数 revert，整个交易回滚</span><br><span class="line">        state = 2;          // 这行不会执行</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract B &#123;</span><br><span class="line">    function riskyFunction() public &#123;</span><br><span class="line">        require(false, &quot;Error in B&quot;);  // B 中出错</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 结果：state 恢复为 0（未发生任何改变）</span><br></pre></td></tr></table></figure>
+
+<h5 id="委托调用（Delegatecall）"><a href="#委托调用（Delegatecall）" class="headerlink" title="委托调用（Delegatecall）"></a>委托调用（Delegatecall）</h5><p>被调用函数在调用合约的上下文中执行，异常同样会导致全部回滚。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">contract ProxyA &#123;</span><br><span class="line">    address implementation;</span><br><span class="line">    uint256 public count = 0;</span><br><span class="line">    </span><br><span class="line">    function executeLogic() public &#123;</span><br><span class="line">        count = 10;</span><br><span class="line">        (bool success, ) = implementation.delegatecall(</span><br><span class="line">            abi.encodeWithSignature(&quot;increment()&quot;)</span><br><span class="line">        );</span><br><span class="line">        </span><br><span class="line">        if (!success) &#123;</span><br><span class="line">            // 即使检查了 success，count 已经被改变了</span><br><span class="line">            // delegatecall 在同一交易上下文中</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="不会触发连锁式回滚的调用方式"><a href="#不会触发连锁式回滚的调用方式" class="headerlink" title="不会触发连锁式回滚的调用方式"></a>不会触发连锁式回滚的调用方式</h4><h5 id="低级-call-调用"><a href="#低级-call-调用" class="headerlink" title="低级 call() 调用"></a>低级 <code>call()</code> 调用</h5><p>被调用合约的异常不会自动导致调用合约回滚，需要手动处理。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">contract CallerA &#123;</span><br><span class="line">    uint256 public state = 0;</span><br><span class="line">    </span><br><span class="line">    function safeCall(address target) public &#123;</span><br><span class="line">        state = 1;</span><br><span class="line">        </span><br><span class="line">        // 使用低级 call，返回成功/失败标志</span><br><span class="line">        (bool success, ) = target.call(</span><br><span class="line">            abi.encodeWithSignature(&quot;riskyFunction()&quot;)</span><br><span class="line">        );</span><br><span class="line">        </span><br><span class="line">        if (!success) &#123;</span><br><span class="line">            // 可以选择继续执行或回滚</span><br><span class="line">            state = 999;  // 这行会执行</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        state = 2;  // 这行也会执行</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract B &#123;</span><br><span class="line">    function riskyFunction() public &#123;</span><br><span class="line">        require(false, &quot;Error&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 结果：state 最终为 999 或 2（没有连锁回滚）</span><br></pre></td></tr></table></figure>
+
+<h5 id="transfer-x2F-send-方法"><a href="#transfer-x2F-send-方法" class="headerlink" title="transfer() &#x2F; send() 方法"></a><code>transfer()</code> &#x2F; <code>send()</code> 方法</h5><p>这些方法有 Gas 限制（通常 2300 Gas），失败时不会导致调用合约回滚。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">contract Wallet &#123;</span><br><span class="line">    mapping(address =&gt; uint256) public balances;</span><br><span class="line">    </span><br><span class="line">    function withdraw(uint256 amount) public &#123;</span><br><span class="line">        balances[msg.sender] -= amount;</span><br><span class="line">        </span><br><span class="line">        // 使用 transfer，即使失败也不会回滚前面的状态改变</span><br><span class="line">        // （现在更推荐使用 call）</span><br><span class="line">        msg.sender.transfer(amount);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="转账引起的嵌套调用"><a href="#转账引起的嵌套调用" class="headerlink" title="转账引起的嵌套调用"></a>转账引起的嵌套调用</h3><p><strong>一个合约直接向另一个合约账户转账，没有指明调用哪个函数，仍然会引起嵌套调用。</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">contract Sender &#123;</span><br><span class="line">    function sendETH(address receiver) public payable &#123;</span><br><span class="line">        // 发送 ETH 到 receiver</span><br><span class="line">        (bool success, ) = receiver.call&#123;value: msg.value&#125;(&quot;&quot;);</span><br><span class="line">        require(success, &quot;Transfer failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Receiver &#123;</span><br><span class="line">    // 如果 receiver 是合约，接收 ETH 会自动调用这个函数</span><br><span class="line">    receive() external payable &#123;</span><br><span class="line">        // 这是一个嵌套调用！</span><br><span class="line">        // 如果这里 revert，整个转账交易会回滚</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 或者这个函数（如果 receive 不存在）</span><br><span class="line">    fallback() external payable &#123;</span><br><span class="line">        // 同样是嵌套调用</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="嵌套调用的最佳实践"><a href="#嵌套调用的最佳实践" class="headerlink" title="嵌套调用的最佳实践"></a>嵌套调用的最佳实践</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">contract SafeNestedCalls &#123;</span><br><span class="line">    // 1. 使用 Checks-Effects-Interactions（CEI）模式</span><br><span class="line">    function withdraw(uint256 amount) public &#123;</span><br><span class="line">        // Checks（检查）</span><br><span class="line">        require(balances[msg.sender] &gt;= amount, &quot;Insufficient balance&quot;);</span><br><span class="line">        </span><br><span class="line">        // Effects（修改状态）</span><br><span class="line">        balances[msg.sender] -= amount;</span><br><span class="line">        </span><br><span class="line">        // Interactions（外部调用）- 放在最后</span><br><span class="line">        (bool success, ) = msg.sender.call&#123;value: amount&#125;(&quot;&quot;);</span><br><span class="line">        require(success, &quot;Transfer failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 2. 处理低级调用的失败</span><br><span class="line">    function safeExternalCall(address target) public &#123;</span><br><span class="line">        (bool success, bytes memory result) = target.call(&quot;&quot;);</span><br><span class="line">        </span><br><span class="line">        if (!success) &#123;</span><br><span class="line">            // 手动处理错误，而不是依赖自动回滚</span><br><span class="line">            if (result.length &gt; 0) &#123;</span><br><span class="line">                assembly &#123;</span><br><span class="line">                    revert(add(32, result), mload(result))</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 3. 使用 try-catch 捕获异常</span><br><span class="line">    function robustCall(address target) public returns (bool) &#123;</span><br><span class="line">        try this.callHelper(target) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125; catch &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function callHelper(address target) external &#123;</span><br><span class="line">        // 可能抛出异常的调用</span><br><span class="line">        (bool success, ) = target.call(&quot;&quot;);</span><br><span class="line">        require(success, &quot;Call failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 4. 实现重入保护</span><br><span class="line">    bool private locked;</span><br><span class="line">    </span><br><span class="line">    modifier noReentrancy() &#123;</span><br><span class="line">        require(!locked, &quot;No reentrancy&quot;);</span><br><span class="line">        locked = true;</span><br><span class="line">        _;</span><br><span class="line">        locked = false;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    function protectedWithdraw(uint256 amount) public noReentrancy &#123;</span><br><span class="line">        // 防止重入攻击的嵌套调用</span><br><span class="line">        require(balances[msg.sender] &gt;= amount);</span><br><span class="line">        balances[msg.sender] -= amount;</span><br><span class="line">        </span><br><span class="line">        (bool success, ) = msg.sender.call&#123;value: amount&#125;(&quot;&quot;);</span><br><span class="line">        require(success, &quot;Transfer failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="嵌套调用的调用深度限制"><a href="#嵌套调用的调用深度限制" class="headerlink" title="嵌套调用的调用深度限制"></a>嵌套调用的调用深度限制</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 以太坊规定最多 1024 层嵌套调用</span><br><span class="line">// 如果超过这个限制，会返回 &quot;out of stack&quot; 错误</span><br><span class="line"></span><br><span class="line">contract DepthExample &#123;</span><br><span class="line">    address public next;</span><br><span class="line">    </span><br><span class="line">    function callNext() public &#123;</span><br><span class="line">        // 如果这是第 1024 次调用，下一次调用会失败</span><br><span class="line">        next.call(abi.encodeWithSignature(&quot;callNext()&quot;));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键总结"><a href="#关键总结" class="headerlink" title="关键总结"></a>关键总结</h2><p>智能合约的执行模型设计确保了区块链的一致性和安全性：</p>
+<ul>
+<li><strong>单线程执行</strong>：保证确定性，所有节点执行结果一致</li>
+<li><strong>原子性</strong>：要么全部执行，要么全部回滚</li>
+<li><strong>错误处理</strong>：通过 require&#x2F;assert&#x2F;revert 机制确保状态正确</li>
+<li><strong>嵌套调用</strong>：需要了解不同调用方式的回滚行为</li>
+<li><strong>CEI 模式</strong>：按”检查-修改-交互”的顺序编写代码，提高安全性</li>
 </ul>
 
           
@@ -480,7 +913,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2025/11/26/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -499,7 +932,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2025/11/26/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" itemprop="url">Rust智能指针</a></h1>
+                <a class="post-title-link" href="/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/" itemprop="url">Rust中模块定义与导入</a></h1>
         
 
         <div class="post-meta">
@@ -511,8 +944,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-11-26T13:20:18+08:00">
-                2025-11-26
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-09-17T19:37:42+08:00">
+                2024-09-17
               </time>
             
 
@@ -550,75 +983,14 @@
 
       
         
-          
-            <p>Rust的智能指针：内存管理的利器</p>
-<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
-<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
-<h2 id="什么是智能指针？"><a href="#什么是智能指针？" class="headerlink" title="什么是智能指针？"></a>什么是智能指针？</h2><p>智能指针是一个包装类型，它模拟了传统指针的行为，并且提供了一些额外的功能，尤其是与内存管理相关的功能。在Rust中，智能指针通常实现了Drop trait，这意味着它们能够在生命周期结束时自动清理资源。</p>
-<p>Rust中的智能指针常见的有以下几种：</p>
-<ul>
-<li><strong>Box<T></T></strong></li>
-<li><strong>Rc<T></T></strong> 和 <strong>Arc<T></T></strong></li>
-<li><strong>RefCell<T></T></strong> 和 <strong>Mutex<T></T></strong></li>
-</ul>
-<ol>
-<li>Box<T> — 在堆上分配内存</T></li>
-</ol>
-<p>Box<T>是Rust最基本的智能指针之一，它用于在堆上分配内存并存储数据。Box通过所有权系统管理堆上的数据，确保在Box离开作用域时自动清理内存。</T></p>
-<p><strong>示例</strong></p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>); <span class="comment">// 在堆上分配整数 5</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;b = &#123;&#125;&quot;</span>, b);</span><br><span class="line">&#125; <span class="comment">// 当 b 离开作用域时，堆上的内存会自动被释放</span></span><br></pre></td></tr></table></figure>
-
-
-<p>在这个例子中，Box::new(5)会在堆上为整数5分配内存，并返回一个指向该内存的Box。当b离开作用域时，Box会自动释放堆上的内存，避免内存泄漏。</p>
-<p>使用场景</p>
-<ul>
-<li>当你想要在堆上存储大对象（例如大型数组或结构体）时，<code>Box&lt;T&gt;</code> 是非常有用的。</li>
-<li>当你需要拥有数据的唯一所有权时，Box 是一个简洁的解决方案。</li>
-</ul>
-<h3 id="2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数"><a href="#2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数" class="headerlink" title="2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数"></a>2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数</h3><p>Rc<T>（Reference Counted）和Arc<T>（Atomic Reference Counted）都实现了引用计数智能指针，用于共享内存。与Box<T>不同，Rc<T>和Arc<T>允许多个所有者共享对数据的引用。</T></T></T></T></T></p>
-<ul>
-<li><code>Rc&lt;T&gt;</code>：在单线程中使用，性能较高。</li>
-<li><code>Arc&lt;T&gt;</code>：线程安全的版本，适用于多线程环境。</li>
-</ul>
-<h4 id="示例：使用Rc-lt-T-gt"><a href="#示例：使用Rc-lt-T-gt" class="headerlink" title="示例：使用Rc&lt;T&gt;"></a>示例：使用Rc&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hello, world!&quot;</span>));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = Rc::<span class="title function_ invoke__">clone</span>(&amp;s); <span class="comment">// 克隆 Rc，增加引用计数</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;s = &#123;&#125;, s2 = &#123;&#125;&quot;</span>, s, s2);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Reference count: &#123;&#125;&quot;</span>, Rc::<span class="title function_ invoke__">strong_count</span>(&amp;s)); <span class="comment">// 打印引用计数</span></span><br><span class="line">&#125; <span class="comment">// 当所有 Rc 指针离开作用域时，内存会被释放</span></span><br></pre></td></tr></table></figure>
-
-<p>使用场景</p>
-<ul>
-<li><code>Rc&lt;T&gt;</code> 适合用于需要多个所有者共享数据的场景，且只在单线程环境中使用。</li>
-<li><code>Arc&lt;T&gt;</code> 适用于多线程环境，允许多个线程共享数据，确保线程安全。</li>
-</ul>
-<h3 id="3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性"><a href="#3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性" class="headerlink" title="3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性"></a>3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性</h3><p>虽然Rust的所有权和借用系统通常不允许同时存在多个可变引用，但通过智能指针，我们可以绕过这一限制，提供内部可变性。</p>
-<ul>
-<li><code>RefCell&lt;T&gt;</code>：允许在单线程中进行可变借用，提供运行时的借用检查。</li>
-<li><code>Mutex&lt;T&gt;</code>：提供多线程中的内部可变性，确保数据在多个线程之间的安全共享。</li>
-</ul>
-<h4 id="示例：使用RefCell-lt-T-gt"><a href="#示例：使用RefCell-lt-T-gt" class="headerlink" title="示例：使用RefCell&lt;T&gt;"></a>示例：使用RefCell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::RefCell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = RefCell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    *x.<span class="title function_ invoke__">borrow_mut</span>() = <span class="number">10</span>; <span class="comment">// 可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>()); <span class="comment">// 不可变借用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>在这个例子中，RefCell允许我们通过borrow_mut()方法进行可变借用，并在运行时检查借用规则。</p>
-<h4 id="示例：使用Mutex-lt-T-gt"><a href="#示例：使用Mutex-lt-T-gt" class="headerlink" title="示例：使用Mutex&lt;T&gt;"></a>示例：使用Mutex&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 获取锁</span></span><br><span class="line">        *num = <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;m = &#123;&#125;&quot;</span>, m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Mutex<T>确保在多线程环境中，只有一个线程能访问数据，避免数据竞争。</T></p>
-<p><strong>使用场景</strong></p>
-<ul>
-<li><code>RefCell&lt;T&gt;</code> 适合用于需要动态检查和管理可变借用的单线程应用。</li>
-<li><code>Mutex&lt;T&gt;</code> 用于多线程环境下，确保数据的线程安全访问。</li>
-</ul>
-<h3 id="4-Cell-lt-T-gt-—-简单的内部可变性"><a href="#4-Cell-lt-T-gt-—-简单的内部可变性" class="headerlink" title="4. Cell&lt;T&gt; — 简单的内部可变性"></a>4. Cell&lt;T&gt; — 简单的内部可变性</h3><p>Cell<T>提供了一种非常轻量级的方式来实现内部可变性，适用于无需引用的情况下存储数据。它通常用于存储基本类型数据，如整数、布尔值等。</T></p>
-<h4 id="示例：使用Cell-lt-T-gt"><a href="#示例：使用Cell-lt-T-gt" class="headerlink" title="示例：使用Cell&lt;T&gt;"></a>示例：使用Cell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::Cell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = Cell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    x.<span class="title function_ invoke__">set</span>(<span class="number">10</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">get</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用场景</p>
-<p><code>Cell&lt;T&gt;</code> 适合在单线程中提供简单的可变数据存储，尤其是对于基础数据类型。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Rust的智能指针提供了强大的内存管理能力，它们在确保内存安全的同时，也使得我们能够更灵活地操作数据。在Rust中，智能指针不仅仅是内存管理的工具，更是借用和所有权系统的核心组成部分，它们帮助开发者避免内存泄漏和数据竞争的问题。</p>
-<ul>
-<li>**Box<T>**：适用于堆分配数据，拥有唯一所有权。</T></li>
-<li><strong>Rc<T></T></strong> 和 **Arc<T>**：适用于共享数据，提供引用计数。</T></li>
-<li><strong>RefCell<T></T></strong> 和 **Mutex<T>**：提供内部可变性，支持单线程和多线程场景。</T></li>
-<li>**Cell<T>**：适用于简单类型的数据存储，支持内部可变性。</T></li>
-</ul>
-<p>通过合理选择合适的智能指针，我们可以写出既高效又安全的Rust程序。</p>
-
-          
+          <p>模块（mod）是Rust的核心代码组织工具，用于解决命名冲突、控制代码可见性（封装）、拆分大型项目。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -665,7 +1037,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2025/11/26/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -684,7 +1056,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2025/11/26/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/" itemprop="url">Rust中所有权和作用域以及生周期</a></h1>
+                <a class="post-title-link" href="/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/" itemprop="url">Rust中所有权和作用域以及生周期</a></h1>
         
 
         <div class="post-meta">
@@ -696,8 +1068,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-11-26T11:58:09+08:00">
-                2025-11-26
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-07-12T11:58:09+08:00">
+                2024-07-12
               </time>
             
 
@@ -738,7 +1110,7 @@
           <p>在rust中，作用域（Scope）和所有权（Ownership）是保证内存安全的核心机制，它们共同决定了变量的生命周期和内存管理方式，无需垃圾回收即可避免悬垂指针、双重释放等内存问题。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2025/11/26/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/#more" rel="contents">
+            <a class="btn" href="/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -789,7 +1161,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -808,7 +1180,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url">Rust学习笔记</a></h1>
+                <a class="post-title-link" href="/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" itemprop="url">Rust智能指针</a></h1>
         
 
         <div class="post-meta">
@@ -820,8 +1192,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-06-20T12:43:44+08:00">
-                2023-06-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-03-12T13:20:18+08:00">
+                2024-03-12
               </time>
             
 
@@ -859,10 +1231,12 @@
 
       
         
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
+          <p>Rust的智能指针：内存管理的利器</p>
+<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
+<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
+            <a class="btn" href="/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -913,7 +1287,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -932,7 +1306,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/" itemprop="url">redis 相关知识</a></h1>
+                <a class="post-title-link" href="/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/" itemprop="url">Rust中的Enum与Struct详解</a></h1>
         
 
         <div class="post-meta">
@@ -944,8 +1318,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-05-24T13:40:16+08:00">
-                2023-05-24
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-02-13T22:23:34+08:00">
+                2024-02-13
               </time>
             
 
@@ -983,16 +1357,510 @@
 
       
         
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
-<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
-<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
-<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
-<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
-<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
+          <p>在 Rust 中，<code>struct</code>（结构体）和 <code>enum</code>（枚举）是两种核心的自定义类型，分别用于<strong>组合相关数据</strong>和<strong>表示互斥的可能性</strong>。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/" itemprop="url">Rust中的for循环与迭代器</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-02-10T19:48:31+08:00">
+                2024-02-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><code>for</code> 循环是迭代器的语法糖，而迭代器是 Rust 处理集合（如 <code>Vec</code>、<code>HashMap</code>）的核心抽象。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/" itemprop="url">Rust中Protobuf使用简介</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-01-26T19:33:37+08:00">
+                2024-01-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>Protobuf（Protocol Buffers）是 Google 推出的高效序列化协议。Rust中，prost 是最主流的 Protobuf 实现，提供了编译期代码生成和运行时序列化&#x2F;反序列化能力。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/" itemprop="url">Rust中的闭包</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-12-10T20:13:38+08:00">
+                2023-12-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>Rust 的闭包在功能和用途上与其他语言的 lambda 相同，都是在本地定义的小型匿名函数，可以捕获外部变量。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/" itemprop="url">Rust编译参数与优化控制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-11-26T20:07:07+08:00">
+                2023-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>Rust 的核心工具包括：</p>
+<ul>
+<li>**<code>rustc</code>**：Rust 的底层编译器。<code>cargo</code> 最终会调用 <code>rustc</code> 来编译代码。<code>rustc</code> 接受大量的命令行参数来精确控制编译过程。</li>
+<li>**<code>cargo</code>**：Rust 的官方构建工具和包管理器。根据 <code>Cargo.toml</code> 的配置，自动调用 <code>rustc</code> 并传递合适的参数。</li>
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/#more" rel="contents">
+            <a class="btn" href="/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1043,7 +1911,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1062,7 +1930,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/" itemprop="url">函数响应式编程——RxJava</a></h1>
+                <a class="post-title-link" href="/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/" itemprop="url">Rust中字符串与格式化</a></h1>
         
 
         <div class="post-meta">
@@ -1074,8 +1942,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-04-30T21:41:28+08:00">
-                2023-04-30
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-11-24T20:07:07+08:00">
+                2023-11-24
               </time>
             
 
@@ -1113,587 +1981,10 @@
 
       
         
-          
-            <p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
-<p>RxJava是ReactiveX的一种Java实现，ReactiveX是Reactive Extensions的缩写，一般简写为Rx。<br>微软的定义是：Rx是一个函数库，让开发者可以利用可观察序列和LINQ风格查询操作符来编写异步和基于事件的程序。开发者可以用Observables表示异步数据流，用<br>LINQ操作符查询一部数据流，用Schedulers参数化一部数据流的并发处理，Rx可以这样定义：Rx &#x3D; Observables+LINQ+Schedulers。</p>
-<p>1.为何要用RxJava<br>说到异步操作，我们会想到Android的AsyncTask和Handler。但是随着请求的数量越来越多，代码逻辑将会变得越来越复杂而RxJava却仍旧能保持清晰的逻辑。<br>RxJava的原理就是创建一个Observable对象来干活，然后使用各种操作符建立起来的链式操作，就如同流水线一样，把你想要处理的数据一步一步地加工成你<br>想要的成品，然后发射给Subscriber处理</p>
-<p>2.RxJava与观察者模式<br>RxJava的异步操作是通过扩展的观察者模式来实现的。RxJava有4个角色Observable、Observer、Subscriber和Suject，这4个角色后面会具体讲解。<br>Observable和Observer 通过subscribe方法实现订阅关系，Observable就可以在需要的时候通知Observer</p>
-<p>3.RxJava的基本实现<br>1）创建Observer(观察者)<br>它决定事件触发的时候将有怎样的行为，其中onCompleted、onError和onNext是必须要实现的方法。<br>2）创建Observable(被观察者)<br>它决定什么时候触发事件以及触发怎样的事件。RxJava使用create方法，just方法，或者from方来创建一个Observable<br>2）Subscribe(订阅)<br>订阅只需要一行代码就可以了<br>observable.subscribe(subscriber)</p>
-<p>3.Subject<br>subject既可以是一个Observer，也可以是一个Observerable,它是连接Observer和Observerable的桥梁，因此，Subject可以被理解为Subject&#x3D;Observable+Observer。<br>RxJava提供了以下4种Subject:</p>
-<ol>
-<li>PublishSubject<br>publishsubject只会把在订阅发生的事件点之后来自原始Observable的数据发生给观察者。如果要确保来自原始Observable的所有数据都被分发，<br>则可以当所有观察者都已经订阅时才开始发射数据，或者改用ReplaySubject。<br>2）BehaviorSubject<br>当Observer订阅BehaviorSubject时，它开始发射原始Observable最近发射的数据<br>3）ReplaySubject<br>不管Observer何时订阅ReplaySubject，ReplaySubject均会发射所有来自原始Observable的数据给Observer。如果使用ReplaySubject作为Observer，注意不要在多个线程中调用onNext、onComplete和onError方法。这可能会导致顺序错乱，并且违反了Observer规则。<br>4）AsyncSubject<br>当Observable完成时，AsyncSubject只会发射来自原始Observable的最后一个数据</li>
-</ol>
-<p>4.RxJava操作符<br>RxJava操作符的类型分为创建操作符、变换操作符、过滤操作符、组合操作符、错误处理操作符、辅助操作符、条件和布尔操作符、算术和聚合操作符及连接操作符等，<br>而这些操作符类型下又有很多操作符，每个操作符可能还有很多变体。</p>
-<p>创建操作符：create,just,from,defer,range,interval,start,repeat,timer<br>变换操作符：map,flatMap,concatMap,switchMap等<br>过滤操作符：filter,elementAt,distince,skip,take<br>组合操作符：startWith,merge,concat,zip</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/04/30/View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/04/30/View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/" itemprop="url">View的事件分发机制</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-04-30T16:44:54+08:00">
-                2023-04-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在讲到View的事件分发机制之前要首先了解一下Activity的组成，然后从源码的角度来分析View的事件分发机制。</p>
-<h2 id="一、源码解析Activity的构成"><a href="#一、源码解析Activity的构成" class="headerlink" title="一、源码解析Activity的构成"></a>一、源码解析Activity的构成</h2><p>点击事件用MotionEvent来表示，当一个点击事件产生后，事件最先传递给Activity，所以我们首先了解一下Activity的构成。当我们写Activity时，会调用setContentView()<br>方法来加载布局。现在来看看setContentView()方法是怎么实现的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public void setContentView(@LayoutRes int layoutResID) &#123;</span><br><span class="line">	getWindow().setContentView(layoutResID);</span><br><span class="line">	initWindowDecorActionBar();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>这里调用了getWindow().setContentView(layoutResID)，getWindow()指的PhoneWindow，在PhoneWindow的setContentView()方法里，先是有installDecor()方法<br>该方法里面调用了generateDecor()方法，在这里创建了一个DecorView，这个DecorView就是Activity的根View.<br>在PhoneWindow中的installDecor()方法中，还有一个generateLayout(mDecor)方法，其主要内容就是根据不同的情况加载不同的布局给layoutResource。</p>
-<p>一个Acticity包含一个Window对象，这个对象是由PhoneWindow来实现的。PhoneWindow将DecorView作为整个应用窗口的根，而这个DecorView又将屏幕<br>划分为两个区域，一个是TitleView，另一个是ContentView，而我们平常做应用所写的布局正是展示在ContentView中的。</p>
-<h2 id="二、源码解析View的事件分发机制"><a href="#二、源码解析View的事件分发机制" class="headerlink" title="二、源码解析View的事件分发机制"></a>二、源码解析View的事件分发机制</h2><p>当我们点击屏幕时，就产生了点击事件，这个事件被封装成一个类：MotionEvent。而当这个MotionEvent产生后，那么系统就会将这个MotionEvent传递给View的层级，<br>MotionEvent在View中的层级传递就是点击事件分发。事件分发的三个重要方法：<br>dispatchTouchEvent(MotionEvent ev)——用来进行事件的分发。<br>onInterceptTouchEvent(MotionEvent ev)——用来进行事件的拦截，在dispatchTouchEvent()方法中调用，需要注意的是View没有提供该方法。<br>onTouchEvent(MotionEvent ev)——用来处理点击事件，在dispatchTouchEvent()方法中调用。</p>
-<h3 id="1-View的事件分发机制"><a href="#1-View的事件分发机制" class="headerlink" title="1.View的事件分发机制"></a>1.View的事件分发机制</h3><p>当点击事件产生后，事件首先会传递给当前的Activity，这会调用Activity的dispatchTouchEvent()方法，当然具体的事件处理工作都是交由Activity中的PhoneWindow来完成的，然后PhoneWindow再把事件处理工作交给DecorView，之后再由<br>DecorView将事件处理工作交给根ViewGroup。所以，我们从ViewGroup的dispatchTouchEvent()方法开始分析，代码如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean dispatchTouchEvent (MotionEvent ev) &#123;</span><br><span class="line">	...</span><br><span class="line">	if (actionMasked == MotionEvent.ACTION_ DOWN) &#123;</span><br><span class="line">		cancelAndClearTouchTargets (ev);</span><br><span class="line">		resetTouchState () ;</span><br><span class="line">	&#125;</span><br><span class="line">	if (actionMasked == MotionEvent.ACTION_DOWN</span><br><span class="line">|		|| mFirstTouchTarget != null) (//1</span><br><span class="line">		final boolean disallowIntercept = (GroupFlags &amp; FLAG_DISALLOW_</span><br><span class="line">		INTERCEPT) != 0;//2 if (!disallowIntercept) I</span><br><span class="line">		intercepted = onInterceptTouchEvent (ev);</span><br><span class="line">		ev. setAction (action);</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		intercepted = false;</span><br><span class="line">	&#125;</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		intercepted = true;</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">	return handled;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里首先判断事件是否Down事件，如果是，则进行初始化，resetTouchState方法中会把mFirstTouchTarget的值置为null<br>这里为啥要初始化呢？<br>因为一个完整的事件序列是从DOWN开始，以UP结束的。所以如果是DOWN事件，那么说明这是一个新的事件序列，故而需要初始化之前的状态。<br>当ViewGroup要拦截事件的时候，那么后续的事件序列都将交给它处理，而不用再调用onInterceptTouchEvent()方法了，所以，onInterceptTouchEvent()<br>方法并不是每次事件都会调用的。<br>onInterceptTouchEvent()方法默认返回false，不进行拦截。如果想要让ViewGroup拦截事件，那么应该在自定义的ViewGroup中重写这个方法。<br>在dispatchTouchEvent()方法剩余的部分：<br>首先遍历ViewGroup的子元素，判断子元素是否能够接受到点击事件，如果子元素能够接收到点击事件，则交由子元素来处理。需要注意这个for循环<br>是倒序遍历的，即从最上层的子View开始往内层遍历。。同时它也会判断触摸点位置是否在子view的范围内或者子View是否正在播放动画，如果均不符合则<br>执行continue语句，表示这个子View不符合条件，开始遍历下一个子View。<br>如果有子View，则调用子View的dispatchTouchEvent(event)方法，如果ViewGroup没有子View，则调用super.dispatchTouchEvent(event)方法。viewgroup没有子View<br>则调用super.dispatchTouchEvent(event)方法。ViewGroup是集成View的。在View的dispatchTouchEvent(event)中，如果OnTouchListener不为null并且onTouch方法返回true，<br>则表示事件被消费，就不会执行onTouchEvent(event)，否则就会执行，可以看出OnTouchListener中的onTouch方法优先级要高于onTouchEvent(event)。<br>在onTouchEvent()方法中，只要View的Clickable和Long_clickable有一个为true，那么onTouchEvent()方法就会返回true消耗这个事件。前面两个变量分别代表<br>view可以被点击和长按点击，可以通过View的setClickable和setLongClickable方法来设置，也可以通过View的setOnclickListener和setOnLongClickListener来设置，它们<br>会自动将View设置为Lickable和Long_clickable<br>接着在Action_UP事件会调用performClick()方法，如果View设置了OnClickListener，那么它的onClick()方法就会被执行。</p>
-<h3 id="点击事件分发的传递规则"><a href="#点击事件分发的传递规则" class="headerlink" title="点击事件分发的传递规则"></a>点击事件分发的传递规则</h3><p>当点击事件产生后会由Activity来处理，传递给PhoneWindow，再传递给DecorView，最后传递给顶层的ViewGroup，一般在事件传递中只考虑ViewGroup的<br>onInterceptTouchEvent方法，因为一般情况下我们不会重写dispatchTouchEvent()方法，对呀根ViewGroup，点击事件首先传递给它dispatchTouchEvent()方法，如果该ViewGroup的onInterceptTouchEvent()方法返回true，则表示它<br>要拦截这个事件，这个事件就会交给它的onTouchEvent()方法处理，如果onInterceptTouchEvent（）方法返回false，则表示它不拦截这个事件，则这个事件会交给它的子元素的dispatchTouchEvent（）来处理，如此反复下去。如果传递给底层的View，<br>View是没有子View的，就会调用View的dispatchTouchEvent（）方法，一般情况下最终会调用View的onTouchEvent（）方法。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/" itemprop="url">使用Android sharesheet在Android应用程序中分享内容和链接</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-03-22T20:03:43+08:00">
-                2023-03-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android/" itemprop="url" rel="index">
-                    <span itemprop="name">android</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>为何要使用Android sharesheet<br>主要有三点原因：</p>
-<ol>
-<li>谷歌官方推荐使用</li>
-<li>Target SDK 30 以上，包名可见性发生了变更，默认情况下，应用与应用是不可见的，换句话说，如果使用queryIntentActivities()方法，不一定能够获取到所有intent对应的activity，这样就给分享intent造成了麻烦。</li>
-<li>Android sharesheet提供了包括界面、结果收集、固定前置和屏蔽指定app在内的全套功能，可以节省设计和开发资源</li></ol>
+          <p>Rust 提供了多种字符串类型和强大的格式化工具。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/" itemprop="url">Android developer 必备的几个资源</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-02-22T20:12:50+08:00">
-                2023-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android/" itemprop="url" rel="index">
-                    <span itemprop="name">android</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>作为一名合格的 Android Coder，除了认真工作，写出优秀代码外，我们还需要在日新月异的技术栈中找到有用的资源，来装备自己，开阔视野。希望以下的资源对大家有用。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/01/15/Android-%E5%BC%80%E5%8F%91%E8%B0%83%E7%94%A8C++%E5%BA%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/15/Android-%E5%BC%80%E5%8F%91%E8%B0%83%E7%94%A8C++%E5%BA%93/" itemprop="url">Android 开发调用C++库</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-01-15T19:37:06+08:00">
-                2023-01-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android/" itemprop="url" rel="index">
-                    <span itemprop="name">android</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>背景：实际项目中的算法库很多都是C++代码编写的，而Android开发是使用kotlin或者java语言实现的，如果遇到一个APP需要调用算法库，<br>不同语言有不同的书写规范，直接引用当然不可能编译成功，因此我们需要通过中间层（JNI编程）来搭建java语言和C++语言沟通的桥梁。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/01/15/Android-%E5%BC%80%E5%8F%91%E8%B0%83%E7%94%A8C++%E5%BA%93/#more" rel="contents">
+            <a class="btn" href="/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1735,7 +2026,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
@@ -1779,7 +2070,7 @@
             
               <div class="site-state-item site-state-posts">
                 <a href="/archives">
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1801,7 +2092,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

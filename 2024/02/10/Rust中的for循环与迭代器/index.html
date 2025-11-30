@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="for 循环是迭代器的语法糖，而迭代器是 Rust 处理集合（如 Vec、HashMap）的核心抽象。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust中的for循环与迭代器">
+<meta property="og:url" content="https://thefu.top/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="for 循环是迭代器的语法糖，而迭代器是 Rust 处理集合（如 Vec、HashMap）的核心抽象。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2024-02-10T11:48:31.000Z">
+<meta property="article:modified_time" content="2025-11-26T14:43:05.572Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://thefu.top/2024/02/10/Rust中的for循环与迭代器/"/>
+
+
+
+
+
+  <title>Rust中的for循环与迭代器 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TheFu's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">sicauthefu</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rust中的for循环与迭代器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2024-02-10T19:48:31+08:00">
+                2024-02-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>for</code> 循环是迭代器的语法糖，而迭代器是 Rust 处理集合（如 <code>Vec</code>、<code>HashMap</code>）的核心抽象。</p>
+<span id="more"></span>
+
+<h2 id="1-for-循环"><a href="#1-for-循环" class="headerlink" title="1. for 循环"></a>1. for 循环</h2><h3 id="for-循环本质"><a href="#for-循环本质" class="headerlink" title="for 循环本质"></a>for 循环本质</h3><p><code>for</code> 循环本质是自动遍历一个”可迭代对象”（实现 <code>IntoIterator</code> trait 的类型），底层逻辑如下：</p>
+<ol>
+<li>对目标对象调用 <code>into_iter()</code> 方法，将其转换为迭代器（Iterator）</li>
+<li>循环调用迭代器的 <code>next()</code> 方法，每次获取一个元素（<code>Some(T)</code>）</li>
+<li>当 <code>next()</code> 返回 <code>None</code> 时，循环终止</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// for 循环的原始形式</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">item</span> <span class="keyword">in</span> collection &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会转换为以下近似代码</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">iter</span> = <span class="built_in">IntoIterator</span>::<span class="title function_ invoke__">into_iter</span>(collection);</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">let</span> <span class="variable">Some</span>(item) = iter.<span class="title function_ invoke__">next</span>() &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="for-循环的用法"><a href="#for-循环的用法" class="headerlink" title="for 循环的用法"></a>for 循环的用法</h3><p>任何实现 <code>IntoIterator</code> 的类型，都能直接用 <code>for</code> 循环遍历。</p>
+<h4 id="1-遍历集合"><a href="#1-遍历集合" class="headerlink" title="1. 遍历集合"></a>1. 遍历集合</h4><p>需注意所有权与借用模式，三种核心模式：</p>
+<ul>
+<li><p><strong>所有权转移遍历</strong>：<code>into_iter()</code></p>
+<ul>
+<li>转移所有权，<code>T</code> 类型</li>
+<li><code>for x in v</code></li>
+</ul>
+</li>
+<li><p><strong>不可变借用遍历</strong>：<code>iter()</code></p>
+<ul>
+<li>不可变引用 <code>&amp;T</code>，需通过解引用（<code>*</code>）访问元素值</li>
+<li><code>for x in &amp;v</code></li>
+</ul>
+</li>
+<li><p><strong>可变借用遍历</strong>：<code>iter_mut()</code></p>
+<ul>
+<li>可变引用 <code>&amp;mut T</code>，需通过解引用（<code>*</code>）修改元素</li>
+<li><code>for x in &amp;mut v</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 所有权转移（消耗集合）</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">x</span> <span class="keyword">in</span> v.<span class="title function_ invoke__">into_iter</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, x); <span class="comment">// x 是 i32</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// v 不再可用</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 不可变借用（只读）</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> <span class="variable">x</span> <span class="keyword">in</span> &amp;v &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, x); <span class="comment">// x 是 &amp;i32</span></span><br><span class="line">    <span class="comment">// 需要解引用：println!(&quot;&#123;&#125;&quot;, *x);</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// v 仍可用</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 可变借用（修改）</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> <span class="variable">x</span> <span class="keyword">in</span> &amp;<span class="keyword">mut</span> v &#123;</span><br><span class="line">    *x += <span class="number">10</span>; <span class="comment">// 修改元素</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, v); <span class="comment">// [11, 12, 13]</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-计数循环-Range-区间遍历"><a href="#2-计数循环-Range-区间遍历" class="headerlink" title="2. 计数循环 - Range 区间遍历"></a>2. 计数循环 - Range 区间遍历</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 左闭右开区间 (a..b)</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">5</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, i); <span class="comment">// 输出 0, 1, 2, 3, 4</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 左闭右闭区间 (a..=b)</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..=<span class="number">5</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, i); <span class="comment">// 输出 0, 1, 2, 3, 4, 5</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 反向计数 - rev() 反向迭代</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> (<span class="number">1</span>..=<span class="number">5</span>).<span class="title function_ invoke__">rev</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, i); <span class="comment">// 输出 5, 4, 3, 2, 1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-键值对遍历（HashMap-x2F-BTreeMap）"><a href="#3-键值对遍历（HashMap-x2F-BTreeMap）" class="headerlink" title="3. 键值对遍历（HashMap&#x2F;BTreeMap）"></a>3. 键值对遍历（HashMap&#x2F;BTreeMap）</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">map</span> = HashMap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Alice&quot;</span>);</span><br><span class="line">map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;age&quot;</span>, <span class="string">&quot;30&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// for (key, value) in &amp;map（返回 key 与 value 的引用）</span></span><br><span class="line"><span class="title function_ invoke__">for</span> (key, value) <span class="keyword">in</span> &amp;map &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125;&quot;</span>, key, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-遍历索引与值"><a href="#4-遍历索引与值" class="headerlink" title="4. 遍历索引与值"></a>4. 遍历索引与值</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">fruits</span> = <span class="built_in">vec!</span>[<span class="string">&quot;apple&quot;</span>, <span class="string">&quot;banana&quot;</span>, <span class="string">&quot;orange&quot;</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// enumerate() 适配器（返回 (index, value) 元组）</span></span><br><span class="line"><span class="title function_ invoke__">for</span> (idx, fruit) <span class="keyword">in</span> fruits.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">enumerate</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;. &#123;&#125;&quot;</span>, idx, fruit);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 输出：</span></span><br><span class="line"><span class="comment">// 0. apple</span></span><br><span class="line"><span class="comment">// 1. banana</span></span><br><span class="line"><span class="comment">// 2. orange</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="三种遍历模式对比"><a href="#三种遍历模式对比" class="headerlink" title="三种遍历模式对比"></a>三种遍历模式对比</h3><table>
+<thead>
+<tr>
+<th>for 循环形式</th>
+<th>底层调用</th>
+<th>元素类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>for x in v</code></td>
+<td><code>v.into_iter()</code></td>
+<td><code>T</code>（原值）</td>
+<td>所有权转移（消耗集合）</td>
+</tr>
+<tr>
+<td><code>for x in &amp;v</code></td>
+<td><code>v.iter()</code></td>
+<td><code>&amp;T</code>（不可变引用）</td>
+<td>不可变借用（只读集合）</td>
+</tr>
+<tr>
+<td><code>for x in &amp;mut v</code></td>
+<td><code>v.iter_mut()</code></td>
+<td><code>&amp;mut T</code>（可变引用）</td>
+<td>可变借用（修改集合）</td>
+</tr>
+<tr>
+<td><code>for i in 0..n</code></td>
+<td>Range 迭代器</td>
+<td>值拷贝</td>
+<td>计数循环</td>
+</tr>
+</tbody></table>
+<h3 id="绑定解构"><a href="#绑定解构" class="headerlink" title="绑定解构"></a>绑定解构</h3><p>迭代器遍历中元素的类型由 <code>Iterator</code> trait 中的 <code>Item</code> 确定。对于引用类型，可通过 <code>&amp;</code>（不是取地址）进行解构。以 <code>iter()</code>（<code>Item</code> 是 <code>&amp;T</code>）遍历为例：</p>
+<ul>
+<li>**用 <code>x</code>**：绑定 <code>&amp;T</code>（保留引用），需通过 <code>*x</code> 解引用操作值</li>
+<li>**用 <code>&amp;x</code>**：解构一层引用，直接绑定 <code>T</code>（原值），无需解引用</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::collections::HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">type_of</span>&lt;T&gt;(_: &amp;T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;static</span> <span class="type">str</span> &#123;</span><br><span class="line">    std::any::type_name::&lt;T&gt;()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">map</span> = HashMap::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;english&quot;</span>, <span class="number">80</span>);</span><br><span class="line">    map.<span class="title function_ invoke__">insert</span>(<span class="string">&quot;math&quot;</span>, <span class="number">90</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用 &amp;(&amp;key, &amp;value) 解构一层引用</span></span><br><span class="line">    <span class="title function_ invoke__">for</span> (&amp;key, &amp;value) <span class="keyword">in</span> &amp;map &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125; (类型: &#123;&#125;: &#123;&#125;)&quot;</span>, </span><br><span class="line">            key, value,</span><br><span class="line">            <span class="title function_ invoke__">type_of</span>(&amp;key),      <span class="comment">// &amp;str</span></span><br><span class="line">            <span class="title function_ invoke__">type_of</span>(&amp;value)     <span class="comment">// i32</span></span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 不解构，保留引用</span></span><br><span class="line">    <span class="title function_ invoke__">for</span> (key, value) <span class="keyword">in</span> &amp;map &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;: &#123;&#125; (类型: &#123;&#125;: &#123;&#125;)&quot;</span>, </span><br><span class="line">            key, value,</span><br><span class="line">            <span class="title function_ invoke__">type_of</span>(&amp;key),      <span class="comment">// &amp;&amp;str</span></span><br><span class="line">            <span class="title function_ invoke__">type_of</span>(&amp;value)     <span class="comment">// &amp;i32</span></span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-迭代器"><a href="#2-迭代器" class="headerlink" title="2. 迭代器"></a>2. 迭代器</h2><p>Rust 的迭代器是实现了 <code>Iterator</code> trait 的对象。迭代器不仅仅是一个”遍历工具”，还能惰性处理数据流，即<strong>惰性求值（lazy evaluation）</strong>。</p>
+<h3 id="迭代器的特点"><a href="#迭代器的特点" class="headerlink" title="迭代器的特点"></a>迭代器的特点</h3><p>多数方法不会立即执行，只是返回一个新的迭代器。直到调用 <code>.collect()</code>、<code>.for_each()</code> 等最终消费方法时，才计算。</p>
+<h3 id="Iterator-trait"><a href="#Iterator-trait" class="headerlink" title="Iterator trait"></a>Iterator trait</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">trait</span> <span class="title class_">Iterator</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">next</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="keyword">Self</span>::Item&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 其他很多默认实现的方法（map, filter, fold 等）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="适配器（Adapter）"><a href="#适配器（Adapter）" class="headerlink" title="适配器（Adapter）"></a>适配器（Adapter）</h3><p>适配器是返回新迭代器的方法，用于转换、筛选、组合原迭代器。多个适配器可组成”链式”，即通过把多个迭代器适配器组合在一起形成流水线式的数据处理流程。</p>
+<h4 id="常见适配器"><a href="#常见适配器" class="headerlink" title="常见适配器"></a>常见适配器</h4><table>
+<thead>
+<tr>
+<th>适配器</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>map(f)</code></td>
+<td>对元素应用 f，转换元素类型</td>
+</tr>
+<tr>
+<td><code>filter(f)</code></td>
+<td>保留满足条件 f 的元素，返回 bool</td>
+</tr>
+<tr>
+<td><code>flat_map(f)</code></td>
+<td>对元素应用 f，扁平化结果</td>
+</tr>
+<tr>
+<td><code>rev()</code></td>
+<td>反向遍历（需迭代器实现 DoubleEndedIterator）</td>
+</tr>
+<tr>
+<td><code>skip(n)</code></td>
+<td>跳过前 n 个元素</td>
+</tr>
+<tr>
+<td><code>take(n)</code></td>
+<td>取前 n 个元素，之后终止迭代</td>
+</tr>
+<tr>
+<td><code>chain(iter2)</code></td>
+<td>拼接两个迭代器</td>
+</tr>
+<tr>
+<td><code>enumerate()</code></td>
+<td>同时获取元素的索引和值，返回一个元组 (usize, T)</td>
+</tr>
+</tbody></table>
+<h4 id="适配器链式处理示例"><a href="#适配器链式处理示例" class="headerlink" title="适配器链式处理示例"></a>适配器链式处理示例</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 拆分单词为字符 → 2. 筛选小写字母 → 3. 转换为大写 → 4. 收集为 Vec&lt;char&gt;</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">words</span> = <span class="built_in">vec!</span>[<span class="string">&quot;Hello&quot;</span>, <span class="string">&quot;World&quot;</span>, <span class="string">&quot;Rust&quot;</span>];</span><br><span class="line"><span class="keyword">let</span> <span class="variable">uppercase_chars</span>: <span class="type">Vec</span>&lt;<span class="type">char</span>&gt; = words</span><br><span class="line">    .<span class="title function_ invoke__">iter</span>()</span><br><span class="line">    .<span class="title function_ invoke__">flat_map</span>(|s| s.<span class="title function_ invoke__">chars</span>())              <span class="comment">// 扁平化：[&#x27;H&#x27;,&#x27;e&#x27;,&#x27;l&#x27;,&#x27;l&#x27;,&#x27;o&#x27;, ...]</span></span><br><span class="line">    .<span class="title function_ invoke__">filter</span>(|&amp;c| c.<span class="title function_ invoke__">is_ascii_lowercase</span>())  <span class="comment">// 筛选小写字母</span></span><br><span class="line">    .<span class="title function_ invoke__">map</span>(|c| c.<span class="title function_ invoke__">to_ascii_uppercase</span>())      <span class="comment">// 转换为大写</span></span><br><span class="line">    .<span class="title function_ invoke__">collect</span>();                           <span class="comment">// 消耗型方法：触发惰性求值</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, uppercase_chars);</span><br><span class="line"><span class="comment">// 输出: [&#x27;E&#x27;, &#x27;L&#x27;, &#x27;L&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;R&#x27;, &#x27;L&#x27;, &#x27;D&#x27;, &#x27;U&#x27;, &#x27;S&#x27;, &#x27;T&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="消耗性方法（Consuming-Adapter）"><a href="#消耗性方法（Consuming-Adapter）" class="headerlink" title="消耗性方法（Consuming Adapter）"></a>消耗性方法（Consuming Adapter）</h3><p>消耗型方法会遍历迭代器、消耗元素，并返回最终结果（触发惰性求值）。</p>
+<h4 id="常见消耗性方法"><a href="#常见消耗性方法" class="headerlink" title="常见消耗性方法"></a>常见消耗性方法</h4><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>collect&lt;T&gt;()</code></td>
+<td>收集元素为集合 T</td>
+</tr>
+<tr>
+<td><code>count()</code></td>
+<td>返回元素个数</td>
+</tr>
+<tr>
+<td><code>fold(init, f)</code></td>
+<td>折叠元素（聚合计算），init 为初始值</td>
+</tr>
+<tr>
+<td><code>any(f)</code></td>
+<td>存在元素满足 f，则返回 true</td>
+</tr>
+<tr>
+<td><code>all(f)</code></td>
+<td>所有元素满足 f，则返回 true</td>
+</tr>
+<tr>
+<td><code>find(f)</code></td>
+<td>查找第一个满足 f 的元素，返回 Option&lt;Item&gt;</td>
+</tr>
+<tr>
+<td><code>for_each(f)</code></td>
+<td>对每个元素执行 f，等价于 for 循环</td>
+</tr>
+</tbody></table>
+<h4 id="消耗性方法示例"><a href="#消耗性方法示例" class="headerlink" title="消耗性方法示例"></a>消耗性方法示例</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">nums</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 求积（fold 折叠）</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">product</span> = nums.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">fold</span>(<span class="number">1</span>, |init, &amp;x| init * x);</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;阶乘：&#123;&#125;&quot;</span>, product); <span class="comment">// 输出 120</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 查找第一个偶数</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">first_even</span> = nums.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">find</span>(|&amp;&amp;x| x % <span class="number">2</span> == <span class="number">0</span>);</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;第一个偶数：&#123;:?&#125;&quot;</span>, first_even); <span class="comment">// 输出 Some(&amp;2)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 判断是否存在大于 5 的元素</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">has_over_five</span> = nums.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">any</span>(|&amp;x| x &gt; <span class="number">5</span>);</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;是否存在大于5的元素：&#123;&#125;&quot;</span>, has_over_five); <span class="comment">// 输出 false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 判断所有元素都大于 0</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">all_positive</span> = nums.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">all</span>(|&amp;x| x &gt; <span class="number">0</span>);</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;所有元素都为正数：&#123;&#125;&quot;</span>, all_positive); <span class="comment">// 输出 true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 收集为向量</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">doubled</span>: <span class="type">Vec</span>&lt;<span class="type">i32</span>&gt; = nums.<span class="title function_ invoke__">iter</span>().<span class="title function_ invoke__">map</span>(|&amp;x| x * <span class="number">2</span>).<span class="title function_ invoke__">collect</span>();</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;翻倍后：&#123;:?&#125;&quot;</span>, doubled); <span class="comment">// 输出 [2, 4, 6, 8, 10]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="无限迭代器"><a href="#无限迭代器" class="headerlink" title="无限迭代器"></a>无限迭代器</h3><p>无限迭代器（如 <code>iter::repeat</code>、<code>iter::cycle</code>），需通过 <code>take(n)</code> 等方法限制迭代次数，否则会陷入死循环。</p>
+<h4 id="常见无限迭代器"><a href="#常见无限迭代器" class="headerlink" title="常见无限迭代器"></a>常见无限迭代器</h4><ul>
+<li>**<code>iter::repeat(val)</code>**：无限重复 <code>val</code></li>
+<li>**<code>iter::cycle()</code>**：循环迭代原迭代器（原迭代器需是 <code>Clone</code>）</li>
+<li>**<code>(0..).step_by(n)</code>**：无限递增序列（步长 <code>n</code>）</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::iter;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 无限重复，取前 3 个</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">repeated</span>: <span class="type">Vec</span>&lt;<span class="type">i32</span>&gt; = iter::<span class="title function_ invoke__">repeat</span>(<span class="number">5</span>).<span class="title function_ invoke__">take</span>(<span class="number">3</span>).<span class="title function_ invoke__">collect</span>();</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, repeated); <span class="comment">// [5, 5, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 循环迭代</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">let</span> <span class="variable">cycled</span>: <span class="type">Vec</span>&lt;<span class="type">i32</span>&gt; = v.<span class="title function_ invoke__">iter</span>()</span><br><span class="line">    .<span class="title function_ invoke__">map</span>(|&amp;x| x)</span><br><span class="line">    .<span class="title function_ invoke__">cycle</span>()</span><br><span class="line">    .<span class="title function_ invoke__">take</span>(<span class="number">7</span>)</span><br><span class="line">    .<span class="title function_ invoke__">collect</span>();</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, cycled); <span class="comment">// [1, 2, 3, 1, 2, 3, 1]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 无限递增序列</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">increasing</span>: <span class="type">Vec</span>&lt;<span class="type">i32</span>&gt; = (<span class="number">0</span>..)</span><br><span class="line">    .<span class="title function_ invoke__">step_by</span>(<span class="number">2</span>)</span><br><span class="line">    .<span class="title function_ invoke__">take</span>(<span class="number">5</span>)</span><br><span class="line">    .<span class="title function_ invoke__">collect</span>();</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, increasing); <span class="comment">// [0, 2, 4, 6, 8]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义迭代器"><a href="#自定义迭代器" class="headerlink" title="自定义迭代器"></a>自定义迭代器</h3><p>要创建自定义迭代器，只需实现 <code>Iterator</code> trait 的 <code>next()</code> 方法（其他方法为默认实现）。</p>
+<p><code>Iterator</code> trait 继承了 <code>IntoIterator</code> trait 的默认实现（<code>IntoIterator::into_iter()</code> 会直接返回迭代器本身（<code>Self</code>））。因此，只要一个类型实现了 <code>Iterator::next()</code>，就自动支持 <code>for</code> 循环遍历。</p>
+<h4 id="计数迭代器示例"><a href="#计数迭代器示例" class="headerlink" title="计数迭代器示例"></a>计数迭代器示例</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Counter</span> &#123;</span><br><span class="line">    count: <span class="type">u32</span>,</span><br><span class="line">    upper: <span class="type">u32</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Counter</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">new</span>(upper: <span class="type">u32</span>) <span class="punctuation">-&gt;</span> Counter &#123;</span><br><span class="line">        Counter &#123; count: <span class="number">0</span>, upper &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Iterator</span> <span class="keyword">for</span> <span class="title class_">Counter</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span> = <span class="type">u32</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">next</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="keyword">Self</span>::Item&gt; &#123;</span><br><span class="line">        <span class="keyword">self</span>.count += <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">self</span>.count &lt;= <span class="keyword">self</span>.upper &#123;</span><br><span class="line">            <span class="title function_ invoke__">Some</span>(<span class="keyword">self</span>.count)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="literal">None</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// for 循环自动调用 into_iter()，返回 Counter 本身</span></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">num</span> <span class="keyword">in</span> Counter::<span class="title function_ invoke__">new</span>(<span class="number">5</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, num); <span class="comment">// 输出 1, 2, 3, 4, 5</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 也可以使用迭代器方法</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">sum</span>: <span class="type">u32</span> = Counter::<span class="title function_ invoke__">new</span>(<span class="number">10</span>)</span><br><span class="line">        .<span class="title function_ invoke__">filter</span>(|x| x % <span class="number">2</span> == <span class="number">0</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|x| x * x)</span><br><span class="line">        .<span class="title function_ invoke__">sum</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Sum: &#123;&#125;&quot;</span>, sum); <span class="comment">// 输出 2+4+6+...+10 的平方和</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义容器"><a href="#自定义容器" class="headerlink" title="自定义容器"></a>自定义容器</h3><p>容器要被 <code>for</code> 循环遍历，需让容器（或其引用）实现 <code>IntoIterator</code> trait：</p>
+<ul>
+<li><code>iter()</code> -&gt; 返回不可变引用的迭代器</li>
+<li><code>iter_mut()</code> -&gt; 返回可变引用的迭代器</li>
+<li><code>into_iter()</code> -&gt; 转移所有权迭代器</li>
+</ul>
+<h4 id="IntoIterator-实现示例"><a href="#IntoIterator-实现示例" class="headerlink" title="IntoIterator 实现示例"></a>IntoIterator 实现示例</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">MyContainer</span>&lt;T&gt; &#123;</span><br><span class="line">    items: <span class="type">Vec</span>&lt;T&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 1: for x in my_container（消耗所有权）</span></span><br><span class="line"><span class="keyword">impl</span>&lt;T&gt; <span class="built_in">IntoIterator</span> <span class="keyword">for</span> <span class="title class_">MyContainer</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span> = T;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">IntoIter</span> = std::vec::IntoIter&lt;T&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">into_iter</span>(<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span>::IntoIter &#123;</span><br><span class="line">        <span class="keyword">self</span>.items.<span class="title function_ invoke__">into_iter</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 2: for x in &amp;my_container（不可变引用）</span></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>, T&gt; <span class="built_in">IntoIterator</span> <span class="keyword">for</span> &amp;<span class="symbol">&#x27;a</span> MyContainer&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span> = &amp;<span class="symbol">&#x27;a</span> T;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">IntoIter</span> = std::slice::Iter&lt;<span class="symbol">&#x27;a</span>, T&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">into_iter</span>(<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span>::IntoIter &#123;</span><br><span class="line">        <span class="keyword">self</span>.items.<span class="title function_ invoke__">iter</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 3: for x in &amp;mut my_container（可变引用）</span></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>, T&gt; <span class="built_in">IntoIterator</span> <span class="keyword">for</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> MyContainer&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span> = &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">IntoIter</span> = std::slice::IterMut&lt;<span class="symbol">&#x27;a</span>, T&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">into_iter</span>(<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span>::IntoIter &#123;</span><br><span class="line">        <span class="keyword">self</span>.items.<span class="title function_ invoke__">iter_mut</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">container</span> = MyContainer &#123;</span><br><span class="line">        items: <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 所有权转移</span></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">x</span> <span class="keyword">in</span> container &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面无法执行，因为 container 已被消耗</span></span><br><span class="line">    <span class="comment">// for x in &amp;container &#123; ... &#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="环形缓冲区示例（高级）"><a href="#环形缓冲区示例（高级）" class="headerlink" title="环形缓冲区示例（高级）"></a>环形缓冲区示例（高级）</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::mem::MaybeUninit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">RingBuffer</span>&lt;T, <span class="keyword">const</span> N: <span class="type">usize</span>&gt; &#123;</span><br><span class="line">    data: [MaybeUninit&lt;T&gt;; N],</span><br><span class="line">    head: <span class="type">usize</span>,</span><br><span class="line">    len: <span class="type">usize</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T, <span class="keyword">const</span> N: <span class="type">usize</span>&gt; RingBuffer&lt;T, N&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">new</span>() <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            data: <span class="keyword">unsafe</span> &#123; MaybeUninit::<span class="title function_ invoke__">uninit</span>().<span class="title function_ invoke__">assume_init</span>() &#125;,</span><br><span class="line">            head: <span class="number">0</span>,</span><br><span class="line">            len: <span class="number">0</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">push</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, value: T) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">self</span>.len &lt; N &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">tail</span> = (<span class="keyword">self</span>.head + <span class="keyword">self</span>.len) % N;</span><br><span class="line">            <span class="keyword">self</span>.data[tail] = MaybeUninit::<span class="title function_ invoke__">new</span>(value);</span><br><span class="line">            <span class="keyword">self</span>.len += <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">pop</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">self</span>.len == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="literal">None</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">val</span> = std::mem::<span class="title function_ invoke__">replace</span>(</span><br><span class="line">                &amp;<span class="keyword">mut</span> <span class="keyword">self</span>.data[<span class="keyword">self</span>.head],</span><br><span class="line">                MaybeUninit::<span class="title function_ invoke__">uninit</span>(),</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">self</span>.head = (<span class="keyword">self</span>.head + <span class="number">1</span>) % N;</span><br><span class="line">            <span class="keyword">self</span>.len -= <span class="number">1</span>;</span><br><span class="line">            <span class="title function_ invoke__">Some</span>(<span class="keyword">unsafe</span> &#123; val.<span class="title function_ invoke__">assume_init</span>() &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 为 RingBuffer 实现三种迭代方式</span></span><br><span class="line"><span class="keyword">impl</span>&lt;T, <span class="keyword">const</span> N: <span class="type">usize</span>&gt; <span class="built_in">IntoIterator</span> <span class="keyword">for</span> <span class="title class_">RingBuffer</span>&lt;T, N&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span> = T;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">IntoIter</span> = RingBufferIntoIter&lt;T, N&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">into_iter</span>(<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span>::IntoIter &#123;</span><br><span class="line">        RingBufferIntoIter &#123;</span><br><span class="line">            buffer: <span class="keyword">self</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">RingBufferIntoIter</span>&lt;T, <span class="keyword">const</span> N: <span class="type">usize</span>&gt; &#123;</span><br><span class="line">    buffer: RingBuffer&lt;T, N&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T, <span class="keyword">const</span> N: <span class="type">usize</span>&gt; <span class="built_in">Iterator</span> <span class="keyword">for</span> <span class="title class_">RingBufferIntoIter</span>&lt;T, N&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Item</span> = T;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">next</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="keyword">Self</span>::Item&gt; &#123;</span><br><span class="line">        <span class="keyword">self</span>.buffer.<span class="title function_ invoke__">pop</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="for-循环"><a href="#for-循环" class="headerlink" title="for 循环"></a>for 循环</h3><ul>
+<li><code>for</code> 循环是 <code>IntoIterator</code> trait 的语法糖</li>
+<li>三种核心模式：所有权转移（<code>into_iter()</code>）、不可变借用（<code>iter()</code>）、可变借用（<code>iter_mut()</code>）</li>
+<li>支持 Range、键值对、索引+值 等多种遍历方式</li>
+</ul>
+<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h3><ul>
+<li><strong>惰性求值</strong>：适配器不会立即执行，只有消耗型方法才会触发计算</li>
+<li><strong>适配器链式处理</strong>：通过组合多个适配器实现复杂的数据处理流程</li>
+<li><strong>自定义迭代器</strong>：实现 <code>Iterator</code> trait 的 <code>next()</code> 方法即可</li>
+<li><strong>自定义容器</strong>：实现 <code>IntoIterator</code> trait 支持 <code>for</code> 循环遍历</li>
+<li><strong>无限迭代器</strong>：需要通过 <code>take()</code> 等方法限制迭代次数</li>
+</ul>
+<p>迭代器是 Rust 处理集合和序列的核心工具，具有高效、安全、表达力强的特点。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"># Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/" rel="next" title="Rust中Protobuf使用简介">
+                <i class="fa fa-chevron-left"></i> Rust中Protobuf使用简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/" rel="prev" title="Rust中的Enum与Struct详解">
+                Rust中的Enum与Struct详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/thefu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="sicauthefu@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=423228325&auto=1&height=66"></iframe>
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-for-%E5%BE%AA%E7%8E%AF"><span class="nav-number">1.</span> <span class="nav-text">1. for 循环</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#for-%E5%BE%AA%E7%8E%AF%E6%9C%AC%E8%B4%A8"><span class="nav-number">1.1.</span> <span class="nav-text">for 循环本质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#for-%E5%BE%AA%E7%8E%AF%E7%9A%84%E7%94%A8%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">for 循环的用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E9%81%8D%E5%8E%86%E9%9B%86%E5%90%88"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 遍历集合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%AE%A1%E6%95%B0%E5%BE%AA%E7%8E%AF-Range-%E5%8C%BA%E9%97%B4%E9%81%8D%E5%8E%86"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 计数循环 - Range 区间遍历</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%94%AE%E5%80%BC%E5%AF%B9%E9%81%8D%E5%8E%86%EF%BC%88HashMap-x2F-BTreeMap%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 键值对遍历（HashMap&#x2F;BTreeMap）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%81%8D%E5%8E%86%E7%B4%A2%E5%BC%95%E4%B8%8E%E5%80%BC"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. 遍历索引与值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E7%A7%8D%E9%81%8D%E5%8E%86%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94"><span class="nav-number">1.3.</span> <span class="nav-text">三种遍历模式对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%91%E5%AE%9A%E8%A7%A3%E6%9E%84"><span class="nav-number">1.4.</span> <span class="nav-text">绑定解构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">2. 迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E5%99%A8%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">迭代器的特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iterator-trait"><span class="nav-number">2.2.</span> <span class="nav-text">Iterator trait</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E9%85%8D%E5%99%A8%EF%BC%88Adapter%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">适配器（Adapter）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%80%82%E9%85%8D%E5%99%A8"><span class="nav-number">2.3.1.</span> <span class="nav-text">常见适配器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%82%E9%85%8D%E5%99%A8%E9%93%BE%E5%BC%8F%E5%A4%84%E7%90%86%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.3.2.</span> <span class="nav-text">适配器链式处理示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E8%80%97%E6%80%A7%E6%96%B9%E6%B3%95%EF%BC%88Consuming-Adapter%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">消耗性方法（Consuming Adapter）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%B6%88%E8%80%97%E6%80%A7%E6%96%B9%E6%B3%95"><span class="nav-number">2.4.1.</span> <span class="nav-text">常见消耗性方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%80%97%E6%80%A7%E6%96%B9%E6%B3%95%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.4.2.</span> <span class="nav-text">消耗性方法示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0%E9%99%90%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">2.5.</span> <span class="nav-text">无限迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%97%A0%E9%99%90%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">2.5.1.</span> <span class="nav-text">常见无限迭代器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">2.6.</span> <span class="nav-text">自定义迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A1%E6%95%B0%E8%BF%AD%E4%BB%A3%E5%99%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.6.1.</span> <span class="nav-text">计数迭代器示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AE%B9%E5%99%A8"><span class="nav-number">2.7.</span> <span class="nav-text">自定义容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#IntoIterator-%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.7.1.</span> <span class="nav-text">IntoIterator 实现示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%AF%E5%BD%A2%E7%BC%93%E5%86%B2%E5%8C%BA%E7%A4%BA%E4%BE%8B%EF%BC%88%E9%AB%98%E7%BA%A7%EF%BC%89"><span class="nav-number">2.7.2.</span> <span class="nav-text">环形缓冲区示例（高级）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#for-%E5%BE%AA%E7%8E%AF"><span class="nav-number">3.1.</span> <span class="nav-text">for 循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">迭代器</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

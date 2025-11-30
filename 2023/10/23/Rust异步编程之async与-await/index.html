@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。async&#x2F;.await 是Rust内置语法，用于让异步函数编写得像同步代码。async 将代码块转化成实现了 Future trait 的状态机。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust异步编程之async与.await">
+<meta property="og:url" content="https://thefu.top/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。async&#x2F;.await 是Rust内置语法，用于让异步函数编写得像同步代码。async 将代码块转化成实现了 Future trait 的状态机。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-10-23T11:30:04.000Z">
+<meta property="article:modified_time" content="2025-11-26T14:39:55.376Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://thefu.top/2023/10/23/Rust异步编程之async与-await/"/>
+
+
+
+
+
+  <title>Rust异步编程之async与.await | TheFu's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TheFu's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">sicauthefu</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rust异步编程之async与.await</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-10-23T19:30:04+08:00">
+                2023-10-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。<code>async</code>&#x2F;<code>.await</code> 是Rust内置语法，用于让异步函数编写得像同步代码。<code>async</code> 将代码块转化成实现了 <code>Future</code> trait 的状态机。</p>
+<span id="more"></span>
+
+<h2 id="1-async-创建-Future"><a href="#1-async-创建-Future" class="headerlink" title="1. async - 创建 Future"></a>1. async - 创建 Future</h2><p><code>async</code> 是用于创建 Future 的语法糖，用来标记一个函数为异步函数。</p>
+<h3 id="异步函数（async-fn）"><a href="#异步函数（async-fn）" class="headerlink" title="异步函数（async fn）"></a>异步函数（async fn）</h3><ul>
+<li>调用后不会立即执行，而是返回一个 Future</li>
+<li>返回值会被自动包装为 Future</li>
+<li>异步函数内部可以直接使用 <code>.await</code></li>
+<li>异步函数的参数支持所有普通函数的参数类型（包括引用、所有权类型等），但要注意生命周期</li>
+</ul>
+<h3 id="异步块（async-…-）"><a href="#异步块（async-…-）" class="headerlink" title="异步块（async { … }）"></a>异步块（async { … }）</h3><p><code>async</code> 块可以捕获外部变量（类似闭包）</p>
+<ul>
+<li><code>async &#123; ... &#125;</code>：默认像闭包捕获，按借用捕获外部变量</li>
+<li><code>async move &#123; ... &#125;</code>：把需要的变量按值 <code>move</code> 进 Future，Future 对它们具有所有权</li>
+</ul>
+<h3 id="异步闭包"><a href="#异步闭包" class="headerlink" title="异步闭包"></a>异步闭包</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 异步函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">fetch_data</span>() <span class="punctuation">-&gt;</span> <span class="type">u32</span> &#123;</span><br><span class="line">    <span class="number">42</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步块</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">fut</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Working...&quot;</span>);</span><br><span class="line">    <span class="number">100</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步闭包</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">async_func</span> = <span class="keyword">async</span> |x: <span class="type">i32</span>| x + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-await-等待-Future-完成"><a href="#2-await-等待-Future-完成" class="headerlink" title="2. .await - 等待 Future 完成"></a>2. .await - 等待 Future 完成</h2><p><code>.await</code> 是用于等待 Future 执行完成的操作符；只能在 <code>async</code> 函数或 <code>async</code> 块内部使用。</p>
+<p>对 Future 调用 <code>.await</code>，会暂停当前 Future 的执行（并将线程让给其他可执行的 Future），直到被等待的 Future 完成，然后返回其 <code>Output</code> 结果。</p>
+<h3 id="await-工作原理"><a href="#await-工作原理" class="headerlink" title=".await 工作原理"></a>.await 工作原理</h3><p>Rust中代码编译扫描时，把每一个可能”挂起”的 <code>.await</code> 看作一个边界，把整个函数拆成几段；同时定义状态机，把后续要继续执行所需的局部变量保存下来。</p>
+<h3 id="await-示例"><a href="#await-示例" class="headerlink" title=".await 示例"></a>.await 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始示例函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">foo</span>() <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = <span class="keyword">async</span> &#123; <span class="number">2</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = x + y;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">w</span> = <span class="keyword">async</span> &#123; z * <span class="number">10</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    w</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 翻译的伪代码</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">FooState</span> &#123;</span><br><span class="line">    <span class="comment">// 初始状态</span></span><br><span class="line">    Start,</span><br><span class="line">    <span class="comment">// 正在等待第一个 .await： async &#123; 2 &#125;</span></span><br><span class="line">    AwaitY &#123;</span><br><span class="line">        <span class="comment">// 需要保存仍然会用到的局部变量</span></span><br><span class="line">        x: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 正在等待第二个 .await： async &#123; z * 10 &#125;</span></span><br><span class="line">    AwaitW &#123;</span><br><span class="line">        z: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    Done,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Future-异步计算的抽象"><a href="#3-Future-异步计算的抽象" class="headerlink" title="3. Future - 异步计算的抽象"></a>3. Future - 异步计算的抽象</h2><p>Future（<code>std::future::Future</code>）是 Rust 异步编程的基础，<code>async</code> 语法的本质是生成 Future，<code>.await</code> 则是触发 Future 执行并等待结果。</p>
+<h3 id="Future-Trait-定义"><a href="#Future-Trait-定义" class="headerlink" title="Future Trait 定义"></a>Future Trait 定义</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">trait</span> <span class="title class_">Future</span> &#123;</span><br><span class="line">    <span class="comment">// Future 最终产生的结果类型</span></span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 驱动 Future 执行：返回 Poll&lt;Output&gt;</span></span><br><span class="line">    <span class="comment">// waker：用于唤醒暂停的 Future</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">poll</span>(<span class="keyword">self</span>: Pin&lt;&amp;<span class="keyword">mut</span> <span class="keyword">Self</span>&gt;, cx: &amp;<span class="keyword">mut</span> Context&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> Poll&lt;<span class="keyword">Self</span>::Output&gt;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Poll 枚举：表示 Future 的执行状态</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Poll</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// Future 仍在执行中（需要等待某个事件，如 IO 完成）</span></span><br><span class="line">    Pending,</span><br><span class="line">    <span class="comment">// Future 已完成，返回结果 T</span></span><br><span class="line">    <span class="title function_ invoke__">Ready</span>(T),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Future-的特性"><a href="#Future-的特性" class="headerlink" title="Future 的特性"></a>Future 的特性</h3><p>Future 是惰性的——定义后不会自动执行，必须通过 <code>poll</code> 方法”驱动”它运行。只有当调用者（通常是异步执行器）调用 <code>poll</code> 时，Future 才会推进执行，直到遇到”需要等待的事件”（如网络请求、文件IO），此时返回 <code>Pending</code> 并暂停，等待被 <code>waker</code> 唤醒后再次执行。</p>
+<h2 id="4-执行器（Executor）"><a href="#4-执行器（Executor）" class="headerlink" title="4. 执行器（Executor）"></a>4. 执行器（Executor）</h2><p>要运行一个异步函数（<code>async fn</code>），必须使用一个执行器（Runtime &#x2F; Executor）来驱动它。</p>
+<h3 id="执行器使用方式"><a href="#执行器使用方式" class="headerlink" title="执行器使用方式"></a>执行器使用方式</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用程序入口</td>
+<td>使用宏</td>
+<td><code>#[tokio::main] async fn main() &#123; ... &#125;</code></td>
+</tr>
+<tr>
+<td>普通函数中</td>
+<td>手动创建 Runtime</td>
+<td><code>Runtime::new().unwrap().block_on(future)</code></td>
+</tr>
+<tr>
+<td>轻量级&#x2F;测试</td>
+<td>使用简单执行器</td>
+<td><code>futures::executor::block_on(future)</code></td>
+</tr>
+</tbody></table>
+<h3 id="并发执行多个-Future"><a href="#并发执行多个-Future" class="headerlink" title="并发执行多个 Future"></a>并发执行多个 Future</h3><p><code>async</code>&#x2F;<code>.await</code> 本身是串行的，若要并发执行多个 Future，需使用并发宏：</p>
+<ul>
+<li><strong><code>tokio::join!</code></strong> &#x2F; **<code>async_std::future::join!</code>**：等待所有 Future 完成（类似 Promise.all）</li>
+<li><strong><code>tokio::select!</code></strong> &#x2F; **<code>async_std::future::select!</code>**：等待第一个完成的 Future（类似 Promise.race）</li>
+<li>**<code>tokio::try_join!</code>**：并发执行，且所有 Future 均返回 <code>Result</code>，一旦有一个失败则立即返回错误</li>
+</ul>
+<h2 id="5-运行时（Runtime）"><a href="#5-运行时（Runtime）" class="headerlink" title="5. 运行时（Runtime）"></a>5. 运行时（Runtime）</h2><p>运行时是驱动异步任务（Future）执行的”引擎”，负责线程池管理、任务调度、IO事件复用（如 epoll&#x2F;kqueue）等底层工作。</p>
+<h3 id="运行时的三个核心部分"><a href="#运行时的三个核心部分" class="headerlink" title="运行时的三个核心部分"></a>运行时的三个核心部分</h3><ol>
+<li><p><strong>Executor（执行器）</strong></p>
+<ul>
+<li>负责不断调用 <code>Future::poll()</code> 推进任务执行</li>
+<li>支持任务调度、任务队列、线程池等</li>
+</ul>
+</li>
+<li><p><strong>Reactor（反应器）</strong></p>
+<ul>
+<li>基于操作系统的 IO 多路复用机制（epoll&#x2F;Linux、kqueue&#x2F;macOS、IOCP&#x2F;Windows）</li>
+<li>当 socket、文件或计时器可用时，唤醒对应任务</li>
+</ul>
+</li>
+<li><p><strong>Concurrency Primitives（并发原语）</strong></p>
+<ul>
+<li>提供异步锁（如 <code>Mutex</code>）、通道（<code>Channel</code>）、计时器（<code>Timer</code>）等工具，支持多任务安全通信</li>
+</ul>
+</li>
+</ol>
+<h3 id="常见运行时库对比"><a href="#常见运行时库对比" class="headerlink" title="常见运行时库对比"></a>常见运行时库对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Tokio</th>
+<th>async-std</th>
+<th>futures</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能</td>
+<td>最高（多线程调度）</td>
+<td>中等</td>
+<td>轻量，适中</td>
+</tr>
+<tr>
+<td>使用体验</td>
+<td>偏工程化、配置丰富</td>
+<td>最接近标准库</td>
+<td>极简、底层</td>
+</tr>
+<tr>
+<td>生态支持</td>
+<td>最强（hyper, tonic, reqwest）</td>
+<td>中等</td>
+<td>少量核心库</td>
+</tr>
+<tr>
+<td>内部实现</td>
+<td>work-stealing + reactor</td>
+<td>smol 内核</td>
+<td>模块化组件</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>高并发服务端</td>
+<td>快速开发、教学</td>
+<td>小型嵌入式、自定义运行时</td>
+</tr>
+</tbody></table>
+<h3 id="Tokio-示例"><a href="#Tokio-示例" class="headerlink" title="Tokio 示例"></a>Tokio 示例</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 并发执行两个任务</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task1</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 1 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task2</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">500</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 2 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// join! 等待两个任务都完成</span></span><br><span class="line">    tokio::join!(task1, task2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong><code>async</code></strong> 将函数或代码块转化为 Future</li>
+<li><strong><code>.await</code></strong> 用于暂停执行并等待 Future 完成</li>
+<li><strong>Future</strong> 是 Rust 异步编程的基础，需要通过执行器来驱动</li>
+<li><strong>执行器</strong> 负责调度和运行 Future，支持单线程或多线程并发</li>
+<li><strong>运行时</strong> 提供了完整的异步生态，Tokio 是最流行的选择</li>
+<li>异步编程适合 I&#x2F;O 密集型任务，可在单线程上实现高并发</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"># Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/09/26/Rust%E4%B8%AD%E7%9A%84%E9%9B%86%E5%90%88Collection/" rel="next" title="Rust中的集合Collection">
+                <i class="fa fa-chevron-left"></i> Rust中的集合Collection
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/" rel="prev" title="Rust中字符串与格式化">
+                Rust中字符串与格式化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/thefu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="sicauthefu@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=423228325&auto=1&height=66"></iframe>
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-async-%E5%88%9B%E5%BB%BA-Future"><span class="nav-number">1.</span> <span class="nav-text">1. async - 创建 Future</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%87%BD%E6%95%B0%EF%BC%88async-fn%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">异步函数（async fn）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%9D%97%EF%BC%88async-%E2%80%A6-%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">异步块（async { … }）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E9%97%AD%E5%8C%85"><span class="nav-number">1.3.</span> <span class="nav-text">异步闭包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-await-%E7%AD%89%E5%BE%85-Future-%E5%AE%8C%E6%88%90"><span class="nav-number">2.</span> <span class="nav-text">2. .await - 等待 Future 完成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#await-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">.await 工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#await-%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.2.</span> <span class="nav-text">.await 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Future-%E5%BC%82%E6%AD%A5%E8%AE%A1%E7%AE%97%E7%9A%84%E6%8A%BD%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">3. Future - 异步计算的抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Future-Trait-%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">Future Trait 定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Future-%E7%9A%84%E7%89%B9%E6%80%A7"><span class="nav-number">3.2.</span> <span class="nav-text">Future 的特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%89%A7%E8%A1%8C%E5%99%A8%EF%BC%88Executor%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">4. 执行器（Executor）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%99%A8%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">执行器使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E6%89%A7%E8%A1%8C%E5%A4%9A%E4%B8%AA-Future"><span class="nav-number">4.2.</span> <span class="nav-text">并发执行多个 Future</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%BF%90%E8%A1%8C%E6%97%B6%EF%BC%88Runtime%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">5. 运行时（Runtime）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E7%9A%84%E4%B8%89%E4%B8%AA%E6%A0%B8%E5%BF%83%E9%83%A8%E5%88%86"><span class="nav-number">5.1.</span> <span class="nav-text">运行时的三个核心部分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%BF%90%E8%A1%8C%E6%97%B6%E5%BA%93%E5%AF%B9%E6%AF%94"><span class="nav-number">5.2.</span> <span class="nav-text">常见运行时库对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tokio-%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.3.</span> <span class="nav-text">Tokio 示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

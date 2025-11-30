@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Cargo.toml又称清单（manifest），是 Rust 项目的核心配置文件，采用TOML格式（Tom’s Obvious Minimal Language）。它定义了一个包（crate）的：  名称、版本、作者、许可证 依赖项 编译特性 目标配置 构建脚本 工作区设置等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rust中的Cargo.toml文件">
+<meta property="og:url" content="https://thefu.top/2023/08/28/rust%E4%B8%AD%E7%9A%84Cargo-toml%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="Cargo.toml又称清单（manifest），是 Rust 项目的核心配置文件，采用TOML格式（Tom’s Obvious Minimal Language）。它定义了一个包（crate）的：  名称、版本、作者、许可证 依赖项 编译特性 目标配置 构建脚本 工作区设置等">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-08-28T12:03:58.000Z">
+<meta property="article:modified_time" content="2025-11-26T14:42:32.647Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://thefu.top/2023/08/28/rust中的Cargo-toml文件/"/>
+
+
+
+
+
+  <title>rust中的Cargo.toml文件 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TheFu's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">sicauthefu</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/08/28/rust%E4%B8%AD%E7%9A%84Cargo-toml%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">rust中的Cargo.toml文件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-08-28T20:03:58+08:00">
+                2023-08-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Cargo.toml</code>又称清单（manifest），是 Rust 项目的核心配置文件，采用TOML格式（Tom’s Obvious Minimal Language）。它定义了一个包（crate）的：</p>
+<ul>
+<li>名称、版本、作者、许可证</li>
+<li>依赖项</li>
+<li>编译特性</li>
+<li>目标配置</li>
+<li>构建脚本</li>
+<li>工作区设置等</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="1-Cargo-toml-vs-Cargo-lock"><a href="#1-Cargo-toml-vs-Cargo-lock" class="headerlink" title="1. Cargo.toml vs Cargo.lock"></a>1. Cargo.toml vs Cargo.lock</h2><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Cargo.toml</th>
+<th>Cargo.lock</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>作用</td>
+<td>源配置（声明意图）</td>
+<td>锁定文件（记录实际依赖版本）</td>
+</tr>
+<tr>
+<td>手动编辑</td>
+<td>是（开发者编写&#x2F;修改）</td>
+<td>否（Cargo自动生成&#x2F;更新）</td>
+</tr>
+<tr>
+<td>提交 Git</td>
+<td>需提交</td>
+<td>库的不需提交；二进制的需提交</td>
+</tr>
+<tr>
+<td>核心内容</td>
+<td>项目元信息、依赖、构建规则</td>
+<td>精确的依赖版本树、校验和</td>
+</tr>
+</tbody></table>
+<h2 id="2-基础结构"><a href="#2-基础结构" class="headerlink" title="2. 基础结构"></a>2. 基础结构</h2><p>Cargo.toml 按「区段（Section）」组织，每个区段用 <code>[区段名]</code> 标识，核心区段包括：</p>
+<ul>
+<li>**<code>[package]</code>**：定义项目元信息（必选）</li>
+<li>**<code>[dependencies]</code>**：生产依赖（必选&#x2F;可选，视项目类型）</li>
+<li>**<code>[dev-dependencies]</code>**：开发依赖（测试、文档测试用）</li>
+<li>**<code>[build-dependencies]</code>**：构建脚本依赖</li>
+<li>**<code>[lib]</code>**：库目标配置</li>
+<li>**<code>[[bin]]</code>**：二进制目标配置（支持多个）</li>
+<li>**<code>[profile.*]</code>**：构建配置文件（编译优化、调试信息等）</li>
+<li>**<code>[features]</code>**：特性开关（条件编译、可选依赖）</li>
+<li>**<code>[workspace]</code>**：工作空间配置（多包项目）</li>
+</ul>
+<h3 id="2-1-package-元信息"><a href="#2-1-package-元信息" class="headerlink" title="2.1 package 元信息"></a>2.1 package 元信息</h3><p>定义项目的基本信息。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+<th>值类型</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>项目名称（crates.io唯一）</td>
+<td>字符串：小写字母+连字符</td>
+<td><code>name = &quot;my-rust-project&quot;</code></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>版本号（语义化版本）</td>
+<td>遵循 MAJOR.MINOR.PATCH</td>
+<td><code>version = &quot;0.1.0&quot;</code></td>
+</tr>
+<tr>
+<td><code>edition</code></td>
+<td>Rust版本 edition</td>
+<td>支持 2018&#x2F;2021&#x2F;2024</td>
+<td><code>edition = &quot;2024&quot;</code></td>
+</tr>
+<tr>
+<td><code>maintainers</code></td>
+<td>维护者信息（替代 authors，推荐）</td>
+<td>数组，格式 [“姓名 &lt;邮箱&gt;”]</td>
+<td><code>maintainers = [&quot;Bob &lt;bob@example.com&gt;&quot;]</code></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>项目描述（crates.io展示）</td>
+<td>字符串，简洁明了（≤100字符）</td>
+<td><code>description = &quot;A simple Rust utility&quot;</code></td>
+</tr>
+<tr>
+<td><code>license</code></td>
+<td>开源许可证（SPDX标识符）</td>
+<td>字符串，如 MIT、Apache-2.0、GPL-3.0</td>
+<td><code>license = &quot;MIT&quot;</code></td>
+</tr>
+<tr>
+<td><code>license-file</code></td>
+<td>自定义许可证文件路径</td>
+<td>字符串，当 license 无法用 SPDX 标识时使用</td>
+<td><code>license-file = &quot;LICENSE.txt&quot;</code></td>
+</tr>
+<tr>
+<td><code>repository</code></td>
+<td>代码仓库地址</td>
+<td>字符串（Git地址或网页链接）</td>
+<td><code>repository = &quot;https://github.com/foo/bar&quot;</code></td>
+</tr>
+<tr>
+<td><code>homepage</code></td>
+<td>项目主页</td>
+<td>字符串（HTTP&#x2F;HTTPS链接）</td>
+<td><code>homepage = &quot;https://foo.example.com&quot;</code></td>
+</tr>
+<tr>
+<td><code>readme</code></td>
+<td>README文件路径</td>
+<td>字符串，默认 README.md&#x2F;README.rst，可省略路径</td>
+<td><code>readme = &quot;README.md&quot;</code></td>
+</tr>
+<tr>
+<td><code>keywords</code></td>
+<td>搜索关键词（crates.io用）</td>
+<td>字符串数组，最多5个</td>
+<td><code>keywords = [&quot;rust&quot;, &quot;utility&quot;, &quot;cli&quot;]</code></td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td>分类（crates.io用）</td>
+<td>字符串数组，需从官方分类选择</td>
+<td><code>categories = [&quot;command-line-utilities&quot;]</code></td>
+</tr>
+<tr>
+<td><code>exclude</code></td>
+<td>构建&#x2F;发布时排除的文件</td>
+<td>字符串数组（支持glob模式）</td>
+<td><code>exclude = [&quot;docs/*&quot;, &quot;tests/*.txt&quot;]</code></td>
+</tr>
+<tr>
+<td><code>include</code></td>
+<td>构建&#x2F;发布时强制包含的文件</td>
+<td>字符串数组（优先级高于exclude）</td>
+<td><code>include = [&quot;src/**/*&quot;, &quot;Cargo.toml&quot;]</code></td>
+</tr>
+<tr>
+<td><code>publish</code></td>
+<td>是否允许发布到 crates.io</td>
+<td>布尔值（true&#x2F;false）</td>
+<td><code>publish = false</code>（私有项目）</td>
+</tr>
+<tr>
+<td><code>rust-version</code></td>
+<td>最低支持的 Rust 版本</td>
+<td>字符串（如 1.70.0）</td>
+<td><code>rust-version = &quot;1.70.0&quot;</code></td>
+</tr>
+</tbody></table>
+<h3 id="2-2-dependencies-普通依赖"><a href="#2-2-dependencies-普通依赖" class="headerlink" title="2.2 dependencies 普通依赖"></a>2.2 dependencies 普通依赖</h3><p>定义项目的运行时依赖，支持多种版本约束语法。</p>
+<h4 id="版本约束语法"><a href="#版本约束语法" class="headerlink" title="版本约束语法"></a>版本约束语法</h4><table>
+<thead>
+<tr>
+<th>语法</th>
+<th>说明</th>
+<th>示例</th>
+<th>范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>^x.y.z</code></td>
+<td>兼容更新（默认，推荐）</td>
+<td><code>serde = &quot;^1.0.188&quot;</code></td>
+<td>1.0.188 ≤ 版本 &lt; 2.0.0</td>
+</tr>
+<tr>
+<td><code>~x.y.z</code></td>
+<td>补丁更新（仅允许PATCH版本升级）</td>
+<td><code>rand = &quot;~0.8.5&quot;</code></td>
+<td>0.8.5 ≤ 版本 &lt; 0.9.0</td>
+</tr>
+<tr>
+<td><code>&gt;=x.y.z</code></td>
+<td>最低版本（允许所有更高版本）</td>
+<td><code>tokio = &quot;&gt;=1.20.0&quot;</code></td>
+<td>1.20.0及以上</td>
+</tr>
+<tr>
+<td><code>=x.y.z</code></td>
+<td>精确版本（禁止任何升级）</td>
+<td><code>log = &quot;=0.4.20&quot;</code></td>
+<td>仅0.4.20</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>任意版本（不推荐，风险高）</td>
+<td><code>foo = &quot;*&quot;</code></td>
+<td>所有版本</td>
+</tr>
+</tbody></table>
+<h4 id="依赖声明方式"><a href="#依赖声明方式" class="headerlink" title="依赖声明方式"></a>依赖声明方式</h4><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[dependencies]</span></span><br><span class="line"><span class="comment"># 简洁版本约束（等价于 ^1.0）</span></span><br><span class="line"><span class="attr">serde</span> = <span class="string">&quot;1.0&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 明确指定版本约束</span></span><br><span class="line"><span class="attr">rand</span> = <span class="string">&quot;=0.8.5&quot;</span>              <span class="comment"># 精确版本</span></span><br><span class="line"><span class="attr">tokio</span> = <span class="string">&quot;~1.0&quot;</span>               <span class="comment"># 允许patch版本更新（1.0 &lt;= version &lt; 1.1）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用特性（features）</span></span><br><span class="line"><span class="attr">serde</span> = &#123; version = <span class="string">&quot;1.0&quot;</span>, features = [<span class="string">&quot;derive&quot;</span>] &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 依赖来自Git仓库</span></span><br><span class="line"><span class="attr">custom-fork</span> = &#123; git = <span class="string">&quot;https://github.com/user/repo&quot;</span>, branch = <span class="string">&quot;fix&quot;</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地路径依赖</span></span><br><span class="line"><span class="attr">my-lib</span> = &#123; path = <span class="string">&quot;../my-lib&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="其他依赖类型"><a href="#其他依赖类型" class="headerlink" title="其他依赖类型"></a>其他依赖类型</h4><ul>
+<li>**<code>[dev-dependencies]</code>**：仅在 <code>cargo test</code>、<code>cargo bench</code> 等开发模式下使用</li>
+<li>**<code>[build-dependencies]</code>**：在 <code>build.rs</code> 文件中使用的依赖</li>
+<li>**<code>[target.&#39;cfg(windows)&#39;.dependencies]</code> &#x2F; <code>[target.&#39;cfg(unix)&#39;.dependencies]</code>**：指定特定平台依赖</li>
+</ul>
+<h3 id="2-3-Features-特性"><a href="#2-3-Features-特性" class="headerlink" title="2.3 Features 特性"></a>2.3 Features 特性</h3><p>Features 是 Cargo 提供的一种条件编译机制。</p>
+<h4 id="特性配置"><a href="#特性配置" class="headerlink" title="特性配置"></a>特性配置</h4><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[features]</span></span><br><span class="line"><span class="attr">default</span> = [<span class="string">&quot;tls-rustls&quot;</span>]     <span class="comment"># 默认启用的特性</span></span><br><span class="line"><span class="attr">tls-rustls</span> = [<span class="string">&quot;rustls&quot;</span>, <span class="string">&quot;reqwest-rustls&quot;</span>]  <span class="comment"># 启用Rustls TLS实现</span></span><br><span class="line"><span class="attr">tls-native</span> = [<span class="string">&quot;native-tls&quot;</span>, <span class="string">&quot;reqwest-native&quot;</span>]  <span class="comment"># 启用系统TLS实现</span></span><br><span class="line"><span class="attr">compression</span> = [<span class="string">&quot;dep:flate2&quot;</span>] <span class="comment"># 依赖其他包的特性</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 空特性（仅用于条件编译，不关联依赖）</span></span><br><span class="line"><span class="attr">feat1</span> = []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 特性继承（feat2 启用时，自动启用 feat1 和 &quot;advanced-dep&quot; 依赖）</span></span><br><span class="line"><span class="attr">feat2</span> = [<span class="string">&quot;feat1&quot;</span>, <span class="string">&quot;dep:advanced-dep&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用特性"><a href="#使用特性" class="headerlink" title="使用特性"></a>使用特性</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启用指定特性</span></span><br><span class="line">cargo build --features <span class="string">&quot;async,json&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭默认特性</span></span><br><span class="line">cargo build --no-default-features</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用所有特性</span></span><br><span class="line">cargo build --all-features</span><br></pre></td></tr></table></figure>
+
+<h4 id="代码中使用特性"><a href="#代码中使用特性" class="headerlink" title="代码中使用特性"></a>代码中使用特性</h4><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 仅当 &quot;feat1&quot; 特性启用时编译此模块</span></span><br><span class="line"><span class="meta">#[cfg(feature = <span class="string">&quot;feat1&quot;</span>)]</span></span><br><span class="line"><span class="keyword">mod</span> feat1_module &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 特性启用时执行不同逻辑</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">do_something</span>() &#123;</span><br><span class="line">    <span class="meta">#[cfg(feature = <span class="string">&quot;feat2&quot;</span>)]</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Feat2 is enabled!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">#[cfg(not(feature = <span class="string">&quot;feat2&quot;</span>))]</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Feat2 is disabled!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-目标配置"><a href="#3-目标配置" class="headerlink" title="3. 目标配置"></a>3. 目标配置</h2><p>Rust项目支持两种目标类型：库（lib）和二进制可执行文件（bin）。</p>
+<h3 id="3-1-lib-库配置"><a href="#3-1-lib-库配置" class="headerlink" title="3.1 lib 库配置"></a>3.1 lib 库配置</h3><p>仅当项目是库（或同时是库+二进制）时需要，定义库的构建规则。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>库名称（默认与 package.name一致）</td>
+<td><code>name = &quot;my-lib&quot;</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>库源文件路径（默认 src&#x2F;lib.rs）</td>
+<td><code>path = &quot;src/my_lib.rs&quot;</code></td>
+</tr>
+<tr>
+<td><code>crate_type</code></td>
+<td>生成的库类型（支持多个）</td>
+<td><code>crate_type = [&quot;rlib&quot;, &quot;cdylib&quot;]</code></td>
+</tr>
+<tr>
+<td><code>crate_name</code></td>
+<td>编译后的 crate 名称（链接时使用）</td>
+<td><code>crate_name = &quot;my_custom_lib&quot;</code></td>
+</tr>
+</tbody></table>
+<h4 id="库类型说明"><a href="#库类型说明" class="headerlink" title="库类型说明"></a>库类型说明</h4><ul>
+<li>**<code>rlib</code>**：Rust静态库（默认，供Rust项目依赖）</li>
+<li>**<code>dylib</code>**：Rust动态库（供Rust项目动态链接）</li>
+<li>**<code>cdylib</code>**：C兼容动态库（供C&#x2F;C++等其他语言调用）</li>
+<li>**<code>staticlib</code>**：C兼容静态库（供其他语言静态链接）</li>
+<li>**<code>proc-macro</code>**：过程宏库（仅当项目是过程宏时使用）</li>
+</ul>
+<h3 id="3-2-bin-二进制配置"><a href="#3-2-bin-二进制配置" class="headerlink" title="3.2 bin 二进制配置"></a>3.2 bin 二进制配置</h3><p>定义可执行文件的构建规则，<code>[[bin]]</code> 是数组语法（<code>[[ ]]</code>），支持多个二进制目标（一个项目可生成多个可执行文件）。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>可执行文件名称（默认与源文件名称一致）</td>
+<td><code>name = &quot;my-cli&quot;</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>源文件路径（默认 src&#x2F;bin&#x2F;*.rs）</td>
+<td><code>path = &quot;src/cli/main.rs&quot;</code></td>
+</tr>
+<tr>
+<td><code>required-features</code></td>
+<td>启用该二进制目标所需的特性</td>
+<td><code>required-features = [&quot;cli&quot;]</code></td>
+</tr>
+</tbody></table>
+<h4 id="默认约定"><a href="#默认约定" class="headerlink" title="默认约定"></a>默认约定</h4><ul>
+<li><strong>单个二进制目标</strong>：源文件放在 <code>src/main.rs</code>，无需配置 <code>[[bin]]</code></li>
+<li><strong>多个二进制目标</strong>：源文件放在 <code>src/bin/</code> 目录下（如 <code>src/bin/cli.rs</code>、<code>src/bin/utils.rs</code>），Cargo自动识别，无需配置 <code>[[bin]]</code>（除非需要自定义名称&#x2F;路径）</li>
+</ul>
+<h4 id="二进制配置示例"><a href="#二进制配置示例" class="headerlink" title="二进制配置示例"></a>二进制配置示例</h4><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义单个二进制目标（源文件不是 src/main.rs）</span></span><br><span class="line"><span class="section">[[bin]]</span></span><br><span class="line"><span class="attr">name</span> = <span class="string">&quot;my-cli&quot;</span></span><br><span class="line"><span class="attr">path</span> = <span class="string">&quot;src/custom_main.rs&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 多个二进制目标（自定义名称和路径）</span></span><br><span class="line"><span class="section">[[bin]]</span></span><br><span class="line"><span class="attr">name</span> = <span class="string">&quot;cli&quot;</span></span><br><span class="line"><span class="attr">path</span> = <span class="string">&quot;src/cli.rs&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[[bin]]</span></span><br><span class="line"><span class="attr">name</span> = <span class="string">&quot;daemon&quot;</span></span><br><span class="line"><span class="attr">path</span> = <span class="string">&quot;src/daemon.rs&quot;</span></span><br><span class="line"><span class="attr">required-features</span> = [<span class="string">&quot;daemon&quot;</span>] <span class="comment"># 仅当启用 &quot;daemon&quot; 特性时才构建</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-profile-构建配置"><a href="#4-profile-构建配置" class="headerlink" title="4. profile.* 构建配置"></a>4. profile.* 构建配置</h2><p>控制编译优化、调试信息、代码生成等规则。Cargo提供5个默认配置文件。</p>
+<h3 id="预设配置"><a href="#预设配置" class="headerlink" title="预设配置"></a>预设配置</h3><table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>默认设置</th>
+<th>opt-level</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dev</code></td>
+<td>开发模式（cargo build默认）</td>
+<td>0（无优化）</td>
+<td>本地开发、调试（编译快）</td>
+</tr>
+<tr>
+<td><code>release</code></td>
+<td>发布模式（cargo build –release）</td>
+<td>3（全优化）</td>
+<td>生产环境（运行快，编译慢）</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>测试模式（cargo test默认）</td>
+<td>0</td>
+<td>运行测试（兼顾编译速度）</td>
+</tr>
+<tr>
+<td><code>bench</code></td>
+<td>基准测试模式（cargo bench）</td>
+<td>3</td>
+<td>性能测试（需要最优性能）</td>
+</tr>
+<tr>
+<td><code>doc</code></td>
+<td>文档模式（cargo doc）</td>
+<td>0</td>
+<td>生成文档（编译依赖快）</td>
+</tr>
+</tbody></table>
+<h3 id="可配置字段（常用）"><a href="#可配置字段（常用）" class="headerlink" title="可配置字段（常用）"></a>可配置字段（常用）</h3><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+<th>可用值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>opt-level</code></td>
+<td>优化级别</td>
+<td>0&#x2F;1&#x2F;2&#x2F;3（优化程度）、s&#x2F;z（体积优化）</td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>是否生成调试信息</td>
+<td>true&#x2F;false（dev默认为true，release默认为false）</td>
+</tr>
+<tr>
+<td><code>debug-assertions</code></td>
+<td>是否启用调试断言</td>
+<td>true&#x2F;false（dev默认为true，release默认为false）</td>
+</tr>
+<tr>
+<td><code>strip</code></td>
+<td>是否剥离符号信息（减小二进制体积）</td>
+<td>“none”、”debuginfo”、”all”</td>
+</tr>
+<tr>
+<td><code>lto</code></td>
+<td>链接时优化（LTO，提升性能&#x2F;减小体积）</td>
+<td>false&#x2F;true&#x2F;“thin”</td>
+</tr>
+<tr>
+<td><code>codegen-units</code></td>
+<td>代码生成单元数量（影响编译速度&#x2F;优化）</td>
+<td>整数（默认 dev&#x3D;256，release&#x3D;16）</td>
+</tr>
+<tr>
+<td><code>panic</code></td>
+<td>panic处理方式</td>
+<td>“unwind”（默认）、”abort”</td>
+</tr>
+<tr>
+<td><code>incremental</code></td>
+<td>是否启用增量编译</td>
+<td>true&#x2F;false（dev默认为true，release默认为false）</td>
+</tr>
+</tbody></table>
+<h3 id="构建配置示例"><a href="#构建配置示例" class="headerlink" title="构建配置示例"></a>构建配置示例</h3><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发配置：快速编译，便于调试</span></span><br><span class="line"><span class="section">[profile.dev]</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="number">0</span></span><br><span class="line"><span class="attr">debug</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">debug-assertions</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">incremental</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 发布配置：全优化</span></span><br><span class="line"><span class="section">[profile.release]</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="number">3</span></span><br><span class="line"><span class="attr">debug</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">debug-assertions</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">lto</span> = <span class="string">&quot;thin&quot;</span>          <span class="comment"># 增量LTO，比全LTO编译更快</span></span><br><span class="line"><span class="attr">codegen-units</span> = <span class="number">16</span></span><br><span class="line"><span class="attr">strip</span> = <span class="string">&quot;debuginfo&quot;</span>   <span class="comment"># 剥离调试信息，减小体积</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 自定义配置：兼顾性能和编译速度</span></span><br><span class="line"><span class="section">[profile.release-fast]</span></span><br><span class="line"><span class="attr">inherits</span> = <span class="string">&quot;release&quot;</span></span><br><span class="line"><span class="attr">codegen-units</span> = <span class="number">128</span>   <span class="comment"># 降低codegen-units，加快编译</span></span><br><span class="line"><span class="attr">lto</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 体积优化</span></span><br><span class="line"><span class="section">[profile.release-small]</span></span><br><span class="line"><span class="attr">inherits</span> = <span class="string">&quot;release&quot;</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="string">&quot;z&quot;</span>       <span class="comment"># 极致体积优化</span></span><br><span class="line"><span class="attr">strip</span> = <span class="string">&quot;all&quot;</span>         <span class="comment"># 剥离所有符号</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-完整的-Cargo-toml-示例"><a href="#5-完整的-Cargo-toml-示例" class="headerlink" title="5. 完整的 Cargo.toml 示例"></a>5. 完整的 Cargo.toml 示例</h2><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[package]</span></span><br><span class="line"><span class="attr">name</span> = <span class="string">&quot;my-rust-app&quot;</span></span><br><span class="line"><span class="attr">version</span> = <span class="string">&quot;0.1.0&quot;</span></span><br><span class="line"><span class="attr">edition</span> = <span class="string">&quot;2024&quot;</span></span><br><span class="line"><span class="attr">description</span> = <span class="string">&quot;A full-featured Rust application&quot;</span></span><br><span class="line"><span class="attr">license</span> = <span class="string">&quot;MIT&quot;</span></span><br><span class="line"><span class="attr">repository</span> = <span class="string">&quot;https://github.com/foo/my-rust-app&quot;</span></span><br><span class="line"><span class="attr">readme</span> = <span class="string">&quot;README.md&quot;</span></span><br><span class="line"><span class="attr">keywords</span> = [<span class="string">&quot;rust&quot;</span>, <span class="string">&quot;app&quot;</span>, <span class="string">&quot;cli&quot;</span>]</span><br><span class="line"><span class="attr">categories</span> = [<span class="string">&quot;command-line-utilities&quot;</span>]</span><br><span class="line"><span class="attr">rust-version</span> = <span class="string">&quot;1.75.0&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[workspace]</span></span><br><span class="line"><span class="attr">members</span> = [<span class="string">&quot;crates/*&quot;</span>, <span class="string">&quot;cli&quot;</span>]</span><br><span class="line"><span class="attr">default-members</span> = [<span class="string">&quot;cli&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="section">[workspace.dependencies]</span></span><br><span class="line"><span class="attr">serde</span> = &#123; version = <span class="string">&quot;1.0&quot;</span>, features = [<span class="string">&quot;derive&quot;</span>] &#125;</span><br><span class="line"><span class="attr">rand</span> = <span class="string">&quot;0.8&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[dependencies]</span></span><br><span class="line"><span class="attr">serde</span> = &#123; workspace = <span class="literal">true</span> &#125;</span><br><span class="line"><span class="attr">tokio</span> = &#123; version = <span class="string">&quot;1.0&quot;</span>, features = [<span class="string">&quot;full&quot;</span>] &#125;</span><br><span class="line"><span class="attr">anyhow</span> = <span class="string">&quot;1.0&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[dev-dependencies]</span></span><br><span class="line"><span class="attr">criterion</span> = <span class="string">&quot;0.5&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[build-dependencies]</span></span><br><span class="line"><span class="attr">prost-build</span> = <span class="string">&quot;0.11&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[features]</span></span><br><span class="line"><span class="attr">default</span> = [<span class="string">&quot;async&quot;</span>]</span><br><span class="line"><span class="attr">async</span> = []</span><br><span class="line"><span class="attr">cli</span> = []</span><br><span class="line"></span><br><span class="line"><span class="section">[[bin]]</span></span><br><span class="line"><span class="attr">name</span> = <span class="string">&quot;my-app&quot;</span></span><br><span class="line"><span class="attr">path</span> = <span class="string">&quot;src/main.rs&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[profile.dev]</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="number">0</span></span><br><span class="line"><span class="attr">debug</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">incremental</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="section">[profile.release]</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="number">3</span></span><br><span class="line"><span class="attr">debug</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">lto</span> = <span class="string">&quot;thin&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-Workspace-工作区"><a href="#6-Workspace-工作区" class="headerlink" title="6. Workspace 工作区"></a>6. Workspace 工作区</h2><p>当项目包含多个crate（如核心库、CLI工具、测试工具）时，用工作空间统一管理依赖和构建。</p>
+<h3 id="工作区配置"><a href="#工作区配置" class="headerlink" title="工作区配置"></a>工作区配置</h3><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 工作空间根目录的 Cargo.toml</span></span><br><span class="line"><span class="section">[workspace]</span></span><br><span class="line"><span class="comment"># 包含的子包（支持 glob 模式）</span></span><br><span class="line"><span class="attr">members</span> = [</span><br><span class="line">    <span class="string">&quot;crates/*&quot;</span>,      <span class="comment"># 所有 crates 目录下的子包</span></span><br><span class="line">    <span class="string">&quot;cli&quot;</span>,           <span class="comment"># 单个子包</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认构建的子包（cargo build 时默认构建这些）</span></span><br><span class="line"><span class="attr">default-members</span> = [<span class="string">&quot;crates/core&quot;</span>, <span class="string">&quot;cli&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 工作空间共享依赖版本（子包可直接引用，避免版本重复）</span></span><br><span class="line"><span class="section">[workspace.dependencies]</span></span><br><span class="line"><span class="attr">serde</span> = &#123; version = <span class="string">&quot;1.0&quot;</span>, features = [<span class="string">&quot;derive&quot;</span>] &#125;</span><br><span class="line"><span class="attr">rand</span> = <span class="string">&quot;0.8&quot;</span></span><br><span class="line"><span class="attr">tokio</span> = <span class="string">&quot;1.0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="子包中引用工作区依赖"><a href="#子包中引用工作区依赖" class="headerlink" title="子包中引用工作区依赖"></a>子包中引用工作区依赖</h3><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 子包（crates/core/Cargo.toml）</span></span><br><span class="line"><span class="section">[dependencies]</span></span><br><span class="line"><span class="comment"># 直接引用工作空间定义的依赖版本</span></span><br><span class="line"><span class="attr">serde</span> = &#123; workspace = <span class="literal">true</span> &#125;</span><br><span class="line"><span class="attr">rand</span> = &#123; workspace = <span class="literal">true</span>, features = [<span class="string">&quot;small_rng&quot;</span>] &#125; <span class="comment"># 追加特性</span></span><br><span class="line"><span class="attr">tokio</span> = &#123; workspace = <span class="literal">true</span>, features = [<span class="string">&quot;rt&quot;</span>] &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong>package</strong>：定义项目元信息、版本、许可证等</li>
+<li><strong>dependencies</strong>：管理项目依赖，支持crates.io、Git、本地路径多种来源</li>
+<li><strong>features</strong>：实现条件编译和可选依赖</li>
+<li>**[lib] 和 [[bin]]**：定义库和二进制目标</li>
+<li>**profile.***：控制编译优化策略</li>
+<li><strong>workspace</strong>：多包项目的统一管理</li>
+<li><strong>Cargo.lock</strong>：记录精确的依赖版本，二进制项目应提交到Git</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"># Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/08/24/Rust%E4%B8%AD%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" rel="next" title="Rust中错误处理机制">
+                <i class="fa fa-chevron-left"></i> Rust中错误处理机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/09/20/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/" rel="prev" title="Rust中的 Send 和 Sync trait 详解">
+                Rust中的 Send 和 Sync trait 详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/thefu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="sicauthefu@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=423228325&auto=1&height=66"></iframe>
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Cargo-toml-vs-Cargo-lock"><span class="nav-number">1.</span> <span class="nav-text">1. Cargo.toml vs Cargo.lock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%9F%BA%E7%A1%80%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">2. 基础结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-package-%E5%85%83%E4%BF%A1%E6%81%AF"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 package 元信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-dependencies-%E6%99%AE%E9%80%9A%E4%BE%9D%E8%B5%96"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 dependencies 普通依赖</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E7%BA%A6%E6%9D%9F%E8%AF%AD%E6%B3%95"><span class="nav-number">2.2.1.</span> <span class="nav-text">版本约束语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%A3%B0%E6%98%8E%E6%96%B9%E5%BC%8F"><span class="nav-number">2.2.2.</span> <span class="nav-text">依赖声明方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E4%BE%9D%E8%B5%96%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.2.3.</span> <span class="nav-text">其他依赖类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Features-%E7%89%B9%E6%80%A7"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Features 特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E6%80%A7%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.1.</span> <span class="nav-text">特性配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%89%B9%E6%80%A7"><span class="nav-number">2.3.2.</span> <span class="nav-text">使用特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%AD%E4%BD%BF%E7%94%A8%E7%89%B9%E6%80%A7"><span class="nav-number">2.3.3.</span> <span class="nav-text">代码中使用特性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%9B%AE%E6%A0%87%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">3. 目标配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-lib-%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 lib 库配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%93%E7%B1%BB%E5%9E%8B%E8%AF%B4%E6%98%8E"><span class="nav-number">3.1.1.</span> <span class="nav-text">库类型说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-bin-%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 bin 二进制配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%BB%98%E8%AE%A4%E7%BA%A6%E5%AE%9A"><span class="nav-number">3.2.1.</span> <span class="nav-text">默认约定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.2.2.</span> <span class="nav-text">二进制配置示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-profile-%E6%9E%84%E5%BB%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">4. profile.* 构建配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E8%AE%BE%E9%85%8D%E7%BD%AE"><span class="nav-number">4.1.</span> <span class="nav-text">预设配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%85%8D%E7%BD%AE%E5%AD%97%E6%AE%B5%EF%BC%88%E5%B8%B8%E7%94%A8%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">可配置字段（常用）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.3.</span> <span class="nav-text">构建配置示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%AE%8C%E6%95%B4%E7%9A%84-Cargo-toml-%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.</span> <span class="nav-text">5. 完整的 Cargo.toml 示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Workspace-%E5%B7%A5%E4%BD%9C%E5%8C%BA"><span class="nav-number">6.</span> <span class="nav-text">6. Workspace 工作区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">6.1.</span> <span class="nav-text">工作区配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E5%8C%85%E4%B8%AD%E5%BC%95%E7%94%A8%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%BE%9D%E8%B5%96"><span class="nav-number">6.2.</span> <span class="nav-text">子包中引用工作区依赖</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

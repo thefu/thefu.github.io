@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Rust 的核心工具包括：  **rustc**：Rust 的底层编译器。cargo 最终会调用 rustc 来编译代码。rustc 接受大量的命令行参数来精确控制编译过程。 **cargo**：Rust 的官方构建工具和包管理器。根据 Cargo.toml 的配置，自动调用 rustc 并传递合适的参数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust编译参数与优化控制">
+<meta property="og:url" content="https://thefu.top/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="Rust 的核心工具包括：  **rustc**：Rust 的底层编译器。cargo 最终会调用 rustc 来编译代码。rustc 接受大量的命令行参数来精确控制编译过程。 **cargo**：Rust 的官方构建工具和包管理器。根据 Cargo.toml 的配置，自动调用 rustc 并传递合适的参数。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-11-26T12:07:07.000Z">
+<meta property="article:modified_time" content="2025-11-26T14:43:42.375Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://thefu.top/2023/11/26/Rust编译参数与优化控制/"/>
+
+
+
+
+
+  <title>Rust编译参数与优化控制 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TheFu's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">sicauthefu</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://thefu.top/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rust编译参数与优化控制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-11-26T20:07:07+08:00">
+                2023-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Rust 的核心工具包括：</p>
+<ul>
+<li>**<code>rustc</code>**：Rust 的底层编译器。<code>cargo</code> 最终会调用 <code>rustc</code> 来编译代码。<code>rustc</code> 接受大量的命令行参数来精确控制编译过程。</li>
+<li>**<code>cargo</code>**：Rust 的官方构建工具和包管理器。根据 <code>Cargo.toml</code> 的配置，自动调用 <code>rustc</code> 并传递合适的参数。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="1-Cargo-工具"><a href="#1-Cargo-工具" class="headerlink" title="1. Cargo 工具"></a>1. Cargo 工具</h2><p>Cargo 是 Rust 开发的核心工具，统一了「项目创建、编译、运行、测试、依赖管理、发布」等全流程。</p>
+<h3 id="Cargo-的核心职责"><a href="#Cargo-的核心职责" class="headerlink" title="Cargo 的核心职责"></a>Cargo 的核心职责</h3><ul>
+<li><strong>项目脚手架</strong>：创建标准 Rust 项目（二进制&#x2F;库）</li>
+<li><strong>依赖管理</strong>：下载、更新、编译依赖（从 crates.io 或自定义源）</li>
+<li><strong>构建与运行</strong>：调用 <code>rustc</code> 编译项目，自动处理链接、优化参数</li>
+<li><strong>测试与基准</strong>：运行单元测试、集成测试、性能基准测试</li>
+<li><strong>发布与分发</strong>：将库发布到 crates.io，或生成可分发的二进制文件</li>
+</ul>
+<h3 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h3><p>通过 cargo 创建的项目，会包含：</p>
+<ul>
+<li><strong>Cargo.toml</strong>：「清单文件」，记录项目名称、版本、依赖、编译配置等；可手动编辑</li>
+<li><strong>Cargo.lock</strong>：「版本锁文件」，精确记录所有依赖的具体版本（确保多人协作&#x2F;跨环境编译一致性）；自动生成</li>
+</ul>
+<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>项目创建</strong></td>
+<td><code>cargo new &lt;name&gt;</code></td>
+<td>创建一个新的二进制项目（<code>--no-git</code> 不初始化git）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo new --lib &lt;name&gt;</code></td>
+<td>创建一个新的库项目</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo init</code></td>
+<td>在当前目录初始化一个 Cargo 项目</td>
+</tr>
+<tr>
+<td><strong>编译构建</strong></td>
+<td><code>cargo build</code></td>
+<td>编译项目（开发模式），生成到 <code>target/debug/</code> 下</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo build --release</code></td>
+<td>编译项目（发布模式），生成到 <code>target/release/</code> 下</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo check</code></td>
+<td>快速检查代码是否有编译错误，不生成可执行文件，速度最快</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo check --release</code></td>
+<td>在发布模式下快速检查代码</td>
+</tr>
+<tr>
+<td><strong>运行程序</strong></td>
+<td><code>cargo run</code></td>
+<td>以开发模式编译并运行项目</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo run --release</code></td>
+<td>以发布模式编译并运行项目</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo run -- &lt;args&gt;</code></td>
+<td>带命令行参数（<code>--</code> 后的内容）方式运行</td>
+</tr>
+<tr>
+<td><strong>测试</strong></td>
+<td><code>cargo test</code></td>
+<td>编译并运行项目中的所有测试</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo test &lt;name&gt;</code></td>
+<td>运行名称中包含 <code>&lt;name&gt;</code> 的特定测试</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo test -- --nocapture</code></td>
+<td>运行测试时，显示 <code>println!</code> 等输出信息</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo test -- --ignored</code></td>
+<td>运行被 <code>#[ignore]</code> 标记的（通常被忽略的）测试</td>
+</tr>
+<tr>
+<td><strong>文档</strong></td>
+<td><code>cargo doc</code></td>
+<td>为项目生成 HTML 文档</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo doc --open</code></td>
+<td>生成文档并在浏览器中打开</td>
+</tr>
+<tr>
+<td><strong>依赖管理</strong></td>
+<td><code>cargo add &lt;crate&gt;</code></td>
+<td>向 Cargo.toml 添加一个依赖；<code>--features</code> 添加包属性</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo update</code></td>
+<td>更新 Cargo.lock，将依赖升级到允许的最新版本</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo search &lt;keyword&gt;</code></td>
+<td>在 crates.io 上搜索包</td>
+</tr>
+<tr>
+<td><strong>发布</strong></td>
+<td><code>cargo publish</code></td>
+<td>将库发布到 crates.io</td>
+</tr>
+<tr>
+<td><strong>清理</strong></td>
+<td><code>cargo clean</code></td>
+<td>删除 <code>target/</code> 目录，清除所有编译产物和缓存</td>
+</tr>
+<tr>
+<td><strong>代码质量</strong></td>
+<td><code>cargo fmt</code></td>
+<td>(需安装 rustfmt) 格式化代码，使其符合 Rust 风格指南</td>
+</tr>
+<tr>
+<td></td>
+<td><code>cargo clippy</code></td>
+<td>(需安装 clippy) 运行 lint 工具，发现代码中的 bug、错误和不良模式</td>
+</tr>
+</tbody></table>
+<h4 id="添加依赖示例"><a href="#添加依赖示例" class="headerlink" title="添加依赖示例"></a>添加依赖示例</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo add reqwest --features blocking</span><br></pre></td></tr></table></figure>
+
+<p>会在 toml 中添加：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[dependencies]</span></span><br><span class="line"><span class="attr">reqwest</span> = &#123; version = <span class="string">&quot;0.12.24&quot;</span>, features = [<span class="string">&quot;blocking&quot;</span>] &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Profile（编译规则集合）"><a href="#Profile（编译规则集合）" class="headerlink" title="Profile（编译规则集合）"></a>Profile（编译规则集合）</h3><p>Cargo 的 <code>profile</code> 是编译规则的集合，核心作用是将「优化等级、调试信息、编译速度、链接策略」等配置按「场景」（开发、测试、发布等）归类，避免每次编译都手动传递大量参数。</p>
+<h4 id="Profile-的核心特点"><a href="#Profile-的核心特点" class="headerlink" title="Profile 的核心特点"></a>Profile 的核心特点</h4><ul>
+<li><strong>统一管理编译配置</strong>：将分散的 <code>rustc</code> 参数（如优化等级、LTO）整合为场景化配置</li>
+<li><strong>优先级明确</strong>：命令行参数（如 <code>--release</code>）&gt; <code>Cargo.toml</code> 配置 &gt; 默认值</li>
+<li><strong>继承机制</strong>：部分默认 profile 会继承其他 profile 的配置<ul>
+<li><code>test</code> ← <code>dev</code>：修改 <code>dev</code> 的配置会影响 <code>test</code>（除非单独覆盖 <code>test</code> 的字段）</li>
+<li><code>bench</code> ← <code>release</code>：修改 <code>release</code> 的配置会影响 <code>bench</code>（除非单独覆盖 <code>bench</code> 的字段）</li>
+</ul>
+</li>
+</ul>
+<h4 id="五个默认-Profile"><a href="#五个默认-Profile" class="headerlink" title="五个默认 Profile"></a>五个默认 Profile</h4><table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>场景</th>
+<th>默认 opt-level</th>
+<th>默认 debug</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dev</code></td>
+<td>开发调试</td>
+<td>0（无优化）</td>
+<td>true（基础调试信息）</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>单元测试</td>
+<td>0</td>
+<td>true</td>
+</tr>
+<tr>
+<td><code>bench</code></td>
+<td>性能基准测试</td>
+<td>3（最高优化）</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>release</code></td>
+<td>发布生产</td>
+<td>3（最高优化）</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>custom</code></td>
+<td>自定义场景</td>
+<td>灵活配置</td>
+<td>灵活配置</td>
+</tr>
+</tbody></table>
+<h4 id="配置项详解"><a href="#配置项详解" class="headerlink" title="配置项详解"></a>配置项详解</h4><h5 id="opt-level（优化级别）"><a href="#opt-level（优化级别）" class="headerlink" title="opt-level（优化级别）"></a><code>opt-level</code>（优化级别）</h5><p>影响程序性能最关键的选项，直接控制 <code>rustc</code> 的优化级别。</p>
+<ul>
+<li><p><strong>值类型</strong>：字符串 (<code>&quot;0&quot;</code>, <code>&quot;1&quot;</code>, <code>&quot;2&quot;</code>, <code>&quot;3&quot;</code>, <code>&quot;s&quot;</code>, <code>&quot;z&quot;</code>) 或整数 (0, 1, 2, 3)</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li><code>&quot;0&quot;</code>：无优化。编译最快，但性能最差；<code>dev</code> 的默认值</li>
+<li><code>&quot;1&quot;</code>：启用基本的优化</li>
+<li><code>&quot;2&quot;</code>：启用更多优化，是性能和编译时间的良好平衡</li>
+<li><code>&quot;3&quot;</code>：最高级别的优化。启用所有可用的优化，显著提升性能，但编译时间很长；<code>release</code> 的默认值</li>
+<li><code>&quot;s&quot;</code>：在 <code>&quot;2&quot;</code> 的基础上，优先减小代码大小 (size)。适用于对二进制体积敏感的场景</li>
+<li><code>&quot;z&quot;</code>：在 <code>&quot;s&quot;</code> 的基础上，进行更激进的大小优化，追求最小的代码体积。通常比 <code>&quot;s&quot;</code> 编译更慢</li>
+</ul>
+</li>
+</ul>
+<h5 id="debug（调试信息）"><a href="#debug（调试信息）" class="headerlink" title="debug（调试信息）"></a><code>debug</code>（调试信息）</h5><p>控制是否为目标文件生成调试信息。</p>
+<ul>
+<li><p><strong>值类型</strong>：布尔值 (<code>true</code>&#x2F;<code>false</code>) 或整数 (0, 1, 2)</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li><code>true</code> &#x2F; <code>1</code>：生成基础的调试信息（如行号），足以支持 <code>gdb</code>&#x2F;<code>lldb</code> 等调试器的基本操作</li>
+<li><code>2</code>：生成完整的调试信息，支持更复杂的调试功能</li>
+<li><code>false</code> &#x2F; <code>0</code>：不生成任何调试信息；会使二进制文件更小，但将无法使用调试器或从崩溃中获取有意义的回溯（backtrace）</li>
+</ul>
+</li>
+</ul>
+<h5 id="lto（Link-Time-Optimization，链接时优化）"><a href="#lto（Link-Time-Optimization，链接时优化）" class="headerlink" title="lto（Link-Time Optimization，链接时优化）"></a><code>lto</code>（Link-Time Optimization，链接时优化）</h5><p>一个强大的全局优化技术。允许编译器在链接阶段进行跨 crate 的深度优化（如函数内联、死代码消除）。</p>
+<ul>
+<li><p><strong>值类型</strong>：字符串 (<code>&quot;off&quot;</code>, <code>&quot;on&quot;</code>, <code>&quot;fat&quot;</code>, <code>&quot;thin&quot;</code>, <code>&quot;thin-local&quot;</code>) 或布尔值</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li><code>&quot;off&quot;</code> &#x2F; <code>false</code>：禁用 LTO；默认值</li>
+<li><code>&quot;on&quot;</code> &#x2F; <code>&quot;fat&quot;</code> &#x2F; <code>true</code>：全量 LTO (Fat LTO)。效果最好，能产生最高效的代码，但链接时间非常长，内存消耗巨大</li>
+<li><code>&quot;thin&quot;</code>：薄 LTO (Thin LTO)。旨在提供接近 Fat LTO 的性能收益，同时显著减少链接时间和内存占用。是追求高性能时的推荐选择</li>
+<li><code>&quot;thin-local&quot;</code>：Thin LTO 的一个变种，只在当前 crate 内部进行优化</li>
+</ul>
+</li>
+</ul>
+<h5 id="codegen-units（代码生成单元）"><a href="#codegen-units（代码生成单元）" class="headerlink" title="codegen-units（代码生成单元）"></a><code>codegen-units</code>（代码生成单元）</h5><p>控制并行代码生成的单元数量；会影响编译速度和最终的优化程度。</p>
+<ul>
+<li><p><strong>值类型</strong>：正整数</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li>数值越大（如 <code>16</code>, <code>256</code>）：编译可以更好地并行化，编译速度更快，但限制了跨单元的优化</li>
+<li>数值越小（理想是 <code>1</code>）：编译器能看到更多的上下文，有利于 LTO 发挥最大效果，生成更优的代码，但编译速度变慢</li>
+</ul>
+</li>
+<li><p><strong>默认</strong>：<code>16</code> (对于 <code>dev</code>), <code>16</code> (对于 <code>release</code>，但在启用 LTO 时建议设为 <code>1</code>)</p>
+</li>
+</ul>
+<h5 id="panic（Panic-处理策略）"><a href="#panic（Panic-处理策略）" class="headerlink" title="panic（Panic 处理策略）"></a><code>panic</code>（Panic 处理策略）</h5><p>指定当 <code>panic!</code> 宏被触发时，程序的行为。</p>
+<ul>
+<li><p><strong>值类型</strong>：字符串 (<code>&quot;unwind&quot;</code>, <code>&quot;abort&quot;</code>)</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li><code>&quot;unwind&quot;</code>：栈展开 (Stack Unwinding)。程序会沿着调用栈向上清理（执行析构函数），然后终止。默认值</li>
+<li><code>&quot;abort&quot;</code>：立即终止 (Abort)。程序直接终止，不执行任何析构函数。生成的代码更小、性能略好，但资源（如文件句柄、内存）可能不会被正确释放</li>
+</ul>
+</li>
+</ul>
+<h5 id="strip（信息剥离）"><a href="#strip（信息剥离）" class="headerlink" title="strip（信息剥离）"></a><code>strip</code>（信息剥离）</h5><p>控制移除哪些调试和符号信息。</p>
+<ul>
+<li><code>&quot;none&quot;</code>：保留所有信息；默认</li>
+<li><code>&quot;debuginfo&quot;</code>：移除调试信息</li>
+<li><code>&quot;symbols&quot;</code>：移除符号表但保留必要的调试信息</li>
+<li><code>&quot;all&quot;</code>：移除所有可选信息，包括调试和符号数据</li>
+</ul>
+<h5 id="incremental（增量编译）"><a href="#incremental（增量编译）" class="headerlink" title="incremental（增量编译）"></a><code>incremental</code>（增量编译）</h5><p>控制是否启用增量编译。</p>
+<ul>
+<li><p><strong>值类型</strong>：布尔值 (<code>true</code>&#x2F;<code>false</code>)</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li><code>true</code>：启用增量编译。<code>cargo</code> 会缓存部分编译结果，当下次编译只有少量文件改变时，可以极大加快编译速度</li>
+<li><code>false</code>：禁用增量编译。每次都是从头开始编译，速度慢，但结果更确定</li>
+</ul>
+</li>
+</ul>
+<h5 id="overflow-checks（整数溢出检查）"><a href="#overflow-checks（整数溢出检查）" class="headerlink" title="overflow-checks（整数溢出检查）"></a><code>overflow-checks</code>（整数溢出检查）</h5><p>控制是否在运行时检查整数运算的溢出。</p>
+<ul>
+<li><p><strong>值类型</strong>：布尔值 (<code>true</code>&#x2F;<code>false</code>)</p>
+</li>
+<li><p><strong>含义</strong>：</p>
+<ul>
+<li><code>true</code>：启用溢出检查。如果发生溢出（如 <code>u32::MAX + 1</code>），程序会 panic。这增加了安全性，但有轻微的性能开销</li>
+<li><code>false</code>：禁用溢出检查。溢出时会进行”环绕”（wrap around），例如 <code>u8::MAX + 1</code> 会变成 <code>0</code>。性能更好，但可能引入安全漏洞</li>
+</ul>
+</li>
+</ul>
+<h4 id="自定义-Profile"><a href="#自定义-Profile" class="headerlink" title="自定义 Profile"></a>自定义 Profile</h4><p>除默认的 5 个 profile，还可以创建自定义 profile（如 <code>staging</code> 预发布环境、<code>min-size</code> 极致体积环境），满足特殊需求。</p>
+<p>通过 <code>--profile</code> 在命令指定要使用的 profile：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo build --profile staging</span><br></pre></td></tr></table></figure>
+
+<h5 id="自定义-Profile-示例"><a href="#自定义-Profile-示例" class="headerlink" title="自定义 Profile 示例"></a>自定义 Profile 示例</h5><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义预发布环境（staging）：介于 dev 和 release 之间</span></span><br><span class="line"><span class="section">[profile.staging]</span></span><br><span class="line"><span class="comment"># 继承 release 的基础配置（可选，减少重复）</span></span><br><span class="line"><span class="attr">inherits</span> = <span class="string">&quot;release&quot;</span></span><br><span class="line"><span class="comment"># 覆盖继承的配置：中级优化，保留基础调试信息</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="number">2</span></span><br><span class="line"><span class="attr">debug</span> = <span class="number">1</span></span><br><span class="line"><span class="comment"># 启用瘦 LTO，平衡性能与编译速度</span></span><br><span class="line"><span class="attr">lto</span> = <span class="string">&quot;thin&quot;</span></span><br><span class="line"><span class="comment"># 启用增量编译（预发布环境可能频繁编译）</span></span><br><span class="line"><span class="attr">incremental</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="section">[profile.tiny]</span></span><br><span class="line"><span class="attr">inherits</span> = <span class="string">&quot;release&quot;</span></span><br><span class="line"><span class="attr">opt-level</span> = <span class="string">&quot;z&quot;</span></span><br><span class="line"><span class="attr">lto</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">strip</span> = <span class="string">&quot;all&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-rustc-编译器"><a href="#2-rustc-编译器" class="headerlink" title="2. rustc 编译器"></a>2. rustc 编译器</h2><p><code>rustc</code> 是 Rust 的底层编译器，Cargo 的编译逻辑最终都会转化为 <code>rustc</code> 命令与参数（可通过 <code>cargo build -v</code> 查看实际调用的 <code>rustc</code> 命令）。</p>
+<h3 id="核心编译参数"><a href="#核心编译参数" class="headerlink" title="核心编译参数"></a>核心编译参数</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-o &lt;out-name&gt;</code></td>
+<td>指定输出文件名（默认生成与 crate 名相同）</td>
+<td><code>rustc src/main.rs -o target/my_app.exe</code></td>
+</tr>
+<tr>
+<td><code>--crate-type &lt;type&gt;</code></td>
+<td>指定输出类型（默认bin）：<code>lib</code>&#x2F;<code>rlib</code>（Rust 静态库）、<code>staticlib</code>（原生静态库）、<code>dylib</code>（Rust 动态库）、<code>cdylib</code>（原生动态库）、<code>bin</code>（可执行程序）、<code>proc-macro</code>（过程宏库）</td>
+<td><code>rustc src/lib.rs --crate-type lib</code></td>
+</tr>
+<tr>
+<td><code>--edition &lt;2018/2021/2024&gt;</code></td>
+<td>指定 Rust 版本（默认跟随 Cargo.toml 的 edition）</td>
+<td><code>rustc src/main.rs --edition 2021</code></td>
+</tr>
+<tr>
+<td><code>--extern &lt;name&gt;=&lt;path&gt;</code></td>
+<td>关联外部依赖</td>
+<td><code>rustc src/main.rs --extern serde=./target/debug/deps/libserde.rlib</code></td>
+</tr>
+<tr>
+<td><code>-L &lt;dir&gt;</code></td>
+<td>添加库搜索路径（让编译器找到依赖库或系统库）</td>
+<td><code>rustc src/main.rs -L ./target/debug/deps</code></td>
+</tr>
+<tr>
+<td><code>--print &lt;item&gt;</code></td>
+<td>打印编译器信息（如目标平台、配置宏）</td>
+<td><code>rustc --print target-list</code></td>
+</tr>
+</tbody></table>
+<h3 id="优化参数（核心重点）"><a href="#优化参数（核心重点）" class="headerlink" title="优化参数（核心重点）"></a>优化参数（核心重点）</h3><p>与 Cargo Profile 的 <code>opt-level</code>、<code>lto</code> 等字段一一对应，是控制运行性能、二进制体积的底层参数。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>对应 Profile 字段</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-O0</code> &#x2F; <code>-O1</code> &#x2F; <code>-O2</code> &#x2F; <code>-O3</code> &#x2F; <code>-Os</code> &#x2F; <code>-Oz</code> 或 <code>-C opt-level=&lt;0-3/s/z&gt;</code></td>
+<td>优化等级</td>
+<td><code>opt-level</code></td>
+<td><code>rustc src/main.rs -O3</code></td>
+</tr>
+<tr>
+<td><code>-C inline-threshold=&lt;n&gt;</code></td>
+<td>调整函数内联阈值（值越大越多函数被内联，默认 225）</td>
+<td>-</td>
+<td><code>rustc src/main.rs -C inline-threshold=300</code></td>
+</tr>
+<tr>
+<td><code>-C lto</code> &#x2F; <code>-C lto=thin</code></td>
+<td>启用链接时优化</td>
+<td><code>lto</code></td>
+<td><code>rustc src/main.rs -O3 -C lto=thin</code></td>
+</tr>
+<tr>
+<td><code>-C codegen-units=&lt;n&gt;</code></td>
+<td>指定代码生成单元（平衡编译速度与优化效果，默认 dev&#x3D;16、release&#x3D;1）</td>
+<td><code>codegen-units</code></td>
+<td><code>rustc src/main.rs -C codegen-units=4</code></td>
+</tr>
+<tr>
+<td><code>-C target-cpu=&lt;cpu&gt;</code></td>
+<td>针对特定 CPU 架构优化（<code>native</code>&#x3D; 自动适配本地 CPU）</td>
+<td><code>rustflags = [&quot;-C target-cpu=native&quot;]</code></td>
+<td><code>rustc src/main.rs -C target-cpu=aarch64</code></td>
+</tr>
+</tbody></table>
+<h3 id="调试信息与符号参数"><a href="#调试信息与符号参数" class="headerlink" title="调试信息与符号参数"></a>调试信息与符号参数</h3><p>控制二进制文件的调试信息（供 <code>gdb</code>&#x2F;<code>lldb</code> 调试）和符号剥离，影响文件体积。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>对应 Profile 字段</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-g / -g1 / -g2 / -g3</code></td>
+<td>启用调试信息（<code>-g</code> 等价于 <code>-g2</code>）</td>
+<td><code>debug</code></td>
+<td><code>rustc src/main.rs -g</code></td>
+</tr>
+<tr>
+<td><code>-C debuginfo=&lt;0-3&gt;</code></td>
+<td>与 <code>-g</code> 等价，显式指定调试级别（0 &#x3D; 无，1 &#x3D; 基础，2 &#x3D; 完整，3 &#x3D; 额外）</td>
+<td><code>debug</code></td>
+<td><code>rustc src/main.rs -C debuginfo=1</code></td>
+</tr>
+<tr>
+<td><code>-C debuginfo-format=&lt;fmt&gt;</code></td>
+<td>指定调试信息格式（<code>rustc</code>&#x3D;Rust 专用，<code>llvm</code>&#x3D;LLVM 格式，<code>gdb</code>&#x3D; 兼容 GDB）</td>
+<td>-</td>
+<td><code>rustc src/main.rs -g -C debuginfo-format=gdb</code></td>
+</tr>
+<tr>
+<td><code>-C strip=&lt;none/debuginfo/symbols&gt;</code></td>
+<td>剥离符号信息（<code>debuginfo</code>&#x3D; 仅剥离调试信息，<code>symbols</code>&#x3D; 剥离所有符号）</td>
+<td><code>strip</code></td>
+<td><code>rustc src/main.rs -O3 -C strip=debuginfo</code></td>
+</tr>
+</tbody></table>
+<h3 id="目标平台与交叉编译参数"><a href="#目标平台与交叉编译参数" class="headerlink" title="目标平台与交叉编译参数"></a>目标平台与交叉编译参数</h3><p>控制编译的目标平台（架构&#x2F;操作系统），用于交叉编译场景，与 Cargo 的 <code>--target</code> 对应。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--target &lt;triple&gt;</code></td>
+<td>指定目标平台三元组（如 <code>aarch64-unknown-linux-musl</code>）</td>
+<td><code>rustc src/main.rs --target aarch64-unknown-linux-musl</code>（交叉编译到 ARM Linux）</td>
+</tr>
+<tr>
+<td><code>--print target-triple</code></td>
+<td>打印当前平台的目标三元组（确认编译环境）</td>
+<td><code>rustc --print target-triple</code> # 输出 <code>x86_64-unknown-linux-gnu</code></td>
+</tr>
+<tr>
+<td><code>--print target-spec-json</code></td>
+<td>打印目标平台的详细配置（JSON 格式，用于自定义目标）</td>
+<td><code>rustc --target aarch64-unknown-linux-musl --print target-spec-json</code></td>
+</tr>
+<tr>
+<td><code>-C linker=&lt;linker&gt;</code></td>
+<td>指定链接器（交叉编译时需配置目标平台的链接器）</td>
+<td><code>rustc src/main.rs --target aarch64-unknown-linux-musl -C linker=aarch64-linux-musl-gcc</code></td>
+</tr>
+</tbody></table>
+<h3 id="链接参数（关联系统库-x2F-自定义链接逻辑）"><a href="#链接参数（关联系统库-x2F-自定义链接逻辑）" class="headerlink" title="链接参数（关联系统库&#x2F;自定义链接逻辑）"></a>链接参数（关联系统库&#x2F;自定义链接逻辑）</h3><p>用于链接系统库（如 <code>libc</code>、<code>openssl</code>）或传递参数给链接器（如 <code>ld</code>、<code>clang</code>）。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-l &lt;lib&gt;</code></td>
+<td>链接系统库（省略前缀 lib 和后缀，如 libm 写作 m）</td>
+<td><code>rustc src/main.rs -l m -l ssl</code></td>
+</tr>
+<tr>
+<td><code>-L &lt;dir&gt;</code></td>
+<td>添加库搜索路径（让链接器找到系统库或自定义库）</td>
+<td><code>rustc src/main.rs -L /usr/local/lib -l redis</code></td>
+</tr>
+<tr>
+<td><code>-C link-arg=&lt;arg&gt;</code></td>
+<td>传递参数给链接器（如 ld 的 <code>-s</code> 剥离符号、<code>-static</code> 静态链接）</td>
+<td><code>rustc src/main.rs -C link-arg=-s -C link-arg=-static</code></td>
+</tr>
+<tr>
+<td><code>-C link-mode=&lt;static/dynamic&gt;</code></td>
+<td>指定链接模式（静态&#x2F;动态，默认自动）</td>
+<td><code>rustc src/main.rs -C link-mode=static</code></td>
+</tr>
+</tbody></table>
+<h3 id="代码生成与安全参数"><a href="#代码生成与安全参数" class="headerlink" title="代码生成与安全参数"></a>代码生成与安全参数</h3><p>更精细的代码生成控制，包括 panic 策略、栈大小、安全检查等。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>对应 Profile 字段</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-C panic=&lt;unwind/abort&gt;</code></td>
+<td>指定 panic 策略（<code>unwind</code>&#x3D; 展开栈，<code>abort</code>&#x3D; 直接终止）</td>
+<td><code>panic</code></td>
+<td><code>rustc src/main.rs -C panic=abort</code></td>
+</tr>
+<tr>
+<td><code>-C incremental=&lt;true/false&gt;</code></td>
+<td>启用&#x2F;禁用增量编译（默认 dev&#x3D;true、release&#x3D;false）</td>
+<td><code>incremental</code></td>
+<td><code>rustc src/main.rs -C incremental=false</code></td>
+</tr>
+<tr>
+<td><code>-C stack-size=&lt;size&gt;</code></td>
+<td>指定主线程栈大小（如 8MB、16384 字节）</td>
+<td>-</td>
+<td><code>rustc src/main.rs -C stack-size=8388608</code></td>
+</tr>
+<tr>
+<td><code>-C fstack-protector=&lt;all/strong/none&gt;</code></td>
+<td>启用栈保护（防止栈溢出攻击，默认 none）</td>
+<td>-</td>
+<td><code>rustc src/main.rs -C fstack-protector=strong</code></td>
+</tr>
+<tr>
+<td><code>-C debug-assertions=&lt;true/false&gt;</code></td>
+<td>启用&#x2F;禁用调试断言（<code>debug_assert!</code>）</td>
+<td><code>debug-assertions</code></td>
+<td><code>rustc src/main.rs -C debug-assertions=false</code></td>
+</tr>
+</tbody></table>
+<h2 id="实践建议"><a href="#实践建议" class="headerlink" title="实践建议"></a>实践建议</h2><h3 id="开发阶段"><a href="#开发阶段" class="headerlink" title="开发阶段"></a>开发阶段</h3><ul>
+<li>使用默认 <code>dev</code> profile（opt-level&#x3D;0）</li>
+<li>启用增量编译加快构建速度</li>
+<li>保留调试信息便于调试</li>
+</ul>
+<h3 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h3><ul>
+<li>使用 <code>release</code> profile 或创建自定义 profile</li>
+<li>启用 <code>lto = &quot;thin&quot;</code> 获得更好的性能</li>
+<li>设置 <code>codegen-units = 1</code> 以充分利用 LTO</li>
+</ul>
+<h3 id="生产发布"><a href="#生产发布" class="headerlink" title="生产发布"></a>生产发布</h3><ul>
+<li>使用 <code>release</code> profile（opt-level&#x3D;3）</li>
+<li>启用 LTO（推荐 <code>&quot;thin&quot;</code>）</li>
+<li>根据需要剥离调试信息以减小体积</li>
+</ul>
+<h3 id="体积优化"><a href="#体积优化" class="headerlink" title="体积优化"></a>体积优化</h3><ul>
+<li>设置 <code>opt-level = &quot;z&quot;</code> 实现最小体积</li>
+<li>使用 <code>strip = &quot;all&quot;</code> 剥离所有符号</li>
+<li>启用 LTO 进行全局优化</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong>Cargo</strong> 是高层抽象，提供统一的构建界面和 Profile 管理</li>
+<li><strong>rustc</strong> 是底层编译器，接受精细化的编译参数</li>
+<li><strong>Profile</strong> 是最实用的编译配置管理方案，建议优先使用</li>
+<li>理解 <code>opt-level</code>、<code>lto</code>、<code>codegen-units</code> 等参数可以精细调优性能和体积</li>
+<li>使用 <code>cargo build -v</code> 可以看到实际的 rustc 命令，便于学习和调试</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"># Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/" rel="next" title="Rust中字符串与格式化">
+                <i class="fa fa-chevron-left"></i> Rust中字符串与格式化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/" rel="prev" title="Rust中的闭包">
+                Rust中的闭包 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/thefu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="sicauthefu@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=423228325&auto=1&height=66"></iframe>
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Cargo-%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">1. Cargo 工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cargo-%E7%9A%84%E6%A0%B8%E5%BF%83%E8%81%8C%E8%B4%A3"><span class="nav-number">1.1.</span> <span class="nav-text">Cargo 的核心职责</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">项目结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.1.</span> <span class="nav-text">添加依赖示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Profile%EF%BC%88%E7%BC%96%E8%AF%91%E8%A7%84%E5%88%99%E9%9B%86%E5%90%88%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">Profile（编译规则集合）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Profile-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9"><span class="nav-number">1.4.1.</span> <span class="nav-text">Profile 的核心特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E4%B8%AA%E9%BB%98%E8%AE%A4-Profile"><span class="nav-number">1.4.2.</span> <span class="nav-text">五个默认 Profile</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.4.3.</span> <span class="nav-text">配置项详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#opt-level%EF%BC%88%E4%BC%98%E5%8C%96%E7%BA%A7%E5%88%AB%EF%BC%89"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">opt-level（优化级别）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#debug%EF%BC%88%E8%B0%83%E8%AF%95%E4%BF%A1%E6%81%AF%EF%BC%89"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">debug（调试信息）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#lto%EF%BC%88Link-Time-Optimization%EF%BC%8C%E9%93%BE%E6%8E%A5%E6%97%B6%E4%BC%98%E5%8C%96%EF%BC%89"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">lto（Link-Time Optimization，链接时优化）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#codegen-units%EF%BC%88%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%8D%95%E5%85%83%EF%BC%89"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">codegen-units（代码生成单元）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#panic%EF%BC%88Panic-%E5%A4%84%E7%90%86%E7%AD%96%E7%95%A5%EF%BC%89"><span class="nav-number">1.4.3.5.</span> <span class="nav-text">panic（Panic 处理策略）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#strip%EF%BC%88%E4%BF%A1%E6%81%AF%E5%89%A5%E7%A6%BB%EF%BC%89"><span class="nav-number">1.4.3.6.</span> <span class="nav-text">strip（信息剥离）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#incremental%EF%BC%88%E5%A2%9E%E9%87%8F%E7%BC%96%E8%AF%91%EF%BC%89"><span class="nav-number">1.4.3.7.</span> <span class="nav-text">incremental（增量编译）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#overflow-checks%EF%BC%88%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA%E6%A3%80%E6%9F%A5%EF%BC%89"><span class="nav-number">1.4.3.8.</span> <span class="nav-text">overflow-checks（整数溢出检查）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-Profile"><span class="nav-number">1.4.4.</span> <span class="nav-text">自定义 Profile</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-Profile-%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.4.4.1.</span> <span class="nav-text">自定义 Profile 示例</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-rustc-%E7%BC%96%E8%AF%91%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">2. rustc 编译器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">2.1.</span> <span class="nav-text">核心编译参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%8F%82%E6%95%B0%EF%BC%88%E6%A0%B8%E5%BF%83%E9%87%8D%E7%82%B9%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">优化参数（核心重点）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E4%BF%A1%E6%81%AF%E4%B8%8E%E7%AC%A6%E5%8F%B7%E5%8F%82%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">调试信息与符号参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">2.4.</span> <span class="nav-text">目标平台与交叉编译参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%8F%82%E6%95%B0%EF%BC%88%E5%85%B3%E8%81%94%E7%B3%BB%E7%BB%9F%E5%BA%93-x2F-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%93%BE%E6%8E%A5%E9%80%BB%E8%BE%91%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">链接参数（关联系统库&#x2F;自定义链接逻辑）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E4%B8%8E%E5%AE%89%E5%85%A8%E5%8F%82%E6%95%B0"><span class="nav-number">2.6.</span> <span class="nav-text">代码生成与安全参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="nav-number">3.</span> <span class="nav-text">实践建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E9%98%B6%E6%AE%B5"><span class="nav-number">3.1.</span> <span class="nav-text">开发阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="nav-number">3.2.</span> <span class="nav-text">性能测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E5%8F%91%E5%B8%83"><span class="nav-number">3.3.</span> <span class="nav-text">生产发布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%93%E7%A7%AF%E4%BC%98%E5%8C%96"><span class="nav-number">3.4.</span> <span class="nav-text">体积优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
