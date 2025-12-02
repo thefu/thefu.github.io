@@ -23,20 +23,6 @@
       </tags>
   </entry>
   <entry>
-    <title>APP性能优化的一些建议</title>
-    <url>/2022/10/15/APP%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BB%BA%E8%AE%AE/</url>
-    <content><![CDATA[<p>除了利用性能测试工具分析性能应用，寻找优化控件，开发者在开发过程中，就应该注意一些性能优化技巧，养成良好的开发习惯，减轻性能优化的负担。下面是一些优化建议：</p>
-<span id="more"></span>
-<p>1.在LinearLayout和RelativeLayout都可以完成布局的情况下优先选择LinearLayout，可以减少View的层级，但是注意相同组件可能RelativeLayout绘制时间长<br>2.onDraw中不要创建新的局部对象，onDraw方法中不要做耗时的任务<br>3.不要在主线程进行网络访问&#x2F;大文件的IO操作<br>4.绘制UI时，尽量减少绘制UI层次；减少不必要的view嵌套<br>5.当我们的布局是用的FrameLayout的时候，我们可以把它改成merge，可以避免自己的帧布局和系统的ContentFrameLayout帧布局重叠造成重复计算（measure和layout）<br>6.在view层级相同的情况下，尽量使用LinearLayout而不是RelativeLayout；因为RelativeLayout在测量的时候会测量两次，而LinearLayout测量一次<br>7.删除控件中无用的属性<br>8.布局复用，比如listview布局复用<br>9.尽量避免过度绘制（overdraw）比如：背景经常容易造成过度绘制，由于我们布局设置了背景，溶蚀用到MaterialDesign的主题会默认给一个背景。这时应该把主题添加的背景去掉；还有移除XML中非必须的背景<br>10.自定义view优化，使用canvas.clipRect()来帮助系统识别那些可见的区域，只有在这个区域内才会被绘制。也是避免过度绘制。<br>11.启动优化，启动速度的监控，发现影响启动速度的问题所在，优化启动逻辑，提高应用的启动速度。比如闪屏页面，合理优化布局，加载逻辑优化，数据准备。<br>12.合理的刷新机制，尽量减少刷新次数，尽量避免后台有高的CPU线程运行，缩小刷新区域。</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Android developer 必备的几个资源</title>
     <url>/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/</url>
     <content><![CDATA[<p>作为一名合格的 Android Coder，除了认真工作，写出优秀代码外，我们还需要在日新月异的技术栈中找到有用的资源，来装备自己，开阔视野。希望以下的资源对大家有用。</p>
@@ -69,6 +55,37 @@
       </tags>
   </entry>
   <entry>
+    <title>Android中view的理解</title>
+    <url>/2022/09/25/Android%E4%B8%ADview%E7%9A%84%E7%90%86%E8%A7%A3/</url>
+    <content><![CDATA[<h3 id="View是什么？"><a href="#View是什么？" class="headerlink" title="View是什么？"></a>View是什么？</h3><p>View是屏幕上的一块矩形区域，它负责用来显示一个区域，并且响应这个区域内的事件。可以说，手机屏幕上的任意一部分看得见的地方都是view，它很常见，比如TextView、imageview、button、以及linearLayout、relativelayout都是继承于view的。<br>对于activity来说，我们通过setContentView添加的布局到activity上，实际上都是添加到了activity内部的decorview上面，这个DecorView，其实就是一个FrameLayout，因此实际上，我们的布局是添加到了FrameLayout里面。</p>
+<h2 id="View绘制的三个流程"><a href="#View绘制的三个流程" class="headerlink" title="View绘制的三个流程"></a>View绘制的三个流程</h2><p>我们知道，在自定义view的时候一般需要重写父类的onMeasure()、onLayout()、onDraw()三个方法，来完成视图的展示过程。当然，这三个暴露给开发者重写的方法只不过是整个绘制流程的冰山一角，更多复杂的幕后工作，都让系统给代劳了，一个完整的绘制流程包括measure、layout、draw三个步骤，其中：<br>measure：测量。系统会现根据xml布局文件和代码中对控件属性的设置，来获取或者计算出每个view和viewgroup的尺寸，并将这些尺寸保存下来。<br>layout：布局。根据测量出的结果以及对应的参数，来确定每一个控件应该显示的位置。<br>draw：绘制。确定好位置后，就将这些控件绘制到屏幕上。</p>
+<h2 id="Android视图层次结果简介"><a href="#Android视图层次结果简介" class="headerlink" title="Android视图层次结果简介"></a>Android视图层次结果简介</h2><p>在介绍view绘制流程之间，咱们先接单介绍一下Android视图层次结果以及DecorView因为view的绘制流程的入口和DecorView有着密切的联系。</p>
+<p>咱们平时看到的视图，其实存在如上的嵌套关系。上图是针对比较老的Android系统版本中制作的，新的版本中会略有出入，还有一个状态栏，但整体上没变。我们平时在activity中setContentView(…)中对应layout内容，对应的是上图中viewgrop的树状结构，实际上添加到系统中时，会再裹上一层FrameLayout，就是上图中最里面的浅蓝色部分。<br>这里咱们再通过一个实例来继续查看。Androidstudio工具中提供了一个布局观察期工具，通过Tools &gt; android &gt; layout Inspector可以查看具体某个activity的布局情况。下图中，左边树状结果对应了右边的可视图，可见DecorView就是整个界面的根视图，对应右边的红色框，是整个屏幕的大小。黄色边框为状态栏部分；那个绿色边框中有两个部分，一个是白框中的actionBar，对应了上图中紫色部分的TitleActionBar部分，即标题栏，平时咱们可以在activity中将其隐藏掉；另外一个蓝色边框部分，对应上图中最里面的蓝色部分，即contentview部分，下图中左边有两个蓝色框，上面那个中有个布局”content_layout”，咱们能通过layout布局文件直接完全操作的也就是这一块，当其被add到视图系统中时，会被过上contentFramelayout（显然是FrameLayout的子类），这也就是为什么添加到layout.xml视图的方法叫setContentView()而不叫setView()的原因了。</p>
+<h2 id="故事开始的地方"><a href="#故事开始的地方" class="headerlink" title="故事开始的地方"></a>故事开始的地方</h2><p>如果对activity的启动流程有一定的了解的话，应该知道这个启动会在activityThread.java类中完成，在启动activity的过程中，会调用handleResumeActivity()方法，关于视图的绘制过程最初就是从这个方法开始的。</p>
+<h3 id="1-view绘制起源UML时序图"><a href="#1-view绘制起源UML时序图" class="headerlink" title="1.view绘制起源UML时序图"></a>1.view绘制起源UML时序图</h3><p>整个调用链如下图所示，知道ViewRootImpl类中的performTraversals()中，才正式开始绘制流程了，所以一般都是以该方法作为正式绘制的源头。</p>
+<h3 id="2-handResumeActivity-方法"><a href="#2-handResumeActivity-方法" class="headerlink" title="2.handResumeActivity()方法"></a>2.handResumeActivity()方法</h3><p>在这先大致看一下ActivityThread类中的handleResumeActivity方法，咱们这里只贴出关键代码：<br><code>//===========ActivityThread.java========== final void handleResumeActivity(...) &#123;     ......     //跟踪代码后发现其初始赋值为mWindow = new PhoneWindow(this, window, activityConfigCallback);     r.window = r.activity.getWindow();        //从PhoneWindow实例中获取DecorView     View decor = r.window.getDecorView();     ......     //跟踪代码后发现，vm值为上述PhoneWindow实例中获取的WindowManager。     ViewManager wm = a.getWindowManager();     ......     //当前window的属性，从代码跟踪来看是PhoneWindow窗口的属性     WindowManager.LayoutParams l = r.window.getAttributes();     ......     wm.addView(decor, l);     ...... &#125;</code><br>上述代码第八行中，ViewManager是一个接口，addView是其中定义一个空方法，WindowManager是其子类，WindowManagerImpl是WindowManager的实现类，在第四行代码中的r.window的值可以根据Activity.java的如下代码得知，其值为PhoneWindow实例。<br>&#96;&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Activity.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>private Window mWindow;<br>public Window getWindow() {<br>   return mWindow;<br>}</p>
+<p>final void attach(…){<br>   ……<br>   mWindow &#x3D; new PhoneWindow(this, window, activityConfigCallback);<br>   ……<br>}&#96;</p>
+<h3 id="3-两个重要参数分析"><a href="#3-两个重要参数分析" class="headerlink" title="3.两个重要参数分析"></a>3.两个重要参数分析</h3><p>之所以要在这里特意分析handleResumeActivity()方法，除了因为它是整个绘制流程的最初源头外，还有就是addView的两个参数比较重要，它们经过一层一层传递后进入到ViewRootImpl中，在后面分析绘制中要用到。这里再看看这两个参数的相关信息：<br>（1）参数dector<br>&#96;&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Activity.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>private Window mWindow;<br>public Window getWindow() {<br>   return mWindow;<br>}</p>
+<p>final void attach(…){<br>   ……<br>   mWindow &#x3D; new PhoneWindow(this, window, activityConfigCallback);<br>   ……<br>}<code>可见decor参数表示的是DecorView实例，注释中也有说明：这是window的顶级视图，包含了window的decor （2）参数l</code>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Window.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>&#x2F;&#x2F;The current window attributes.<br>    private final WindowManager.LayoutParams mWindowAttributes &#x3D;<br>        new WindowManager.LayoutParams();<br>……<br>public final WindowManager.LayoutParams getAttributes() {<br>        return mWindowAttributes;<br>    }<br>……</p>
+<p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;WindowManager.java的内部类LayoutParams extends ViewGroup.LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams() {<br>            super(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);<br>            ……<br>        }</p>
+<p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;ViewGroup.java内部类LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams(int width, int height) {<br>            this.width &#x3D; width;<br>            this.height &#x3D; height;<br>        }&#96;<br>该参数表示的是PhoneWindow的LayoutParams属性，其width和height值均为LayoutParmas.MATCH_PARENT。<br>在源码中，WindowPhone和DecorView通过组合方法联系在一起的，而DecorView是整个View体系的根View。在前面handleResumeActivity()方法代码片段中，当Activity启动后，就通过第14行的addView方法，来间接调用ViewRootImpl类中的performTraversals()，从而实现视图的绘制。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>APP性能优化的一些建议</title>
+    <url>/2022/10/15/APP%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BB%BA%E8%AE%AE/</url>
+    <content><![CDATA[<p>除了利用性能测试工具分析性能应用，寻找优化控件，开发者在开发过程中，就应该注意一些性能优化技巧，养成良好的开发习惯，减轻性能优化的负担。下面是一些优化建议：</p>
+<span id="more"></span>
+<p>1.在LinearLayout和RelativeLayout都可以完成布局的情况下优先选择LinearLayout，可以减少View的层级，但是注意相同组件可能RelativeLayout绘制时间长<br>2.onDraw中不要创建新的局部对象，onDraw方法中不要做耗时的任务<br>3.不要在主线程进行网络访问&#x2F;大文件的IO操作<br>4.绘制UI时，尽量减少绘制UI层次；减少不必要的view嵌套<br>5.当我们的布局是用的FrameLayout的时候，我们可以把它改成merge，可以避免自己的帧布局和系统的ContentFrameLayout帧布局重叠造成重复计算（measure和layout）<br>6.在view层级相同的情况下，尽量使用LinearLayout而不是RelativeLayout；因为RelativeLayout在测量的时候会测量两次，而LinearLayout测量一次<br>7.删除控件中无用的属性<br>8.布局复用，比如listview布局复用<br>9.尽量避免过度绘制（overdraw）比如：背景经常容易造成过度绘制，由于我们布局设置了背景，溶蚀用到MaterialDesign的主题会默认给一个背景。这时应该把主题添加的背景去掉；还有移除XML中非必须的背景<br>10.自定义view优化，使用canvas.clipRect()来帮助系统识别那些可见的区域，只有在这个区域内才会被绘制。也是避免过度绘制。<br>11.启动优化，启动速度的监控，发现影响启动速度的问题所在，优化启动逻辑，提高应用的启动速度。比如闪屏页面，合理优化布局，加载逻辑优化，数据准备。<br>12.合理的刷新机制，尽量减少刷新次数，尽量避免后台有高的CPU线程运行，缩小刷新区域。</p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Android 开发调用C++库</title>
     <url>/2023/01/15/Android-%E5%BC%80%E5%8F%91%E8%B0%83%E7%94%A8C++%E5%BA%93/</url>
     <content><![CDATA[<p>背景：实际项目中的算法库很多都是C++代码编写的，而Android开发是使用kotlin或者java语言实现的，如果遇到一个APP需要调用算法库，<br>不同语言有不同的书写规范，直接引用当然不可能编译成功，因此我们需要通过中间层（JNI编程）来搭建java语言和C++语言沟通的桥梁。</p>
@@ -91,21 +108,50 @@
       </tags>
   </entry>
   <entry>
-    <title>Android中view的理解</title>
-    <url>/2022/09/25/Android%E4%B8%ADview%E7%9A%84%E7%90%86%E8%A7%A3/</url>
-    <content><![CDATA[<h3 id="View是什么？"><a href="#View是什么？" class="headerlink" title="View是什么？"></a>View是什么？</h3><p>View是屏幕上的一块矩形区域，它负责用来显示一个区域，并且响应这个区域内的事件。可以说，手机屏幕上的任意一部分看得见的地方都是view，它很常见，比如TextView、imageview、button、以及linearLayout、relativelayout都是继承于view的。<br>对于activity来说，我们通过setContentView添加的布局到activity上，实际上都是添加到了activity内部的decorview上面，这个DecorView，其实就是一个FrameLayout，因此实际上，我们的布局是添加到了FrameLayout里面。</p>
-<h2 id="View绘制的三个流程"><a href="#View绘制的三个流程" class="headerlink" title="View绘制的三个流程"></a>View绘制的三个流程</h2><p>我们知道，在自定义view的时候一般需要重写父类的onMeasure()、onLayout()、onDraw()三个方法，来完成视图的展示过程。当然，这三个暴露给开发者重写的方法只不过是整个绘制流程的冰山一角，更多复杂的幕后工作，都让系统给代劳了，一个完整的绘制流程包括measure、layout、draw三个步骤，其中：<br>measure：测量。系统会现根据xml布局文件和代码中对控件属性的设置，来获取或者计算出每个view和viewgroup的尺寸，并将这些尺寸保存下来。<br>layout：布局。根据测量出的结果以及对应的参数，来确定每一个控件应该显示的位置。<br>draw：绘制。确定好位置后，就将这些控件绘制到屏幕上。</p>
-<h2 id="Android视图层次结果简介"><a href="#Android视图层次结果简介" class="headerlink" title="Android视图层次结果简介"></a>Android视图层次结果简介</h2><p>在介绍view绘制流程之间，咱们先接单介绍一下Android视图层次结果以及DecorView因为view的绘制流程的入口和DecorView有着密切的联系。</p>
-<p>咱们平时看到的视图，其实存在如上的嵌套关系。上图是针对比较老的Android系统版本中制作的，新的版本中会略有出入，还有一个状态栏，但整体上没变。我们平时在activity中setContentView(…)中对应layout内容，对应的是上图中viewgrop的树状结构，实际上添加到系统中时，会再裹上一层FrameLayout，就是上图中最里面的浅蓝色部分。<br>这里咱们再通过一个实例来继续查看。Androidstudio工具中提供了一个布局观察期工具，通过Tools &gt; android &gt; layout Inspector可以查看具体某个activity的布局情况。下图中，左边树状结果对应了右边的可视图，可见DecorView就是整个界面的根视图，对应右边的红色框，是整个屏幕的大小。黄色边框为状态栏部分；那个绿色边框中有两个部分，一个是白框中的actionBar，对应了上图中紫色部分的TitleActionBar部分，即标题栏，平时咱们可以在activity中将其隐藏掉；另外一个蓝色边框部分，对应上图中最里面的蓝色部分，即contentview部分，下图中左边有两个蓝色框，上面那个中有个布局”content_layout”，咱们能通过layout布局文件直接完全操作的也就是这一块，当其被add到视图系统中时，会被过上contentFramelayout（显然是FrameLayout的子类），这也就是为什么添加到layout.xml视图的方法叫setContentView()而不叫setView()的原因了。</p>
-<h2 id="故事开始的地方"><a href="#故事开始的地方" class="headerlink" title="故事开始的地方"></a>故事开始的地方</h2><p>如果对activity的启动流程有一定的了解的话，应该知道这个启动会在activityThread.java类中完成，在启动activity的过程中，会调用handleResumeActivity()方法，关于视图的绘制过程最初就是从这个方法开始的。</p>
-<h3 id="1-view绘制起源UML时序图"><a href="#1-view绘制起源UML时序图" class="headerlink" title="1.view绘制起源UML时序图"></a>1.view绘制起源UML时序图</h3><p>整个调用链如下图所示，知道ViewRootImpl类中的performTraversals()中，才正式开始绘制流程了，所以一般都是以该方法作为正式绘制的源头。</p>
-<h3 id="2-handResumeActivity-方法"><a href="#2-handResumeActivity-方法" class="headerlink" title="2.handResumeActivity()方法"></a>2.handResumeActivity()方法</h3><p>在这先大致看一下ActivityThread类中的handleResumeActivity方法，咱们这里只贴出关键代码：<br><code>//===========ActivityThread.java========== final void handleResumeActivity(...) &#123;     ......     //跟踪代码后发现其初始赋值为mWindow = new PhoneWindow(this, window, activityConfigCallback);     r.window = r.activity.getWindow();        //从PhoneWindow实例中获取DecorView     View decor = r.window.getDecorView();     ......     //跟踪代码后发现，vm值为上述PhoneWindow实例中获取的WindowManager。     ViewManager wm = a.getWindowManager();     ......     //当前window的属性，从代码跟踪来看是PhoneWindow窗口的属性     WindowManager.LayoutParams l = r.window.getAttributes();     ......     wm.addView(decor, l);     ...... &#125;</code><br>上述代码第八行中，ViewManager是一个接口，addView是其中定义一个空方法，WindowManager是其子类，WindowManagerImpl是WindowManager的实现类，在第四行代码中的r.window的值可以根据Activity.java的如下代码得知，其值为PhoneWindow实例。<br>&#96;&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Activity.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>private Window mWindow;<br>public Window getWindow() {<br>   return mWindow;<br>}</p>
-<p>final void attach(…){<br>   ……<br>   mWindow &#x3D; new PhoneWindow(this, window, activityConfigCallback);<br>   ……<br>}&#96;</p>
-<h3 id="3-两个重要参数分析"><a href="#3-两个重要参数分析" class="headerlink" title="3.两个重要参数分析"></a>3.两个重要参数分析</h3><p>之所以要在这里特意分析handleResumeActivity()方法，除了因为它是整个绘制流程的最初源头外，还有就是addView的两个参数比较重要，它们经过一层一层传递后进入到ViewRootImpl中，在后面分析绘制中要用到。这里再看看这两个参数的相关信息：<br>（1）参数dector<br>&#96;&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Activity.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>private Window mWindow;<br>public Window getWindow() {<br>   return mWindow;<br>}</p>
-<p>final void attach(…){<br>   ……<br>   mWindow &#x3D; new PhoneWindow(this, window, activityConfigCallback);<br>   ……<br>}<code>可见decor参数表示的是DecorView实例，注释中也有说明：这是window的顶级视图，包含了window的decor （2）参数l</code>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Window.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>&#x2F;&#x2F;The current window attributes.<br>    private final WindowManager.LayoutParams mWindowAttributes &#x3D;<br>        new WindowManager.LayoutParams();<br>……<br>public final WindowManager.LayoutParams getAttributes() {<br>        return mWindowAttributes;<br>    }<br>……</p>
-<p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;WindowManager.java的内部类LayoutParams extends ViewGroup.LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams() {<br>            super(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);<br>            ……<br>        }</p>
-<p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;ViewGroup.java内部类LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams(int width, int height) {<br>            this.width &#x3D; width;<br>            this.height &#x3D; height;<br>        }&#96;<br>该参数表示的是PhoneWindow的LayoutParams属性，其width和height值均为LayoutParmas.MATCH_PARENT。<br>在源码中，WindowPhone和DecorView通过组合方法联系在一起的，而DecorView是整个View体系的根View。在前面handleResumeActivity()方法代码片段中，当Activity启动后，就通过第14行的addView方法，来间接调用ViewRootImpl类中的performTraversals()，从而实现视图的绘制。</p>
+    <title>Android工程项目结构解析</title>
+    <url>/2022/11/10/Android%E5%B7%A5%E7%A8%8B%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<p>android工程的重点目录解析</p>
+<span id="more"></span>
+
+<p><img src="https://s3.bmp.ovh/imgs/2022/11/10/7b843f31f0a99719.png"></p>
+<p>接下来对关键部分进行讲解：<br>Java，我们写Java代码的地方，业务功能都在这里实现<br>res，我们存放各种资源文件的地方，有图片，字符串，动画，音频，还有各种形式的xml文件</p>
+<h1 id="一、res资源文件夹介绍："><a href="#一、res资源文件夹介绍：" class="headerlink" title="一、res资源文件夹介绍："></a>一、res资源文件夹介绍：</h1><p>注：说道这个res目录，另外还有一个assets目录，虽然这里没有，但是我们可以自己创建，两者的区别在于是否前者下所有的资源文件都会在R.java文件下生成对应的资源id，而后者并不会；前者我们可以通过资源id访问到对应的资源；而后者则需要我们通过AssetManager以二进制的形式来读取了。这个R文件可以理解为字典，res下每个资源都会在这里生成一个唯一的id。<br>分辨率不同的系统会根据屏幕的分辨率来选择hdpi,mdpi,xmdpi,xxhdpi下的对应图片，所以你解压别人的apk可以看到上述目录统一名称的图片，在四个文件夹下都有，只是大小和像素不一样而已，当然，这也不是绝对的，比如我们把所有图片都丢到hdpi下的话，本该加载ldpi文件夹下的图片资源，但是ldpi下没有，那么加载的还会使hdpi下的图片，另外还有一种情况，比如hdpi，mdpi目录下有ldpi下没有，那么会加载mdpi中的资源！原则是使用最接近密度级别，另外如果你想禁止android不跟随屏幕密度加载不同文件夹的资源，只需在AndroidManifest.xml文件中添加android:anyDensity&#x3D;”false”字段即可。</p>
+<h2 id="1-图片资源"><a href="#1-图片资源" class="headerlink" title="1.图片资源"></a>1.图片资源</h2><ul>
+<li>drawable：存放各种位图文件，(.png，.jpg，.9png，.gif等)除此之外可能是一些其他的drawable类型的XML文件</li>
+<li>mipmap-hdpi：高分辨率，一般我们把图片丢这里</li>
+<li>mipmap-mdpi：中等分辨率，很少，除非兼容的的手机很旧</li>
+<li>mipmap-xhdpi：超高分辨率，手机屏幕材质越来越好，以后估计会慢慢往这里过渡</li>
+<li>mipmap-xxhdpi：超超高分辨率，这个在高端机上有所体现</li>
+</ul>
+<h2 id="2-布局资源"><a href="#2-布局资源" class="headerlink" title="2.布局资源"></a>2.布局资源</h2><ul>
+<li>layout：该目录下存放的就是我们的布局文件，另外在一些特定的机型上，我们做屏幕适配，比如480*320这样的手机，我们会另外创建一套布局，就行：layout-480x320这样的文件夹！</li>
+</ul>
+<h2 id="3-菜单资源"><a href="#3-菜单资源" class="headerlink" title="3.菜单资源"></a>3.菜单资源</h2><ul>
+<li>menu：在以前有物理菜单按钮，即menu键的手机上，用的较多，现在用的并不多，菜单项相关的资源xml可在这里编写，不知道谷歌会不会出新的东西来替代菜单了~</li>
+</ul>
+<h2 id="4-values目录"><a href="#4-values目录" class="headerlink" title="4.values目录"></a>4.values目录</h2><ul>
+<li>demens.xml：定义尺寸资源</li>
+<li>string.xml：定义字符串资源</li>
+<li>styles.xml：定义样式资源</li>
+<li>colors.xml：定义颜色资源</li>
+<li>arrays.xml：定义数组资源</li>
+<li>attrs.xml：自定义控件时用的较多，自定义控件的属性！</li>
+<li>theme主题文件，和styles很相似，但是会对整个应用中的Actvitiy或指定Activity起作用，一般是改变窗口外观的！可在Java代码中通过setTheme使用，或者在Androidmanifest.xml中为&lt;application…&gt;添加theme的属性！ PS:你可能看到过这样的values目录：values-w820dp，values-v11等，前者w代表平板设备，820dp代表屏幕宽度；而v11这样代表在API(11)，即android 3.0后才会用到的！</li>
+</ul>
+<h2 id="5-raw目录"><a href="#5-raw目录" class="headerlink" title="5.raw目录"></a>5.raw目录</h2><p>用于存放各种原生资源（音频，视频，一些XML文件等），我们可以通过openRawResource(int id)来获得资源的二进制流，其实和Assets差不多，不过这里面的资源会在R文件里生成一个资源id而已<br>6.最后还有动画的，动画有两种：属性动画和补间动画</p>
+<ul>
+<li>animator：存放属性动画的XML文件</li>
+<li>anim：存放补间动画的XML文件</li>
+</ul>
+<h1 id="二、深入了解三个文件"><a href="#二、深入了解三个文件" class="headerlink" title="二、深入了解三个文件"></a>二、深入了解三个文件</h1><p>工程中三个比较重要的文件：MainActivity.java， 布局文件：activity_main.xml和配置文件AndroidMainfest.xml<br>代码分析：</p>
+<p>MainAcitivity.java<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/48c14edb5816ca14.png"><br>activity_main.xml：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/e8bfda21011a2f54.png"><br>AndroidMainfest.xml配置文件：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/d4a0c330f888bfbe.png"><br>①如果app包含其他组件的话,都要使用类型说明语法在该文件中进行声明 Server:<br>②权限的声明: 在该文件中显式地声明程序需要的权限,防止app错误地使用服务, 不恰当地访问 资源,最终提高android app的健壮性 android.permission.SEND_SMS 有这句话表示app需要使用发送信息的权限,安装的时候就会提示用户, 相关权限可以在sdk参考手册查找！</p>
 ]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
   </entry>
   <entry>
     <title>Android之碎片Fragment</title>
@@ -174,52 +220,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </categories>
   </entry>
   <entry>
-    <title>Android工程项目结构解析</title>
-    <url>/2022/11/10/Android%E5%B7%A5%E7%A8%8B%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[<p>android工程的重点目录解析</p>
-<span id="more"></span>
-
-<p><img src="https://s3.bmp.ovh/imgs/2022/11/10/7b843f31f0a99719.png"></p>
-<p>接下来对关键部分进行讲解：<br>Java，我们写Java代码的地方，业务功能都在这里实现<br>res，我们存放各种资源文件的地方，有图片，字符串，动画，音频，还有各种形式的xml文件</p>
-<h1 id="一、res资源文件夹介绍："><a href="#一、res资源文件夹介绍：" class="headerlink" title="一、res资源文件夹介绍："></a>一、res资源文件夹介绍：</h1><p>注：说道这个res目录，另外还有一个assets目录，虽然这里没有，但是我们可以自己创建，两者的区别在于是否前者下所有的资源文件都会在R.java文件下生成对应的资源id，而后者并不会；前者我们可以通过资源id访问到对应的资源；而后者则需要我们通过AssetManager以二进制的形式来读取了。这个R文件可以理解为字典，res下每个资源都会在这里生成一个唯一的id。<br>分辨率不同的系统会根据屏幕的分辨率来选择hdpi,mdpi,xmdpi,xxhdpi下的对应图片，所以你解压别人的apk可以看到上述目录统一名称的图片，在四个文件夹下都有，只是大小和像素不一样而已，当然，这也不是绝对的，比如我们把所有图片都丢到hdpi下的话，本该加载ldpi文件夹下的图片资源，但是ldpi下没有，那么加载的还会使hdpi下的图片，另外还有一种情况，比如hdpi，mdpi目录下有ldpi下没有，那么会加载mdpi中的资源！原则是使用最接近密度级别，另外如果你想禁止android不跟随屏幕密度加载不同文件夹的资源，只需在AndroidManifest.xml文件中添加android:anyDensity&#x3D;”false”字段即可。</p>
-<h2 id="1-图片资源"><a href="#1-图片资源" class="headerlink" title="1.图片资源"></a>1.图片资源</h2><ul>
-<li>drawable：存放各种位图文件，(.png，.jpg，.9png，.gif等)除此之外可能是一些其他的drawable类型的XML文件</li>
-<li>mipmap-hdpi：高分辨率，一般我们把图片丢这里</li>
-<li>mipmap-mdpi：中等分辨率，很少，除非兼容的的手机很旧</li>
-<li>mipmap-xhdpi：超高分辨率，手机屏幕材质越来越好，以后估计会慢慢往这里过渡</li>
-<li>mipmap-xxhdpi：超超高分辨率，这个在高端机上有所体现</li>
-</ul>
-<h2 id="2-布局资源"><a href="#2-布局资源" class="headerlink" title="2.布局资源"></a>2.布局资源</h2><ul>
-<li>layout：该目录下存放的就是我们的布局文件，另外在一些特定的机型上，我们做屏幕适配，比如480*320这样的手机，我们会另外创建一套布局，就行：layout-480x320这样的文件夹！</li>
-</ul>
-<h2 id="3-菜单资源"><a href="#3-菜单资源" class="headerlink" title="3.菜单资源"></a>3.菜单资源</h2><ul>
-<li>menu：在以前有物理菜单按钮，即menu键的手机上，用的较多，现在用的并不多，菜单项相关的资源xml可在这里编写，不知道谷歌会不会出新的东西来替代菜单了~</li>
-</ul>
-<h2 id="4-values目录"><a href="#4-values目录" class="headerlink" title="4.values目录"></a>4.values目录</h2><ul>
-<li>demens.xml：定义尺寸资源</li>
-<li>string.xml：定义字符串资源</li>
-<li>styles.xml：定义样式资源</li>
-<li>colors.xml：定义颜色资源</li>
-<li>arrays.xml：定义数组资源</li>
-<li>attrs.xml：自定义控件时用的较多，自定义控件的属性！</li>
-<li>theme主题文件，和styles很相似，但是会对整个应用中的Actvitiy或指定Activity起作用，一般是改变窗口外观的！可在Java代码中通过setTheme使用，或者在Androidmanifest.xml中为&lt;application…&gt;添加theme的属性！ PS:你可能看到过这样的values目录：values-w820dp，values-v11等，前者w代表平板设备，820dp代表屏幕宽度；而v11这样代表在API(11)，即android 3.0后才会用到的！</li>
-</ul>
-<h2 id="5-raw目录"><a href="#5-raw目录" class="headerlink" title="5.raw目录"></a>5.raw目录</h2><p>用于存放各种原生资源（音频，视频，一些XML文件等），我们可以通过openRawResource(int id)来获得资源的二进制流，其实和Assets差不多，不过这里面的资源会在R文件里生成一个资源id而已<br>6.最后还有动画的，动画有两种：属性动画和补间动画</p>
-<ul>
-<li>animator：存放属性动画的XML文件</li>
-<li>anim：存放补间动画的XML文件</li>
-</ul>
-<h1 id="二、深入了解三个文件"><a href="#二、深入了解三个文件" class="headerlink" title="二、深入了解三个文件"></a>二、深入了解三个文件</h1><p>工程中三个比较重要的文件：MainActivity.java， 布局文件：activity_main.xml和配置文件AndroidMainfest.xml<br>代码分析：</p>
-<p>MainAcitivity.java<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/48c14edb5816ca14.png"><br>activity_main.xml：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/e8bfda21011a2f54.png"><br>AndroidMainfest.xml配置文件：<br><img src="https://s3.bmp.ovh/imgs/2022/11/10/d4a0c330f888bfbe.png"><br>①如果app包含其他组件的话,都要使用类型说明语法在该文件中进行声明 Server:<br>②权限的声明: 在该文件中显式地声明程序需要的权限,防止app错误地使用服务, 不恰当地访问 资源,最终提高android app的健壮性 android.permission.SEND_SMS 有这句话表示app需要使用发送信息的权限,安装的时候就会提示用户, 相关权限可以在sdk参考手册查找！</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Android文件管理</title>
     <url>/2022/12/07/Android%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/</url>
     <content><![CDATA[<h2 id="1-Android文件的操作模式"><a href="#1-Android文件的操作模式" class="headerlink" title="1.Android文件的操作模式"></a>1.Android文件的操作模式</h2><p>Android和其他的操作系统不一样，它是基于Linux的，在读写文件的时候，还需要加上文件的操作模式，Android中的操作模式如下：</p>
@@ -242,6 +242,34 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </categories>
       <tags>
         <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GitHub+Hexo搭建个人博客网站</title>
+    <url>/2022/09/18/GitHub-Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99/</url>
+    <content><![CDATA[<h2 id="什么是hexo？"><a href="#什么是hexo？" class="headerlink" title="什么是hexo？"></a>什么是hexo？</h2><p>Hexo是一款基于Node.js的静态博客框架，特点是快速，简介并且高效的博客框架，Hexo使用Markdown解析文章，在几秒内，即可利用靓丽的主题生成静态网页。它可以方便的生成静态网页托管在GitHub和其他托管平台上，是搭建博客的首选框架。</p>
+<span id="more"></span>
+<h2 id="什么是github？"><a href="#什么是github？" class="headerlink" title="什么是github？"></a>什么是github？</h2><p>GitHub是一个在线软件源代码托管服务平台，使用Git作为版本控制软件，是世界上最大的代码托管网站和开源社区。我们使用的是github上的一个服务，GitHub Pages，它是由GitHub提供的一个网页寄存服务，可以用于存放静态网页，包括博客，项目文档甚至整本书。一般GitHub Pages使用github.io的子域名，但是用户也可以使用第三方域名。</p>
+<h2 id="搭建步骤："><a href="#搭建步骤：" class="headerlink" title="搭建步骤："></a>搭建步骤：</h2><h3 id="1-GitHub创建个人仓库"><a href="#1-GitHub创建个人仓库" class="headerlink" title="1.GitHub创建个人仓库"></a>1.GitHub创建个人仓库</h3><p>登录到GitHub，如果没有GitHub账号，使用你的邮箱注册GitHub账号，点击GitHub中的New repository创建新仓库，仓库名应该为：“用户名.github.io”这个用户名使用你的github账号名称代替，这是一个相对固定的写法。</p>
+<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#103;&#105;&#x74;&#64;&#x67;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#111;&#x6d;">&#103;&#105;&#x74;&#64;&#x67;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#111;&#x6d;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
+<h3 id="3-安装Node-js"><a href="#3-安装Node-js" class="headerlink" title="3.安装Node.js"></a>3.安装Node.js</h3><p>Hexo基于Node.js，<a href="https://nodejs.org/en/download/">Node.js下载地址</a>，注意安装node.js会包含环境变量及npm的安装，安装后，检测node.js是否安装成功，在命令行输入node -v，检测npm是否安装成功，npm -v<br>到这儿，安装Hexo的环境已经全部搭建完成。</p>
+<h3 id="4-安装Hexo"><a href="#4-安装Hexo" class="headerlink" title="4.安装Hexo"></a>4.安装Hexo</h3><p>hexo就是我们的个人博客网站的框架，这里需要自己在电脑里创建一个文件夹，可以命名为Blog，Hexo框架与以后你自己发布的网页都在这个文件夹中，创建好后，进入文件夹中，打开命令行窗口。<br>使用npm命令安装Hexo，输入：<br>npm install -g hexo-cli<br>这个安装时间较长耐心等待，安装完成后，初始化我们的博客，输入：<br>hexo init blog<br>注意：这里的命令都是作用在刚刚创建的blog文件夹中。<br>在命令行中输入启动命令：<br>hexo server<br>打开浏览器哦网址可以看到网站的样式</p>
+<h3 id="5-推送网站"><a href="#5-推送网站" class="headerlink" title="5.推送网站"></a>5.推送网站</h3><p>上面只是在本地预览，接下来要做的就是推送网站，也就是发布网站，让我们的网站可以被更多人访问到。在设置之前，需要解释一个概念，在blog根目录里的_config.yml文件称为站点配置文件<br>进入themes文件夹，里面也有个_config.yml文件，这个称为主题配置文件<br>现在需要做的是将我们的Hexo和GitHub关联起来，打开站点的配置文件_config.yml，翻到最后修改为：<br>deploy:<br>type: git<br>repo: 这里填入你之前在GitHub上创建仓库的完整历经，记得加上.git<br>branch: master<br>保存站点配置文件。<br>其实就是给hexo d这个命令做相应的配置，让hexo知道你要把blog部署在哪个位置，很显然，我们部署在我们GitHub的仓库里，最后安装git部署插件，输入命令：<br>npm install hexo-deployer-git –save<br>这时，我们分别输入三条命令：<br>hexo clean<br>hexo g<br>hexo d<br>其实第三条hexo d就是部署网站的命令，d是deploy的缩写，完成后，打开浏览器，在地址栏输入你的放置个人网站的仓库路径，你就可以发现你的博客已经上线了，可以在网络上被访问到。</p>
+<h2 id="常用hexo命令及解释"><a href="#常用hexo命令及解释" class="headerlink" title="常用hexo命令及解释"></a>常用hexo命令及解释</h2><p>hexo init [folder]<br>新建一个网站。如果没有设置folder，Hexo默认在目前的文件夹建立网站。<br>本命令相当于执行了以下几步：<br>1.Git clone <a href="https://github.com/hexojs/hexo-starter">hexo-starter</a>和<a href="https://github.com/hexojs/hexo-theme-landscape">hexo-theme-landscape</a>主题到当前目录或者指定目录<br>2.使用<a href="https://classic.yarnpkg.com/lang/en/">Yarn 1</a>、<a href="https://pnpm.js.org/">pnpm</a>或者<a href="https://docs.npmjs.com/cli/install">npm</a>包管理器下载依赖（如有已安装多个，则列在前面的优先）。npm默认随<a href="https://hexo.io/docs/#Install-Node-js">Node.js</a>安装。</p>
+<p>hexo new [layout] &lt;title&gt;<br>新建一篇文章。如果没有设置layout的话，默认使用_config.yml中的default_layout参数代替，如果标题包含空格的话，请使用引号括起来。<br>默认情况下，Hexo会使用文章的标题来决定文章文件的路径。对于独立页面来说，Hexo会创建一个以标题为名字的目录，并在目录中放置一个index.md文件。你可以使用–path参数覆盖上述行为、自行决定文件的目录：<br>hexo new page –path about&#x2F;me “About me”<br>以上命令会创建一个source&#x2F;about&#x2F;me.md，同时me.md的Front Matter中的title为“page”。这是因为在上述命令中，hexo-cli将page视为指定文章的标题，并采用默认的layout</p>
+<p>hexo generate<br>生成静态文件。</p>
+<p>hexo publish [layout] &lt;filename&gt;<br>发表草稿</p>
+<p>hexo server<br>启动服务器，默认情况下，访问地址为：<br><a href="http://localhost:4000/%E3%80%82">http://localhost:4000/。</a></p>
+<p>hexo deploy<br>部署网站。</p>
+<p>hexo clean<br>清楚缓存文件（db.json）和已生成的静态文件（public)。在某些情况下（尤其是更换主题后）,如果发现您对站点的更改无论如何也不生效，您可能需要运行该命令。</p>
+<p>hexo list &lt;type&gt;<br>列出网站资料</p>
+<h3 id="选项"><a href="#选项" class="headerlink" title="选项"></a>选项</h3><p>hexo –safe<br>在安全模式下，不会载入插件和脚本。当您在安装新插件遭遇问题时，可以尝试以安全模式重新执行。</p>
+<p>hexo –debug<br>在终端中显示调试信息并记录到debug.log。当您碰到问题时，可以尝试用调试模式重新执行一次，并<a href="https://github.com/hexojs/hexo/issues/new">提交调式信息到GitHub</a>.</p>
+<p>hexo –silent<br>隐藏终端信息。</p>
+<p>更多详情可以查看<a href="https://zhuanlan.zhihu.com/p/26625249">此篇文档</a></p>
+]]></content>
+      <tags>
+        <tag>hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -283,34 +311,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </categories>
       <tags>
         <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GitHub+Hexo搭建个人博客网站</title>
-    <url>/2022/09/18/GitHub-Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99/</url>
-    <content><![CDATA[<h2 id="什么是hexo？"><a href="#什么是hexo？" class="headerlink" title="什么是hexo？"></a>什么是hexo？</h2><p>Hexo是一款基于Node.js的静态博客框架，特点是快速，简介并且高效的博客框架，Hexo使用Markdown解析文章，在几秒内，即可利用靓丽的主题生成静态网页。它可以方便的生成静态网页托管在GitHub和其他托管平台上，是搭建博客的首选框架。</p>
-<span id="more"></span>
-<h2 id="什么是github？"><a href="#什么是github？" class="headerlink" title="什么是github？"></a>什么是github？</h2><p>GitHub是一个在线软件源代码托管服务平台，使用Git作为版本控制软件，是世界上最大的代码托管网站和开源社区。我们使用的是github上的一个服务，GitHub Pages，它是由GitHub提供的一个网页寄存服务，可以用于存放静态网页，包括博客，项目文档甚至整本书。一般GitHub Pages使用github.io的子域名，但是用户也可以使用第三方域名。</p>
-<h2 id="搭建步骤："><a href="#搭建步骤：" class="headerlink" title="搭建步骤："></a>搭建步骤：</h2><h3 id="1-GitHub创建个人仓库"><a href="#1-GitHub创建个人仓库" class="headerlink" title="1.GitHub创建个人仓库"></a>1.GitHub创建个人仓库</h3><p>登录到GitHub，如果没有GitHub账号，使用你的邮箱注册GitHub账号，点击GitHub中的New repository创建新仓库，仓库名应该为：“用户名.github.io”这个用户名使用你的github账号名称代替，这是一个相对固定的写法。</p>
-<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#x67;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#111;&#109;">&#x67;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#111;&#109;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
-<h3 id="3-安装Node-js"><a href="#3-安装Node-js" class="headerlink" title="3.安装Node.js"></a>3.安装Node.js</h3><p>Hexo基于Node.js，<a href="https://nodejs.org/en/download/">Node.js下载地址</a>，注意安装node.js会包含环境变量及npm的安装，安装后，检测node.js是否安装成功，在命令行输入node -v，检测npm是否安装成功，npm -v<br>到这儿，安装Hexo的环境已经全部搭建完成。</p>
-<h3 id="4-安装Hexo"><a href="#4-安装Hexo" class="headerlink" title="4.安装Hexo"></a>4.安装Hexo</h3><p>hexo就是我们的个人博客网站的框架，这里需要自己在电脑里创建一个文件夹，可以命名为Blog，Hexo框架与以后你自己发布的网页都在这个文件夹中，创建好后，进入文件夹中，打开命令行窗口。<br>使用npm命令安装Hexo，输入：<br>npm install -g hexo-cli<br>这个安装时间较长耐心等待，安装完成后，初始化我们的博客，输入：<br>hexo init blog<br>注意：这里的命令都是作用在刚刚创建的blog文件夹中。<br>在命令行中输入启动命令：<br>hexo server<br>打开浏览器哦网址可以看到网站的样式</p>
-<h3 id="5-推送网站"><a href="#5-推送网站" class="headerlink" title="5.推送网站"></a>5.推送网站</h3><p>上面只是在本地预览，接下来要做的就是推送网站，也就是发布网站，让我们的网站可以被更多人访问到。在设置之前，需要解释一个概念，在blog根目录里的_config.yml文件称为站点配置文件<br>进入themes文件夹，里面也有个_config.yml文件，这个称为主题配置文件<br>现在需要做的是将我们的Hexo和GitHub关联起来，打开站点的配置文件_config.yml，翻到最后修改为：<br>deploy:<br>type: git<br>repo: 这里填入你之前在GitHub上创建仓库的完整历经，记得加上.git<br>branch: master<br>保存站点配置文件。<br>其实就是给hexo d这个命令做相应的配置，让hexo知道你要把blog部署在哪个位置，很显然，我们部署在我们GitHub的仓库里，最后安装git部署插件，输入命令：<br>npm install hexo-deployer-git –save<br>这时，我们分别输入三条命令：<br>hexo clean<br>hexo g<br>hexo d<br>其实第三条hexo d就是部署网站的命令，d是deploy的缩写，完成后，打开浏览器，在地址栏输入你的放置个人网站的仓库路径，你就可以发现你的博客已经上线了，可以在网络上被访问到。</p>
-<h2 id="常用hexo命令及解释"><a href="#常用hexo命令及解释" class="headerlink" title="常用hexo命令及解释"></a>常用hexo命令及解释</h2><p>hexo init [folder]<br>新建一个网站。如果没有设置folder，Hexo默认在目前的文件夹建立网站。<br>本命令相当于执行了以下几步：<br>1.Git clone <a href="https://github.com/hexojs/hexo-starter">hexo-starter</a>和<a href="https://github.com/hexojs/hexo-theme-landscape">hexo-theme-landscape</a>主题到当前目录或者指定目录<br>2.使用<a href="https://classic.yarnpkg.com/lang/en/">Yarn 1</a>、<a href="https://pnpm.js.org/">pnpm</a>或者<a href="https://docs.npmjs.com/cli/install">npm</a>包管理器下载依赖（如有已安装多个，则列在前面的优先）。npm默认随<a href="https://hexo.io/docs/#Install-Node-js">Node.js</a>安装。</p>
-<p>hexo new [layout] &lt;title&gt;<br>新建一篇文章。如果没有设置layout的话，默认使用_config.yml中的default_layout参数代替，如果标题包含空格的话，请使用引号括起来。<br>默认情况下，Hexo会使用文章的标题来决定文章文件的路径。对于独立页面来说，Hexo会创建一个以标题为名字的目录，并在目录中放置一个index.md文件。你可以使用–path参数覆盖上述行为、自行决定文件的目录：<br>hexo new page –path about&#x2F;me “About me”<br>以上命令会创建一个source&#x2F;about&#x2F;me.md，同时me.md的Front Matter中的title为“page”。这是因为在上述命令中，hexo-cli将page视为指定文章的标题，并采用默认的layout</p>
-<p>hexo generate<br>生成静态文件。</p>
-<p>hexo publish [layout] &lt;filename&gt;<br>发表草稿</p>
-<p>hexo server<br>启动服务器，默认情况下，访问地址为：<br><a href="http://localhost:4000/%E3%80%82">http://localhost:4000/。</a></p>
-<p>hexo deploy<br>部署网站。</p>
-<p>hexo clean<br>清楚缓存文件（db.json）和已生成的静态文件（public)。在某些情况下（尤其是更换主题后）,如果发现您对站点的更改无论如何也不生效，您可能需要运行该命令。</p>
-<p>hexo list &lt;type&gt;<br>列出网站资料</p>
-<h3 id="选项"><a href="#选项" class="headerlink" title="选项"></a>选项</h3><p>hexo –safe<br>在安全模式下，不会载入插件和脚本。当您在安装新插件遭遇问题时，可以尝试以安全模式重新执行。</p>
-<p>hexo –debug<br>在终端中显示调试信息并记录到debug.log。当您碰到问题时，可以尝试用调试模式重新执行一次，并<a href="https://github.com/hexojs/hexo/issues/new">提交调式信息到GitHub</a>.</p>
-<p>hexo –silent<br>隐藏终端信息。</p>
-<p>更多详情可以查看<a href="https://zhuanlan.zhihu.com/p/26625249">此篇文档</a></p>
-]]></content>
-      <tags>
-        <tag>hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -435,6 +435,198 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <li>Protobuf 支持复杂嵌套结构、数组、向后兼容性等高级特性</li>
 <li>适用场景：微服务、RPC、消息队列、数据存储等</li>
 </ul>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rust中所有权和作用域以及生周期</title>
+    <url>/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/</url>
+    <content><![CDATA[<p>在rust中，作用域（Scope）和所有权（Ownership）是保证内存安全的核心机制，它们共同决定了变量的生命周期和内存管理方式，无需垃圾回收即可避免悬垂指针、双重释放等内存问题。</p>
+<span id="more"></span>
+
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+<th>是否自动触发销毁</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>作用域（Scope</td>
+<td>变量的可访问范围</td>
+<td>是</td>
+<td>{ let x &#x3D; 1; }</td>
+</tr>
+<tr>
+<td>所有权（Ownership</td>
+<td>资源的唯一持有者</td>
+<td>是</td>
+<td>let s &#x3D; String:from(“hi”);</td>
+</tr>
+<tr>
+<td>生命周期（Lifetime）</td>
+<td>引用的有效区间</td>
+<td>否</td>
+<td>&amp;&#96;a str</td>
+</tr>
+</tbody></table>
+<h1 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h1><p>作用域是一个变量（或引用、资源）在程序中有效、可访问的代码范围，由一对花括号{}界定；</p>
+<p>1.确定性：作用域由代码结构显示界定，编译期即可确定，不存在运行时动态变化；<br>2.自动清理：Rust会自动调用其drop方法(若实现了drop trait，则会调用drop函数)，释放内存或资源（如文件句柄、网络连接等）。<br>3.嵌套性：作用域可以嵌套（内部作用域包含在外部作用域中），内部作用域可以访问外部作用域的实体，但外部作用域无法访问内部作用域的实体。</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>发生时机</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>变量绑定</td>
+<td>语句执行时</td>
+<td>内存分配（如需要）</td>
+</tr>
+<tr>
+<td>变量可见</td>
+<td>声明点到作用域结束</td>
+<td>可在作用域内访问</td>
+</tr>
+<tr>
+<td>变量销毁</td>
+<td>离开作用域时</td>
+<td>调用drop释放资源</td>
+</tr>
+<tr>
+<td>变量的销毁顺序：</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1.后进先出（LIFO）：与声明顺序相反</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2.结构体字段：按声明顺序销毁</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3.数组元素：从第一个到最后一个</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="所有权"><a href="#所有权" class="headerlink" title="所有权"></a>所有权</h1><p>rust不适用垃圾回收（GC），而是通过所有权系统在编译期保证内存安全（在编译时会进行一系列的规则检查，在运行时零开销）；</p>
+<p>每个值（资源）在任意时刻只有一个所有者（owner）；<br>当所有者离开作用域时，值会被自动销毁；<br>赋值或传参会移动（move）所有权，除非实现了copy trait。</p>
+<h2 id="引用与借用"><a href="#引用与借用" class="headerlink" title="引用与借用"></a>引用与借用</h2><p>为避免频繁的所有权转移，Rust提供了引用机制：<br>1.不可变引用（&amp;T）：只读访问，允许多个同时存在；<br>2.可变引用（&amp;mut T）:可修改数据，同一作用域内仅允许一个。</p>
+<p>借用规则：<br>1.引用作用域不能超过被引用变量的作用域（防悬垂引用）；<br>2.同一数据不能同时存在可变和不可变引用。</p>
+<h2 id="赋值"><a href="#赋值" class="headerlink" title="赋值"></a>赋值</h2><p>赋值会引起两种语义：<br>1.复制（COPY）：a仍然可以使用；<br>    隐式浅拷贝：若类型实现Copy trait（如整数、浮点、布尔、字符、元组中全是Copy类型），则赋值时为Copy语义，不会转移所有权；<br>    Clone（显式深拷贝）：会同时赋值堆数据；<br>2.所有权转移（Move）：a不再有效。</p>
+<h2 id="Copy类型"><a href="#Copy类型" class="headerlink" title="Copy类型"></a>Copy类型</h2><table>
+<thead>
+<tr>
+<th>类型类别</th>
+<th>示例</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标量类型（scalar）</td>
+<td>i32, u64, f32, bool, char</td>
+<td>小且固定大小，在栈上</td>
+</tr>
+<tr>
+<td>全是Copy类型的元组</td>
+<td>（i32, i32），（u8, f64, bool）</td>
+<td>只要里面每个字段都是Copy</td>
+</tr>
+<tr>
+<td>指针类（少见）</td>
+<td>*const T, *mut T原生指针</td>
+<td>不涉及所有权</td>
+</tr>
+<tr>
+<td>函数指针</td>
+<td>fn(i32) -&gt; i32</td>
+<td>也是Copy</td>
+</tr>
+</tbody></table>
+<h2 id="非Copy类型"><a href="#非Copy类型" class="headerlink" title="非Copy类型"></a>非Copy类型</h2><table>
+<thead>
+<tr>
+<th>类型类别</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>堆分配类型</td>
+<td>String，Vec<T>, Box<T></T></T></td>
+<td>包含堆内存指针</td>
+</tr>
+<tr>
+<td>动态大小类型</td>
+<td>&amp;str, [T], Rc<T></T></td>
+<td>内部有引用计数或指针</td>
+</tr>
+<tr>
+<td>用户定义结构体</td>
+<td>若字段中含非Copy成员</td>
+<td>整体就不是Copy</td>
+</tr>
+<tr>
+<td>其他智能指针</td>
+<td>Rc<T>, Arc<T>, RefCell<T></T></T></T></td>
+<td>有运行时管理逻辑</td>
+</tr>
+</tbody></table>
+<h1 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h1><p>生命周期（Lifetime）是编译器用来确保引用始终有效的核心机制。它们解决了”悬垂引用”问题——确保引用不会指向已释放的内存。生命周期是引用有效的作用域范围，由编译器在编译时进行静态分析，不产生运行时开销：**  **<br>1.引用在使用时式合法的；<br>2.不会悬空（dangling reference）<br>3.不会同时存在冲突的可变&#x2F;不可变引用。</p>
+<p>生命周期参数用 ‘a, ‘b 等表示（撇号’声明生命周期参数），用法类似于泛型参数 （ 在大多数情况下，Rust 会自动推断生命周期）：<br>1.’a 并不改变运行逻辑；<br>2.只是告诉编译器：“这些引用之间的关系”</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>必须明确标注的情况</th>
+<th>可以省略的情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结构体</td>
+<td>包含引用类型的字段（无论多少个）</td>
+<td>不包含引用字段（无需生命周期参数）</td>
+</tr>
+<tr>
+<td>普通函数</td>
+<td>1.多个引用参数且返回引用</td>
+<td>1.无返回引用；2.单个引用参数且返回引用</td>
+</tr>
+<tr>
+<td>方法</td>
+<td>1.返回引用来自外部参数（非self）；2.多个外部引用参数</td>
+<td>1.返回引用来自self，2.无返回引用</td>
+</tr>
+<tr>
+<td>Trait&#x2F;枚举</td>
+<td>包含引用类型的关联项或方法参数 &#x2F; 返回值</td>
+<td>不包含引用类型的关联项或方法</td>
+</tr>
+</tbody></table>
+<h2 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h2><p>当结构体包含引用时，必须为这些引用标注生命周期，以确保结构体的生命周期不超过它所包含的引用的生命周期。</p>
+<p>若结构体的多个引用来自不同生命周期，可用多个参数区分</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 两个字段的生命周期不同，分别用&#x27;a和&#x27;b标注</span><br><span class="line">struct Article&lt;&#x27;a, &#x27;b&gt; &#123;</span><br><span class="line">    content: &amp;&#x27;a str, // 内容的生命周期为&#x27;a    </span><br><span class="line">    source: &amp;&#x27;b str,  // 来源的生命周期为&#x27;b</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;    </span><br><span class="line">    let content = String::from(&quot;Rust lifecycle intro&quot;);    </span><br><span class="line">    let source = &quot;Wikipedia&quot;; // 字符串字面量，生命周期为&#x27;static</span><br><span class="line">    let art = Article &#123;        </span><br><span class="line">        content: &amp;content,        </span><br><span class="line">        source: &amp;source,    </span><br><span class="line">    &#125;;    </span><br><span class="line">    // art的生命周期受限于&#x27;a（content的生命周期）和&#x27;b（source的生命周期）中较短的一个</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>函数的参数或返回值如果是引用类型，可能需要标注生命周期。<br>省略规则：编译器有3条生命周期推断规则，允许在常见场景中省略显式注解：<br>1.每个引用参数获取自己的声明周期参数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn foo(x: &amp;i32)         // 隐式：fn foo&lt;&#x27;a&gt;(x: &amp;&#x27;a i32)</span><br><span class="line">fn foo(x: &amp;i32, y: &amp;i32) // 隐式：fn foo&lt;&#x27;a, &#x27;b&gt;(x: &amp;&#x27;a i32, y: &amp;&#x27;b i32)</span><br></pre></td></tr></table></figure>
+<p>2.若只有一个输入生命周期参数，它被赋予所有输出声明周期参数；</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn bar(x: &amp;str) -&gt; &amp;str // 隐式：fn bar&lt;&#x27;a&gt;(x: &amp;&#x27;a str) -&gt; &amp;&#x27;a str</span><br></pre></td></tr></table></figure>
+<p>3.若有多个输入生命周期参数，但其中一个是&amp;self或 &amp;mut self，则self的生命周期将赋予所有输出周期参数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">impl&lt;&#x27;a&gt; ImportantExcerpt&lt;&#x27;a&gt; &#123;    </span><br><span class="line">    fn announce(&amp;self, announcement: &amp;str) -&gt; &amp;str &#123;        </span><br><span class="line">        // 隐式：fn announce&lt;&#x27;b&gt;(&amp;&#x27;a self, announcement: &amp;&#x27;b str) -&gt; &amp;&#x27;a str        </span><br><span class="line">        println!(&quot;注意：&#123;&#125;&quot;, announcement);        </span><br><span class="line">        self.part    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>必须明确标注的情况：当函数的返回引用可能来自多个输入引用，或编译器无法推断返回引用的来源时，必须手动标注生命周期：<br>多个输入引用参数，且返回引用</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 正确示例：标注生命周期&#x27;a，说明x、y和返回值共享同一生命周期</span><br><span class="line">// 注解&#x27;a表示：返回的引用必须来自x或y，且其生命周期不超过x和y中生命周期较短的那个。</span><br><span class="line">fn longest&lt;&#x27;a&gt;(x: &amp;&#x27;a str, y: &amp;&#x27;a str) -&gt; &amp;&#x27;a str &#123;    </span><br><span class="line">    if x.len() &gt; y.len() &#123; x &#125; else &#123; y &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="静态生命周期"><a href="#静态生命周期" class="headerlink" title="静态生命周期"></a>静态生命周期</h2><p>‘static是一个特殊的生命周期，表示引用可以存活到整个程序运行期间。常见：<br>1.字符串字面量：存储在程序的只读内存中，生命周期为’static。<br>2.显式声明为’static的引用（需确保引用的值确实能存活到程序结束，否则会报错）。</p>
 ]]></content>
       <tags>
         <tag>Rust</tag>
@@ -993,198 +1185,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust中所有权和作用域以及生周期</title>
-    <url>/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/</url>
-    <content><![CDATA[<p>在rust中，作用域（Scope）和所有权（Ownership）是保证内存安全的核心机制，它们共同决定了变量的生命周期和内存管理方式，无需垃圾回收即可避免悬垂指针、双重释放等内存问题。</p>
-<span id="more"></span>
-
-<table>
-<thead>
-<tr>
-<th>概念</th>
-<th>含义</th>
-<th>是否自动触发销毁</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>作用域（Scope</td>
-<td>变量的可访问范围</td>
-<td>是</td>
-<td>{ let x &#x3D; 1; }</td>
-</tr>
-<tr>
-<td>所有权（Ownership</td>
-<td>资源的唯一持有者</td>
-<td>是</td>
-<td>let s &#x3D; String:from(“hi”);</td>
-</tr>
-<tr>
-<td>生命周期（Lifetime）</td>
-<td>引用的有效区间</td>
-<td>否</td>
-<td>&amp;&#96;a str</td>
-</tr>
-</tbody></table>
-<h1 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h1><p>作用域是一个变量（或引用、资源）在程序中有效、可访问的代码范围，由一对花括号{}界定；</p>
-<p>1.确定性：作用域由代码结构显示界定，编译期即可确定，不存在运行时动态变化；<br>2.自动清理：Rust会自动调用其drop方法(若实现了drop trait，则会调用drop函数)，释放内存或资源（如文件句柄、网络连接等）。<br>3.嵌套性：作用域可以嵌套（内部作用域包含在外部作用域中），内部作用域可以访问外部作用域的实体，但外部作用域无法访问内部作用域的实体。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th>发生时机</th>
-<th>结果</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>变量绑定</td>
-<td>语句执行时</td>
-<td>内存分配（如需要）</td>
-</tr>
-<tr>
-<td>变量可见</td>
-<td>声明点到作用域结束</td>
-<td>可在作用域内访问</td>
-</tr>
-<tr>
-<td>变量销毁</td>
-<td>离开作用域时</td>
-<td>调用drop释放资源</td>
-</tr>
-<tr>
-<td>变量的销毁顺序：</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>1.后进先出（LIFO）：与声明顺序相反</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>2.结构体字段：按声明顺序销毁</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>3.数组元素：从第一个到最后一个</td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<h1 id="所有权"><a href="#所有权" class="headerlink" title="所有权"></a>所有权</h1><p>rust不适用垃圾回收（GC），而是通过所有权系统在编译期保证内存安全（在编译时会进行一系列的规则检查，在运行时零开销）；</p>
-<p>每个值（资源）在任意时刻只有一个所有者（owner）；<br>当所有者离开作用域时，值会被自动销毁；<br>赋值或传参会移动（move）所有权，除非实现了copy trait。</p>
-<h2 id="引用与借用"><a href="#引用与借用" class="headerlink" title="引用与借用"></a>引用与借用</h2><p>为避免频繁的所有权转移，Rust提供了引用机制：<br>1.不可变引用（&amp;T）：只读访问，允许多个同时存在；<br>2.可变引用（&amp;mut T）:可修改数据，同一作用域内仅允许一个。</p>
-<p>借用规则：<br>1.引用作用域不能超过被引用变量的作用域（防悬垂引用）；<br>2.同一数据不能同时存在可变和不可变引用。</p>
-<h2 id="赋值"><a href="#赋值" class="headerlink" title="赋值"></a>赋值</h2><p>赋值会引起两种语义：<br>1.复制（COPY）：a仍然可以使用；<br>    隐式浅拷贝：若类型实现Copy trait（如整数、浮点、布尔、字符、元组中全是Copy类型），则赋值时为Copy语义，不会转移所有权；<br>    Clone（显式深拷贝）：会同时赋值堆数据；<br>2.所有权转移（Move）：a不再有效。</p>
-<h2 id="Copy类型"><a href="#Copy类型" class="headerlink" title="Copy类型"></a>Copy类型</h2><table>
-<thead>
-<tr>
-<th>类型类别</th>
-<th>示例</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>标量类型（scalar）</td>
-<td>i32, u64, f32, bool, char</td>
-<td>小且固定大小，在栈上</td>
-</tr>
-<tr>
-<td>全是Copy类型的元组</td>
-<td>（i32, i32），（u8, f64, bool）</td>
-<td>只要里面每个字段都是Copy</td>
-</tr>
-<tr>
-<td>指针类（少见）</td>
-<td>*const T, *mut T原生指针</td>
-<td>不涉及所有权</td>
-</tr>
-<tr>
-<td>函数指针</td>
-<td>fn(i32) -&gt; i32</td>
-<td>也是Copy</td>
-</tr>
-</tbody></table>
-<h2 id="非Copy类型"><a href="#非Copy类型" class="headerlink" title="非Copy类型"></a>非Copy类型</h2><table>
-<thead>
-<tr>
-<th>类型类别</th>
-<th>示例</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>堆分配类型</td>
-<td>String，Vec<T>, Box<T></T></T></td>
-<td>包含堆内存指针</td>
-</tr>
-<tr>
-<td>动态大小类型</td>
-<td>&amp;str, [T], Rc<T></T></td>
-<td>内部有引用计数或指针</td>
-</tr>
-<tr>
-<td>用户定义结构体</td>
-<td>若字段中含非Copy成员</td>
-<td>整体就不是Copy</td>
-</tr>
-<tr>
-<td>其他智能指针</td>
-<td>Rc<T>, Arc<T>, RefCell<T></T></T></T></td>
-<td>有运行时管理逻辑</td>
-</tr>
-</tbody></table>
-<h1 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h1><p>生命周期（Lifetime）是编译器用来确保引用始终有效的核心机制。它们解决了”悬垂引用”问题——确保引用不会指向已释放的内存。生命周期是引用有效的作用域范围，由编译器在编译时进行静态分析，不产生运行时开销：**  **<br>1.引用在使用时式合法的；<br>2.不会悬空（dangling reference）<br>3.不会同时存在冲突的可变&#x2F;不可变引用。</p>
-<p>生命周期参数用 ‘a, ‘b 等表示（撇号’声明生命周期参数），用法类似于泛型参数 （ 在大多数情况下，Rust 会自动推断生命周期）：<br>1.’a 并不改变运行逻辑；<br>2.只是告诉编译器：“这些引用之间的关系”</p>
-<table>
-<thead>
-<tr>
-<th>场景</th>
-<th>必须明确标注的情况</th>
-<th>可以省略的情况</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>结构体</td>
-<td>包含引用类型的字段（无论多少个）</td>
-<td>不包含引用字段（无需生命周期参数）</td>
-</tr>
-<tr>
-<td>普通函数</td>
-<td>1.多个引用参数且返回引用</td>
-<td>1.无返回引用；2.单个引用参数且返回引用</td>
-</tr>
-<tr>
-<td>方法</td>
-<td>1.返回引用来自外部参数（非self）；2.多个外部引用参数</td>
-<td>1.返回引用来自self，2.无返回引用</td>
-</tr>
-<tr>
-<td>Trait&#x2F;枚举</td>
-<td>包含引用类型的关联项或方法参数 &#x2F; 返回值</td>
-<td>不包含引用类型的关联项或方法</td>
-</tr>
-</tbody></table>
-<h2 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h2><p>当结构体包含引用时，必须为这些引用标注生命周期，以确保结构体的生命周期不超过它所包含的引用的生命周期。</p>
-<p>若结构体的多个引用来自不同生命周期，可用多个参数区分</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 两个字段的生命周期不同，分别用&#x27;a和&#x27;b标注</span><br><span class="line">struct Article&lt;&#x27;a, &#x27;b&gt; &#123;</span><br><span class="line">    content: &amp;&#x27;a str, // 内容的生命周期为&#x27;a    </span><br><span class="line">    source: &amp;&#x27;b str,  // 来源的生命周期为&#x27;b</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;    </span><br><span class="line">    let content = String::from(&quot;Rust lifecycle intro&quot;);    </span><br><span class="line">    let source = &quot;Wikipedia&quot;; // 字符串字面量，生命周期为&#x27;static</span><br><span class="line">    let art = Article &#123;        </span><br><span class="line">        content: &amp;content,        </span><br><span class="line">        source: &amp;source,    </span><br><span class="line">    &#125;;    </span><br><span class="line">    // art的生命周期受限于&#x27;a（content的生命周期）和&#x27;b（source的生命周期）中较短的一个</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>函数的参数或返回值如果是引用类型，可能需要标注生命周期。<br>省略规则：编译器有3条生命周期推断规则，允许在常见场景中省略显式注解：<br>1.每个引用参数获取自己的声明周期参数</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn foo(x: &amp;i32)         // 隐式：fn foo&lt;&#x27;a&gt;(x: &amp;&#x27;a i32)</span><br><span class="line">fn foo(x: &amp;i32, y: &amp;i32) // 隐式：fn foo&lt;&#x27;a, &#x27;b&gt;(x: &amp;&#x27;a i32, y: &amp;&#x27;b i32)</span><br></pre></td></tr></table></figure>
-<p>2.若只有一个输入生命周期参数，它被赋予所有输出声明周期参数；</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn bar(x: &amp;str) -&gt; &amp;str // 隐式：fn bar&lt;&#x27;a&gt;(x: &amp;&#x27;a str) -&gt; &amp;&#x27;a str</span><br></pre></td></tr></table></figure>
-<p>3.若有多个输入生命周期参数，但其中一个是&amp;self或 &amp;mut self，则self的生命周期将赋予所有输出周期参数</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">impl&lt;&#x27;a&gt; ImportantExcerpt&lt;&#x27;a&gt; &#123;    </span><br><span class="line">    fn announce(&amp;self, announcement: &amp;str) -&gt; &amp;str &#123;        </span><br><span class="line">        // 隐式：fn announce&lt;&#x27;b&gt;(&amp;&#x27;a self, announcement: &amp;&#x27;b str) -&gt; &amp;&#x27;a str        </span><br><span class="line">        println!(&quot;注意：&#123;&#125;&quot;, announcement);        </span><br><span class="line">        self.part    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>必须明确标注的情况：当函数的返回引用可能来自多个输入引用，或编译器无法推断返回引用的来源时，必须手动标注生命周期：<br>多个输入引用参数，且返回引用</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 正确示例：标注生命周期&#x27;a，说明x、y和返回值共享同一生命周期</span><br><span class="line">// 注解&#x27;a表示：返回的引用必须来自x或y，且其生命周期不超过x和y中生命周期较短的那个。</span><br><span class="line">fn longest&lt;&#x27;a&gt;(x: &amp;&#x27;a str, y: &amp;&#x27;a str) -&gt; &amp;&#x27;a str &#123;    </span><br><span class="line">    if x.len() &gt; y.len() &#123; x &#125; else &#123; y &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="静态生命周期"><a href="#静态生命周期" class="headerlink" title="静态生命周期"></a>静态生命周期</h2><p>‘static是一个特殊的生命周期，表示引用可以存活到整个程序运行期间。常见：<br>1.字符串字面量：存储在程序的只读内存中，生命周期为’static。<br>2.显式声明为’static的引用（需确保引用的值确实能存活到程序结束，否则会报错）。</p>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rust中模块定义与导入</title>
     <url>/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/</url>
     <content><![CDATA[<p>模块（mod）是Rust的核心代码组织工具，用于解决命名冲突、控制代码可见性（封装）、拆分大型项目。</p>
@@ -1631,6 +1631,90 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>Rust中的闭包</title>
+    <url>/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/</url>
+    <content><![CDATA[<p>Rust 的闭包在功能和用途上与其他语言的 lambda 相同，都是在本地定义的小型匿名函数，可以捕获外部变量。</p>
+<span id="more"></span>
+
+<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><p>Rust 闭包的基本定义形式如下：</p>
+<ul>
+<li><code>|参数列表|</code>：用竖线包裹参数，多个参数用逗号分隔（如 <code>|x, y|</code>）。</li>
+<li>函数体：可以是单个表达式（省略 <code>&#123;&#125;</code>），也可以是多个语句（需用 <code>&#123;&#125;</code> 包裹）。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">closure_name</span> = |参数列表| <span class="punctuation">-&gt;</span> 返回类型 &#123;</span><br><span class="line">    表达式或语句块</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基本语法示例"><a href="#基本语法示例" class="headerlink" title="基本语法示例"></a>基本语法示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 无参数，单个表达式（省略花括号）</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">greet</span> = || <span class="built_in">println!</span>(<span class="string">&quot;Hello!&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">greet</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 有参数，单个表达式</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">add</span> = |x, y| x + y;</span><br><span class="line"><span class="keyword">let</span> <span class="variable">result</span> = <span class="title function_ invoke__">add</span>(<span class="number">2</span>, <span class="number">3</span>); <span class="comment">// result = 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 有参数，多个语句（需要花括号）</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">multiply</span> = |x, y| &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Calculating: &#123;&#125; * &#123;&#125;&quot;</span>, x, y);</span><br><span class="line">    x * y</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定返回类型</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">divide</span> = |x: <span class="type">i32</span>, y: <span class="type">i32</span>| <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> y == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        x / y</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="类型与特征"><a href="#类型与特征" class="headerlink" title="类型与特征"></a>类型与特征</h2><p>闭包在 Rust 中有独立的匿名类型，并自动实现以下特征之一：</p>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>捕获方式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Fn</code></td>
+<td>不可变捕获环境</td>
+<td>只读访问。可多次调用，捕获的变量仍可在外部使用</td>
+</tr>
+<tr>
+<td><code>FnMut</code></td>
+<td>可变捕获环境</td>
+<td>可修改捕获的变量。可多次调用，但捕获的变量在外部需为 <code>mut</code></td>
+</tr>
+<tr>
+<td><code>FnOnce</code></td>
+<td>转移捕获变量的所有权</td>
+<td>使用 <code>move</code> 关键字。只能调用一次（所有权转移后无法再次使用）</td>
+</tr>
+</tbody></table>
+<h3 id="类型与特征示例"><a href="#类型与特征示例" class="headerlink" title="类型与特征示例"></a>类型与特征示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">closure_test</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">greeting</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hi&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Fn（只读）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">say_hi</span> = || <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, greeting);</span><br><span class="line">    <span class="title function_ invoke__">say_hi</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;greeting: &#123;&#125;&quot;</span>, greeting);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// FnMut（可变）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">add_one</span> = || num += <span class="number">1</span>;</span><br><span class="line">    <span class="title function_ invoke__">add_one</span>();</span><br><span class="line">    <span class="title function_ invoke__">add_one</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;num: &#123;&#125;&quot;</span>, num);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// FnOnce（移动）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Rust&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">consume</span> = <span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">        <span class="comment">// s 已被消耗</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="title function_ invoke__">consume</span>(); <span class="comment">// 正常</span></span><br><span class="line">    <span class="comment">// consume(); // 编译错误：只能调用一次</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="move-语义"><a href="#move-语义" class="headerlink" title="move 语义"></a>move 语义</h2><p>默认情况下，闭包会根据对变量的操作<strong>自动选择捕获方式</strong>（不可变借用、可变借用），尽量避免所有权转移。而 <code>move</code> 关键字会强制闭包”夺取”捕获变量的所有权（对于非 <code>Copy</code> 类型），或复制变量（对于 <code>Copy</code> 类型）。</p>
+<ul>
+<li><strong>非 <code>Copy</code> 类型</strong>（如 <code>String</code>、<code>Vec</code>）的所有权具有唯一性，<code>move</code> 会让闭包直接获取其所有权，原变量在闭包外<strong>不可再使用</strong>（所有权已转移）。</li>
+<li><strong><code>Copy</code> 类型</strong>在赋值时会自动复制，<code>move</code> 会让闭包获取变量的副本，原变量仍可正常使用。</li>
+</ul>
+<h3 id="move-与闭包-Trait"><a href="#move-与闭包-Trait" class="headerlink" title="move 与闭包 Trait"></a>move 与闭包 Trait</h3><p><code>move</code> 仅决定闭包如何捕获变量（所有权转移），但闭包最终实现 <code>Fn</code>&#x2F;<code>FnMut</code>&#x2F;<code>FnOnce</code> 中的哪个 trait，取决于闭包如何使用捕获的变量（而非 <code>move</code> 本身）。</p>
+<h4 id="move-只读使用-→-实现-Fn"><a href="#move-只读使用-→-实现-Fn" class="headerlink" title="move + 只读使用 → 实现 Fn"></a><code>move</code> + 只读使用 → 实现 <code>Fn</code></h4><p>若 <code>move</code> 闭包仅只读访问捕获的变量（不修改、不消耗），则实现 <code>Fn</code> trait，可多次调用。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"><span class="comment">// move 捕获 s 的所有权，闭包仅读取 s</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">closure</span> = <span class="keyword">move</span> || <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// 正常</span></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// 正常（可多次调用，因未消耗 s）</span></span><br><span class="line"><span class="comment">// println!(&quot;&#123;&#125;&quot;, s); // 编译错误：s 的所有权已被转移到闭包中</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="move-修改使用-→-实现-FnMut"><a href="#move-修改使用-→-实现-FnMut" class="headerlink" title="move + 修改使用 → 实现 FnMut"></a><code>move</code> + 修改使用 → 实现 <code>FnMut</code></h4><p>若 <code>move</code> 闭包修改捕获的变量（但不消耗），则实现 <code>FnMut</code> trait，闭包自身需为 <code>mut</code>。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 非 Copy 语义类型，所有权被转移</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>];</span><br><span class="line"><span class="comment">// move 捕获 v 的所有权，闭包修改 v</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">closure</span> = <span class="keyword">move</span> || v.<span class="title function_ invoke__">push</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// v 变为 [1, 2, 3]</span></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// v 变为 [1, 2, 3, 3]（可多次调用）</span></span><br><span class="line"><span class="comment">// println!(&quot;&#123;&#125;&quot;, v); // 编译错误：v 的所有权已被转移到闭包中</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ==========================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Copy 语义类型，复制一个副本，修改不影响外部</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">add_one</span> = <span class="keyword">move</span> || num += <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">add_one</span>();</span><br><span class="line"><span class="title function_ invoke__">add_one</span>();</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;num: &#123;&#125;&quot;</span>, num); <span class="comment">// 输出 0（num 未被修改）</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="move-消耗使用-→-实现-FnOnce"><a href="#move-消耗使用-→-实现-FnOnce" class="headerlink" title="move + 消耗使用 → 实现 FnOnce"></a><code>move</code> + 消耗使用 → 实现 <code>FnOnce</code></h4><p>若 <code>move</code> 闭包消耗捕获的变量（如调用 <code>drop</code> 或转移所有权给其他对象），则实现 <code>FnOnce</code> trait，只能调用一次。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">test_fnonce</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="comment">// move 捕获 s 的所有权，闭包消耗 s（转移给 println!）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">closure</span> = <span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">        s <span class="comment">// 这里 s 被消耗</span></span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="title function_ invoke__">closure</span>(); <span class="comment">// 正常</span></span><br><span class="line">    <span class="comment">// closure(); // 编译错误：s 已被消耗，闭包只能调用一次</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="典型使用场景"><a href="#典型使用场景" class="headerlink" title="典型使用场景"></a>典型使用场景</h3><p><code>move</code> 主要用于解决生命周期问题：</p>
+<ul>
+<li><strong>线程间传递闭包</strong>：线程的生命周期是独立的，无法保证外部变量的生命周期能覆盖线程的。此时 <code>move</code> 可将变量所有权转移到线程内部，<strong>避免悬垂引用</strong>。</li>
+<li><strong>延长变量生命周期</strong>：当闭包需要”带走”变量并在更晚的时候使用时，<code>move</code> 可确保变量的所有权随闭包一起存在，避免提前销毁。</li>
+</ul>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>闭包在编译时会被转换为一个匿名结构体类型（即使两个闭包代码完全相同，也会生成不同的类型）。结构体的字段为捕获的变量，实际字段类型取决于捕获方式（借用、所有权）。</p>
+<ul>
+<li>若<strong>不捕获任何变量</strong>：结构体为零大小（ZST，无字段），不占用内存空间，调用成本极低（编译器可完全优化掉）。</li>
+<li>若<strong>捕获多个变量</strong>：结构体字段按声明顺序连续存储（类似普通结构体）。<ul>
+<li>捕获引用时：结构体中仅存储变量的引用；</li>
+<li>捕获所有权时：结构体存储被捕获变量的实际值（拥有所有权）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="闭包与对应的结构体"><a href="#闭包与对应的结构体" class="headerlink" title="闭包与对应的结构体"></a>闭包与对应的结构体</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">x</span> = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="variable">y</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> <span class="variable">closure</span> = |z| x + z; <span class="comment">// 捕获 x（不可变借用），不捕获 y</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以上闭包会生成类似下面的</span></span><br><span class="line"><span class="comment">// 匿名结构体，命名为 ClosureType 仅作示例</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ClosureType</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    x: &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>, <span class="comment">// 捕获 x 的不可变引用（因仅读取 x）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; <span class="built_in">Fn</span>&lt;(<span class="type">i32</span>,)&gt; <span class="keyword">for</span> <span class="title class_">ClosureType</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = <span class="type">i32</span>;</span><br><span class="line">    <span class="comment">// call 方法的逻辑即闭包体：x + z</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">call</span>(&amp;<span class="keyword">self</span>, args: (<span class="type">i32</span>,)) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.x + args.<span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果闭包捕获了 y 的所有权并转移给其他对象，则实现 FnOnce</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">closure2</span> = <span class="keyword">move</span> || y; <span class="comment">// 消耗 y</span></span><br><span class="line"><span class="comment">// 对应的结构体</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ClosureType2</span> &#123;</span><br><span class="line">    y: <span class="type">String</span>, <span class="comment">// 直接存储 String 值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">FnOnce</span>&lt;()&gt; <span class="keyword">for</span> <span class="title class_">ClosureType2</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = <span class="type">String</span>;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">call_once</span>(<span class="keyword">self</span>, _args: ()) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.y <span class="comment">// 所有权转移给调用者</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong>闭包的三个 trait</strong>：<code>Fn</code>（只读）、<code>FnMut</code>（可变）、<code>FnOnce</code>（消耗）由闭包的实际使用方式自动确定</li>
+<li><strong><code>move</code> 关键字</strong>：强制转移捕获变量的所有权（非 <code>Copy</code> 类型）或复制（<code>Copy</code> 类型）</li>
+<li><strong>编译时优化</strong>：闭包在编译时转换为匿名结构体，零参数闭包可被完全优化</li>
+<li><strong>典型应用</strong>：解决生命周期问题，特别是线程间传递数据时</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust中的for循环与迭代器</title>
     <url>/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/</url>
     <content><![CDATA[<p><code>for</code> 循环是迭代器的语法糖，而迭代器是 Rust 处理集合（如 <code>Vec</code>、<code>HashMap</code>）的核心抽象。</p>
@@ -1842,83 +1926,225 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust中的闭包</title>
-    <url>/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/</url>
-    <content><![CDATA[<p>Rust 的闭包在功能和用途上与其他语言的 lambda 相同，都是在本地定义的小型匿名函数，可以捕获外部变量。</p>
+    <title>Rust中错误处理机制</title>
+    <url>/2023/08/24/Rust%E4%B8%AD%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<p>Rust 的错误处理是通过 <code>Result</code> 类型和 <code>panic!</code> 宏两个层次来完成的：</p>
 <span id="more"></span>
 
-<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><p>Rust 闭包的基本定义形式如下：</p>
-<ul>
-<li><code>|参数列表|</code>：用竖线包裹参数，多个参数用逗号分隔（如 <code>|x, y|</code>）。</li>
-<li>函数体：可以是单个表达式（省略 <code>&#123;&#125;</code>），也可以是多个语句（需用 <code>&#123;&#125;</code> 包裹）。</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">closure_name</span> = |参数列表| <span class="punctuation">-&gt;</span> 返回类型 &#123;</span><br><span class="line">    表达式或语句块</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h3 id="基本语法示例"><a href="#基本语法示例" class="headerlink" title="基本语法示例"></a>基本语法示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 无参数，单个表达式（省略花括号）</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">greet</span> = || <span class="built_in">println!</span>(<span class="string">&quot;Hello!&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">greet</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 有参数，单个表达式</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">add</span> = |x, y| x + y;</span><br><span class="line"><span class="keyword">let</span> <span class="variable">result</span> = <span class="title function_ invoke__">add</span>(<span class="number">2</span>, <span class="number">3</span>); <span class="comment">// result = 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 有参数，多个语句（需要花括号）</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">multiply</span> = |x, y| &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Calculating: &#123;&#125; * &#123;&#125;&quot;</span>, x, y);</span><br><span class="line">    x * y</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定返回类型</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">divide</span> = |x: <span class="type">i32</span>, y: <span class="type">i32</span>| <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> y == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        x / y</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h2 id="类型与特征"><a href="#类型与特征" class="headerlink" title="类型与特征"></a>类型与特征</h2><p>闭包在 Rust 中有独立的匿名类型，并自动实现以下特征之一：</p>
 <table>
 <thead>
 <tr>
+<th>错误类型</th>
 <th>特征</th>
-<th>捕获方式</th>
+<th>处理方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可恢复错误</td>
+<td>程序逻辑上可以预期并处理，比如文件不存在、网络超时</td>
+<td>使用 <code>Result&amp;lt;T, E&amp;gt;</code></td>
+</tr>
+<tr>
+<td>不可恢复错误</td>
+<td>程序出现 bug 或严重问题，无法继续运行</td>
+<td>使用 <code>panic!</code> 宏</td>
+</tr>
+<tr>
+<td>可选值缺失</td>
+<td>一个值可能存在 <code>Some(T)</code> 或不存在 <code>None</code>，避免空指针问题</td>
+<td>使用 <code>Option&amp;lt;T&amp;gt;</code></td>
+</tr>
+</tbody></table>
+<h2 id="可恢复错误（Result-lt-T-E-gt-）"><a href="#可恢复错误（Result-lt-T-E-gt-）" class="headerlink" title="可恢复错误（Result&lt;T, E&gt;）"></a>可恢复错误（Result&lt;T, E&gt;）</h2><p><code>Result</code> 是一个泛型枚举，强制调用者处理成功和失败两种情况（是零开销的，由编译器静态保证必须处理）：</p>
+<ul>
+<li><code>T</code>：成功时返回的值类型；</li>
+<li><code>E</code>：错误时返回的错误类型。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io::Error;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">open_file</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;File, Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">file</span> = File::<span class="title function_ invoke__">open</span>(<span class="string">&quot;hello.txt&quot;</span>);</span><br><span class="line">    <span class="keyword">match</span> file &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(f) =&gt; <span class="title function_ invoke__">Ok</span>(f),</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; <span class="title function_ invoke__">Err</span>(e),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><h4 id="unwrap-和-expect"><a href="#unwrap-和-expect" class="headerlink" title="unwrap 和 expect"></a><code>unwrap</code> 和 <code>expect</code></h4><p>快速处理错误，失败时会 panic：</p>
+<ul>
+<li><code>unwrap()</code>：若 <code>Result</code> 为 <code>Ok(v)</code> 则返回 <code>v</code>；若为 <code>Err(e)</code> 则触发 <code>panic!</code>（适合 “理论上不可能失败” 的场景）。</li>
+<li><code>expect(msg)</code>：功能与 <code>unwrap</code> 类似，但可自定义 <code>panic!</code> 的错误消息（更易调试）。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::read_to_string;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 若文件不存在，unwrap会 panic</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = <span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;test.txt&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 自定义 panic 消息</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = <span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;test.txt&quot;</span>).<span class="title function_ invoke__">expect</span>(<span class="string">&quot;读取 test.txt 失败&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="链式方法"><a href="#链式方法" class="headerlink" title="链式方法"></a>链式方法</h4><p><code>Result</code> 提供了大量链式方法，用于灵活地处理成功或失败分支：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>Fn</code></td>
-<td>不可变捕获环境</td>
-<td>只读访问。可多次调用，捕获的变量仍可在外部使用</td>
+<td><code>.is_ok()</code></td>
+<td>是否是 <code>Ok</code></td>
 </tr>
 <tr>
-<td><code>FnMut</code></td>
-<td>可变捕获环境</td>
-<td>可修改捕获的变量。可多次调用，但捕获的变量在外部需为 <code>mut</code></td>
+<td><code>.is_err()</code></td>
+<td>是否是 <code>Err</code></td>
 </tr>
 <tr>
-<td><code>FnOnce</code></td>
-<td>转移捕获变量的所有权</td>
-<td>使用 <code>move</code> 关键字。只能调用一次（所有权转移后无法再次使用）</td>
+<td><code>.ok()</code></td>
+<td>取值，返回 <code>Option&amp;lt;T&amp;gt;</code></td>
+</tr>
+<tr>
+<td><code>.err()</code></td>
+<td>取错误，返回 <code>Option&amp;lt;E&amp;gt;</code></td>
+</tr>
+<tr>
+<td><code>.unwrap()</code></td>
+<td>成功取值 T，否则 panic</td>
+</tr>
+<tr>
+<td><code>.expect(msg)</code></td>
+<td>成功取值 T，否则 panic 并打印 msg</td>
+</tr>
+<tr>
+<td><code>.unwrap_or(default)</code></td>
+<td>失败则返回默认值</td>
+</tr>
+<tr>
+<td><code>.unwrap_or_else(f)</code></td>
+<td>失败时执行函数生成默认值</td>
+</tr>
+<tr>
+<td><code>.map(f)</code></td>
+<td>若是 Ok，应用函数 <code>F(T) -&amp;gt; U</code> 到内部值；否则返回原 Err</td>
+</tr>
+<tr>
+<td><code>.map_err(f)</code></td>
+<td>对 Err 执行 map</td>
+</tr>
+<tr>
+<td><code>.and_then(f)</code></td>
+<td>若是 Ok，应用函数 <code>F(T) -&amp;gt; Result&amp;lt;U, E&amp;gt;</code> 到内部值；否则返回原 Err</td>
+</tr>
+<tr>
+<td><code>.or_else(f)</code></td>
+<td>对 Err 执行 f</td>
 </tr>
 </tbody></table>
-<h3 id="类型与特征示例"><a href="#类型与特征示例" class="headerlink" title="类型与特征示例"></a>类型与特征示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">closure_test</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">greeting</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hi&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Fn（只读）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">say_hi</span> = || <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, greeting);</span><br><span class="line">    <span class="title function_ invoke__">say_hi</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;greeting: &#123;&#125;&quot;</span>, greeting);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// FnMut（可变）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">add_one</span> = || num += <span class="number">1</span>;</span><br><span class="line">    <span class="title function_ invoke__">add_one</span>();</span><br><span class="line">    <span class="title function_ invoke__">add_one</span>();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;num: &#123;&#125;&quot;</span>, num);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// FnOnce（移动）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Rust&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">consume</span> = <span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">        <span class="comment">// s 已被消耗</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="title function_ invoke__">consume</span>(); <span class="comment">// 正常</span></span><br><span class="line">    <span class="comment">// consume(); // 编译错误：只能调用一次</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="map-与-unwrap-示例"><a href="#map-与-unwrap-示例" class="headerlink" title="map 与 unwrap 示例"></a>map 与 unwrap 示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">parse_and_double</span>(vec: <span class="type">Vec</span>&lt;&amp;<span class="type">str</span>&gt;) <span class="punctuation">-&gt;</span> <span class="type">Vec</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">    vec.<span class="title function_ invoke__">into_iter</span>()</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|s| &#123;</span><br><span class="line">            s.parse::&lt;<span class="type">i32</span>&gt;()</span><br><span class="line">                .<span class="title function_ invoke__">map</span>(|n| (n * <span class="number">2</span>).<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">                .<span class="title function_ invoke__">unwrap_or_else</span>(|_| s.<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">        &#125;)</span><br><span class="line">        .<span class="title function_ invoke__">collect</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">test_parse_and_double</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">vec</span> = <span class="built_in">vec!</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;three&quot;</span>, <span class="string">&quot;4&quot;</span>];</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">doubled</span> = <span class="title function_ invoke__">parse_and_double</span>(vec);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(doubled, <span class="built_in">vec!</span>[<span class="string">&quot;2&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;three&quot;</span>, <span class="string">&quot;8&quot;</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="move-语义"><a href="#move-语义" class="headerlink" title="move 语义"></a>move 语义</h2><p>默认情况下，闭包会根据对变量的操作<strong>自动选择捕获方式</strong>（不可变借用、可变借用），尽量避免所有权转移。而 <code>move</code> 关键字会强制闭包”夺取”捕获变量的所有权（对于非 <code>Copy</code> 类型），或复制变量（对于 <code>Copy</code> 类型）。</p>
+<h3 id="错误传播（-运算符）"><a href="#错误传播（-运算符）" class="headerlink" title="错误传播（? 运算符）"></a>错误传播（<code>?</code> 运算符）</h3><p><code>?</code> 是 Rust 中最常用的错误传播工具：</p>
 <ul>
-<li><strong>非 <code>Copy</code> 类型</strong>（如 <code>String</code>、<code>Vec</code>）的所有权具有唯一性，<code>move</code> 会让闭包直接获取其所有权，原变量在闭包外<strong>不可再使用</strong>（所有权已转移）。</li>
-<li><strong><code>Copy</code> 类型</strong>在赋值时会自动复制，<code>move</code> 会让闭包获取变量的副本，原变量仍可正常使用。</li>
+<li>如果是 <code>Ok(t)</code>，提取 <code>t</code>；</li>
+<li>如果是 <code>Err(e)</code>，提前返回当前函数，并将错误向上传递。</li>
 </ul>
-<h3 id="move-与闭包-Trait"><a href="#move-与闭包-Trait" class="headerlink" title="move 与闭包 Trait"></a>move 与闭包 Trait</h3><p><code>move</code> 仅决定闭包如何捕获变量（所有权转移），但闭包最终实现 <code>Fn</code>&#x2F;<code>FnMut</code>&#x2F;<code>FnOnce</code> 中的哪个 trait，取决于闭包如何使用捕获的变量（而非 <code>move</code> 本身）。</p>
-<h4 id="move-只读使用-→-实现-Fn"><a href="#move-只读使用-→-实现-Fn" class="headerlink" title="move + 只读使用 → 实现 Fn"></a><code>move</code> + 只读使用 → 实现 <code>Fn</code></h4><p>若 <code>move</code> 闭包仅只读访问捕获的变量（不修改、不消耗），则实现 <code>Fn</code> trait，可多次调用。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"><span class="comment">// move 捕获 s 的所有权，闭包仅读取 s</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">closure</span> = <span class="keyword">move</span> || <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// 正常</span></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// 正常（可多次调用，因未消耗 s）</span></span><br><span class="line"><span class="comment">// println!(&quot;&#123;&#125;&quot;, s); // 编译错误：s 的所有权已被转移到闭包中</span></span><br></pre></td></tr></table></figure>
+<h4 id="文件读写示例"><a href="#文件读写示例" class="headerlink" title="文件读写示例"></a>文件读写示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io::&#123;<span class="keyword">self</span>, Read&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_username</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">String</span>, io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    File::<span class="title function_ invoke__">open</span>(<span class="string">&quot;username.txt&quot;</span>)?.<span class="title function_ invoke__">read_to_string</span>(&amp;<span class="keyword">mut</span> s)?;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_username_verbose</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">String</span>, io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">f</span> = <span class="keyword">match</span> File::<span class="title function_ invoke__">open</span>(<span class="string">&quot;username.txt&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(file) =&gt; file,</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; <span class="keyword">return</span> <span class="title function_ invoke__">Err</span>(e),</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">match</span> f.<span class="title function_ invoke__">read_to_string</span>(&amp;<span class="keyword">mut</span> s) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="title function_ invoke__">Ok</span>(s),</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; <span class="title function_ invoke__">Err</span>(e),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="move-修改使用-→-实现-FnMut"><a href="#move-修改使用-→-实现-FnMut" class="headerlink" title="move + 修改使用 → 实现 FnMut"></a><code>move</code> + 修改使用 → 实现 <code>FnMut</code></h4><p>若 <code>move</code> 闭包修改捕获的变量（但不消耗），则实现 <code>FnMut</code> trait，闭包自身需为 <code>mut</code>。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 非 Copy 语义类型，所有权被转移</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>];</span><br><span class="line"><span class="comment">// move 捕获 v 的所有权，闭包修改 v</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">closure</span> = <span class="keyword">move</span> || v.<span class="title function_ invoke__">push</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// v 变为 [1, 2, 3]</span></span><br><span class="line"><span class="title function_ invoke__">closure</span>(); <span class="comment">// v 变为 [1, 2, 3, 3]（可多次调用）</span></span><br><span class="line"><span class="comment">// println!(&quot;&#123;&#125;&quot;, v); // 编译错误：v 的所有权已被转移到闭包中</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ==========================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Copy 语义类型，复制一个副本，修改不影响外部</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">add_one</span> = <span class="keyword">move</span> || num += <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">add_one</span>();</span><br><span class="line"><span class="title function_ invoke__">add_one</span>();</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;num: &#123;&#125;&quot;</span>, num); <span class="comment">// 输出 0（num 未被修改）</span></span><br></pre></td></tr></table></figure>
+<h4 id="错误类型自动转换"><a href="#错误类型自动转换" class="headerlink" title="错误类型自动转换"></a>错误类型自动转换</h4><p>当使用 <code>?</code> 时，错误类型会自动通过 <code>From</code> trait 转换。这意味着可以组合不同来源的错误，只要能被转换到同一个错误类型。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::num::ParseIntError;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">Io</span>(io::Error),</span><br><span class="line">    <span class="title function_ invoke__">Parse</span>(ParseIntError),</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;io::Error&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(e: io::Error) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Io</span>(e)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;ParseIntError&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(e: ParseIntError) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Parse</span>(e)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_and_parse</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">i32</span>, MyError&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = std::fs::<span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;data.txt&quot;</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">num</span> = content.<span class="title function_ invoke__">trim</span>().<span class="title function_ invoke__">parse</span>()?;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(num)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="move-消耗使用-→-实现-FnOnce"><a href="#move-消耗使用-→-实现-FnOnce" class="headerlink" title="move + 消耗使用 → 实现 FnOnce"></a><code>move</code> + 消耗使用 → 实现 <code>FnOnce</code></h4><p>若 <code>move</code> 闭包消耗捕获的变量（如调用 <code>drop</code> 或转移所有权给其他对象），则实现 <code>FnOnce</code> trait，只能调用一次。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">test_fnonce</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="comment">// move 捕获 s 的所有权，闭包消耗 s（转移给 println!）</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">closure</span> = <span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, s);</span><br><span class="line">        s <span class="comment">// 这里 s 被消耗</span></span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="title function_ invoke__">closure</span>(); <span class="comment">// 正常</span></span><br><span class="line">    <span class="comment">// closure(); // 编译错误：s 已被消耗，闭包只能调用一次</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Option-枚举：处理”空值”"><a href="#Option-枚举：处理”空值”" class="headerlink" title="Option 枚举：处理”空值”"></a><code>Option</code> 枚举：处理”空值”</h3><p><code>Option</code> 虽不直接表示”错误”，但用于处理”可能没有值”的场景（避免空指针异常）；可认为 <code>Option</code> 是 <code>Result</code> 的一个简化版本（错误类型固定为 <code>()</code>）。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">Option</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="title function_ invoke__">Some</span>(T), <span class="comment">// 有值：包含具体值（类型为 T）</span></span><br><span class="line">    <span class="literal">None</span>,    <span class="comment">// 无值：表示&quot;空&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="典型使用场景"><a href="#典型使用场景" class="headerlink" title="典型使用场景"></a>典型使用场景</h3><p><code>move</code> 主要用于解决生命周期问题：</p>
+<h4 id="Option-的常用方法"><a href="#Option-的常用方法" class="headerlink" title="Option 的常用方法"></a>Option 的常用方法</h4><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>is_some() / is_none()</code></td>
+<td>检查是否有值</td>
+</tr>
+<tr>
+<td><code>unwrap()</code></td>
+<td>直接取值（若为 None 则 panic）</td>
+</tr>
+<tr>
+<td><code>unwrap_or(default)</code></td>
+<td>若为 None 返回默认值</td>
+</tr>
+<tr>
+<td><code>unwrap_or_else(f)</code></td>
+<td>若为 None 执行函数返回值</td>
+</tr>
+<tr>
+<td><code>map(f)</code></td>
+<td>映射 Some 中的值</td>
+</tr>
+<tr>
+<td><code>and_then(f)</code></td>
+<td>链式操作，f 返回 Option</td>
+</tr>
+<tr>
+<td><code>ok_or(err)</code></td>
+<td>转换为 Result</td>
+</tr>
+<tr>
+<td><code>filter(pred)</code></td>
+<td>条件筛选</td>
+</tr>
+</tbody></table>
+<h4 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">find_user</span>(id: <span class="type">u32</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> id == <span class="number">1</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">Some</span>(<span class="string">&quot;Alice&quot;</span>.<span class="title function_ invoke__">to_string</span>()) <span class="comment">// 找到用户</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="literal">None</span> <span class="comment">// 未找到用户</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 方式 1：match 匹配</span></span><br><span class="line">    <span class="keyword">match</span> <span class="title function_ invoke__">find_user</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Some</span>(name) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;找到用户：&#123;&#125;&quot;</span>, name),</span><br><span class="line">        <span class="literal">None</span> =&gt; <span class="built_in">println!</span>(<span class="string">&quot;用户不存在&quot;</span>),</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式 2：? 运算符（需函数返回 Option）</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(user) = <span class="title function_ invoke__">find_user</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;用户：&#123;&#125;&quot;</span>, user);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式 3：map 链式处理</span></span><br><span class="line">    <span class="title function_ invoke__">find_user</span>(<span class="number">1</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|name| <span class="built_in">println!</span>(<span class="string">&quot;找到用户：&#123;&#125;&quot;</span>, name))</span><br><span class="line">        .<span class="title function_ invoke__">unwrap_or_else</span>(|| <span class="built_in">println!</span>(<span class="string">&quot;用户不存在&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义错误类型"><a href="#自定义错误类型" class="headerlink" title="自定义错误类型"></a>自定义错误类型</h3><h4 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h4><p>自定义错误类型需要满足：</p>
 <ul>
-<li><strong>线程间传递闭包</strong>：线程的生命周期是独立的，无法保证外部变量的生命周期能覆盖线程的。此时 <code>move</code> 可将变量所有权转移到线程内部，<strong>避免悬垂引用</strong>。</li>
-<li><strong>延长变量生命周期</strong>：当闭包需要”带走”变量并在更晚的时候使用时，<code>move</code> 可确保变量的所有权随闭包一起存在，避免提前销毁。</li>
+<li>必须实现 <code>std::error::Error</code> trait：使其成为标准错误类型；</li>
+<li>必须实现 <code>std::fmt::Display</code> trait：以提供用户友好的错误信息。</li>
 </ul>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>闭包在编译时会被转换为一个匿名结构体类型（即使两个闭包代码完全相同，也会生成不同的类型）。结构体的字段为捕获的变量，实际字段类型取决于捕获方式（借用、所有权）。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fmt;</span><br><span class="line"><span class="keyword">use</span> std::error::Error;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义错误枚举：包含两种错误类型</span></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">enum</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">Io</span>(io::Error),           <span class="comment">// 包装 IO 错误</span></span><br><span class="line">    <span class="title function_ invoke__">Parse</span>(<span class="type">String</span>),           <span class="comment">// 解析错误（携带错误信息）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 Display trait：定义错误的用户可见信息</span></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">fmt</span>::Display <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">fmt</span>(&amp;<span class="keyword">self</span>, f: &amp;<span class="keyword">mut</span> fmt::Formatter&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> fmt::<span class="type">Result</span> &#123;</span><br><span class="line">        <span class="keyword">match</span> <span class="keyword">self</span> &#123;</span><br><span class="line">            MyError::<span class="title function_ invoke__">Io</span>(err) =&gt; <span class="built_in">write!</span>(f, <span class="string">&quot;IO error: &#123;&#125;&quot;</span>, err),</span><br><span class="line">            MyError::<span class="title function_ invoke__">Parse</span>(msg) =&gt; <span class="built_in">write!</span>(f, <span class="string">&quot;Parse error: &#123;&#125;&quot;</span>, msg),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 Error trait：标记为标准错误类型</span></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Error</span> <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="实现-From"><a href="#实现-From" class="headerlink" title="实现 From"></a>实现 <code>From</code></h4><p>为错误类型实现 <code>From</code>，这样就能使用 <code>?</code> 运算符自动转换错误。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;std::io::Error&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(err: std::io::Error) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Io</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;std::num::ParseIntError&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(err: std::num::ParseIntError) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Parse</span>(err.<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_number_from_file</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">i32</span>, MyError&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = std::fs::<span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;data.txt&quot;</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">num</span> = content.<span class="title function_ invoke__">trim</span>().<span class="title function_ invoke__">parse</span>()?;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(num)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="三方库简化错误定义"><a href="#三方库简化错误定义" class="headerlink" title="三方库简化错误定义"></a>三方库简化错误定义</h4><p>手写 <code>Display</code>、<code>From</code> 很繁琐，Rust 社区提供了两个常用库。</p>
+<h5 id="thiserror（-derive-Error-）-定义结构化错误"><a href="#thiserror（-derive-Error-）-定义结构化错误" class="headerlink" title="thiserror（#[derive(Error)]）- 定义结构化错误"></a><code>thiserror</code>（<code>#[derive(Error)]</code>）- 定义结构化错误</h5><ul>
+<li><code>#[derive(Error, Debug)]</code>：自动生成 <code>Error</code> 和 <code>Debug</code> trait 的实现。</li>
+<li><code>#[error(&quot;消息模板&quot;)]</code>：定义 <code>Display</code> trait 的输出格式。</li>
+<li><code>#[from]</code>：自动实现 <code>From&amp;lt;T&amp;gt;</code> trait（<code>T</code> 是字段类型），允许通过 <code>?</code> 运算符将 <code>T</code> 类型的错误自动转换为当前自定义错误。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> thiserror::Error;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug, Error)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">enum</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="meta">#[error(<span class="string">&quot;IO error: &#123;0&#125;&quot;</span>)]</span></span><br><span class="line">    <span class="title function_ invoke__">Io</span>(<span class="meta">#[from]</span> std::io::Error),</span><br><span class="line">    </span><br><span class="line">    <span class="meta">#[error(<span class="string">&quot;Parse error: &#123;0&#125;&quot;</span>)]</span></span><br><span class="line">    <span class="title function_ invoke__">Parse</span>(<span class="meta">#[from]</span> std::num::ParseIntError),</span><br><span class="line">    </span><br><span class="line">    <span class="meta">#[error(<span class="string">&quot;Not found&quot;</span>)]</span></span><br><span class="line">    NotFound,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="anyhow-简化上层错误处理"><a href="#anyhow-简化上层错误处理" class="headerlink" title="anyhow - 简化上层错误处理"></a><code>anyhow</code> - 简化上层错误处理</h5><ul>
+<li><code>anyhow::Result&amp;lt;T&amp;gt;</code> 实际是 <code>Result&amp;lt;T, anyhow::Error&amp;gt;</code></li>
+<li>可容纳任何实现 <code>Error</code> trait 的类型，无需手动转换</li>
+<li><code>context</code> 方法会将原始错误，并添加额外描述，便于追踪错误发生的场景。</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> anyhow::&#123;<span class="type">Result</span>, Context&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数返回 anyhow::Error，可容纳任何实现 Error trait 的类型</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">test_anyhow</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    <span class="title function_ invoke__">test_my_error</span>()</span><br><span class="line">        .<span class="title function_ invoke__">context</span>(<span class="string">&quot;test failed&quot;</span>)?; <span class="comment">// 为错误添加上下文</span></span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="不可恢复错误（panic-）"><a href="#不可恢复错误（panic-）" class="headerlink" title="不可恢复错误（panic!）"></a>不可恢复错误（panic!）</h2><p>当程序遇到不可恢复的错误（如违反内存安全、逻辑断言失败）时，使用 <code>panic!</code> 宏触发程序终止。默认会导致程序终止，但在某些场景下（如隔离第三方库的崩溃、实现容错机制），我们需要”安全捕获” <code>panic</code> 以避免程序整体崩溃。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">divide</span>(a: <span class="type">i32</span>, b: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> b == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">panic!</span>(<span class="string">&quot;除数不能为 0&quot;</span>); <span class="comment">// 逻辑错误：不允许除 0</span></span><br><span class="line">    &#125;</span><br><span class="line">    a / b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Panic-的执行流程"><a href="#Panic-的执行流程" class="headerlink" title="Panic 的执行流程"></a>Panic 的执行流程</h3><p>当 <code>panic!</code> 被触发时，Rust 默认会执行”栈展开”（可在 <code>Cargo.toml</code> 中添加 <code>panic = &quot;abort&quot;</code> 直接终止，不进行展开）：</p>
 <ul>
-<li>若<strong>不捕获任何变量</strong>：结构体为零大小（ZST，无字段），不占用内存空间，调用成本极低（编译器可完全优化掉）。</li>
-<li>若<strong>捕获多个变量</strong>：结构体字段按声明顺序连续存储（类似普通结构体）。<ul>
-<li>捕获引用时：结构体中仅存储变量的引用；</li>
-<li>捕获所有权时：结构体存储被捕获变量的实际值（拥有所有权）。</li>
+<li>从 <code>panic!</code> 发生的位置开始，沿着调用栈向上回溯。</li>
+<li>依次调用每个栈帧中局部变量的析构函数（清理资源，如关闭文件、释放锁等）。</li>
+<li>最终打印错误信息（包含 <code>panic!</code> 的位置和消息）并终止程序。</li>
 </ul>
-</li>
+<p>这种行为保证了”资源安全” —— 即使程序崩溃，也不会泄露资源。</p>
+<h3 id="catch-unwind"><a href="#catch-unwind" class="headerlink" title="catch_unwind"></a><code>catch_unwind</code></h3><p><code>catch_unwind</code> 接收一个闭包作为参数，返回 <code>Result&lt;(), Box&lt;dyn Any + Send&gt;&gt;</code>：</p>
+<ul>
+<li>若闭包执行中未发生 <code>panic</code>，返回 <code>Ok(())</code>。</li>
+<li>若发生 <code>panic</code>，返回 <code>Err(cause)</code>，其中 <code>cause</code> 是 <code>panic!</code> 传递的值（包装为 <code>Box&lt;dyn Any + Send&gt;</code>）。</li>
 </ul>
-<h3 id="闭包与对应的结构体"><a href="#闭包与对应的结构体" class="headerlink" title="闭包与对应的结构体"></a>闭包与对应的结构体</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">x</span> = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="variable">y</span> = <span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> <span class="variable">closure</span> = |z| x + z; <span class="comment">// 捕获 x（不可变借用），不捕获 y</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以上闭包会生成类似下面的</span></span><br><span class="line"><span class="comment">// 匿名结构体，命名为 ClosureType 仅作示例</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ClosureType</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    x: &amp;<span class="symbol">&#x27;a</span> <span class="type">i32</span>, <span class="comment">// 捕获 x 的不可变引用（因仅读取 x）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">&#x27;a</span>&gt; <span class="built_in">Fn</span>&lt;(<span class="type">i32</span>,)&gt; <span class="keyword">for</span> <span class="title class_">ClosureType</span>&lt;<span class="symbol">&#x27;a</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = <span class="type">i32</span>;</span><br><span class="line">    <span class="comment">// call 方法的逻辑即闭包体：x + z</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">call</span>(&amp;<span class="keyword">self</span>, args: (<span class="type">i32</span>,)) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.x + args.<span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果闭包捕获了 y 的所有权并转移给其他对象，则实现 FnOnce</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">closure2</span> = <span class="keyword">move</span> || y; <span class="comment">// 消耗 y</span></span><br><span class="line"><span class="comment">// 对应的结构体</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ClosureType2</span> &#123;</span><br><span class="line">    y: <span class="type">String</span>, <span class="comment">// 直接存储 String 值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">FnOnce</span>&lt;()&gt; <span class="keyword">for</span> <span class="title class_">ClosureType2</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = <span class="type">String</span>;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">call_once</span>(<span class="keyword">self</span>, _args: ()) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.y <span class="comment">// 所有权转移给调用者</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="基本使用示例"><a href="#基本使用示例" class="headerlink" title="基本使用示例"></a>基本使用示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::panic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 捕获闭包中的 panic</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">result</span> = panic::<span class="title function_ invoke__">catch_unwind</span>(|| &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;执行可能 panic 的代码&quot;</span>);</span><br><span class="line">        <span class="built_in">panic!</span>(<span class="string">&quot;发生错误！&quot;</span>); <span class="comment">// 触发 panic</span></span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 处理捕获结果</span></span><br><span class="line">    <span class="keyword">match</span> result &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;未发生 panic&quot;</span>),</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(cause) =&gt; &#123;</span><br><span class="line">            <span class="comment">// 将 cause 转换为具体类型（通常是 &amp;str 或 String）</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(msg) = cause.downcast_ref::&lt;&amp;<span class="type">str</span>&gt;() &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;捕获到 panic：&#123;&#125;&quot;</span>, msg);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(msg) = cause.downcast_ref::&lt;<span class="type">String</span>&gt;() &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;捕获到 panic：&#123;&#125;&quot;</span>, msg);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;捕获到未知类型的 panic&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="catch-unwind-的限制"><a href="#catch-unwind-的限制" class="headerlink" title="catch_unwind 的限制"></a><code>catch_unwind</code> 的限制</h4><p><code>catch_unwind</code> 并非万能，存在以下关键限制：</p>
+<ul>
+<li><strong>仅能捕获”栈展开”的 panic</strong>：若程序配置为 <code>panic = &quot;abort&quot;</code>，<code>catch_unwind</code> 无法捕获（因为不会触发栈展开）。</li>
+<li><strong>无法捕获所有终止情况</strong>：如调用 <code>std::process::abort()</code>、操作系统信号（如 <code>SIGKILL</code>）导致的终止，<code>catch_unwind</code> 无效。</li>
+<li><strong>闭包需满足 <code>Send</code> 约束</strong>：<code>catch_unwind</code> 的闭包参数要求 <code>FnOnce() + Send</code>，这意味着闭包中不能包含非 <code>Send</code> 类型（如 <code>Rc</code>、<code>RefCell</code> 等线程不安全类型）。</li>
+<li><strong>程序状态可能不稳定</strong>：<code>panic</code> 发生时，栈展开会清理局部资源，但全局状态、共享资源可能处于不一致状态（如部分更新的缓存）。捕获 <code>panic</code> 后需谨慎处理，避免依赖不稳定状态。</li>
+</ul>
+<h4 id="有效载荷-Payload"><a href="#有效载荷-Payload" class="headerlink" title="有效载荷 (Payload)"></a>有效载荷 (Payload)</h4><p><code>panic!()</code> 可以携带 <code>&amp;&#39;static str</code> 或 <code>String</code> 等任意 <code>Any + Send</code> 类型作为 payload。捕获后可以尝试 <code>downcast_ref</code> 来读取消息：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::panic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Err</span>(payload) = panic::<span class="title function_ invoke__">catch_unwind</span>(|| <span class="built_in">panic!</span>(<span class="string">&quot;oh no&quot;</span>)) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(s) = payload.downcast_ref::&lt;&amp;<span class="type">str</span>&gt;() &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;&amp;str payload: &#123;&#125;&quot;</span>, s);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(s) = payload.downcast_ref::&lt;<span class="type">String</span>&gt;() &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;String payload: &#123;&#125;&quot;</span>, s);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;未知 payload 类型&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="资源与不变式"><a href="#资源与不变式" class="headerlink" title="资源与不变式"></a>资源与不变式</h4><p>当线程在持有 <code>Mutex</code> 时 panic，该 <code>Mutex</code> 会被标记为”poisoned”（污染）。随后 <code>lock()</code> 会返回 <code>PoisonError</code>，表示需要小心处理共享状态可能处于不一致状态。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">0</span>);</span><br><span class="line"><span class="comment">// 线程 panic 造成 poison 的示例请参见文档</span></span><br><span class="line"><span class="keyword">match</span> m.<span class="title function_ invoke__">lock</span>() &#123;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(<span class="keyword">mut</span> guard) =&gt; *guard += <span class="number">1</span>,</span><br><span class="line">    <span class="title function_ invoke__">Err</span>(poisoned) =&gt; &#123;</span><br><span class="line">        <span class="comment">// 取回锁仍然可用的数据，但知道它可能不一致</span></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = poisoned.<span class="title function_ invoke__">into_inner</span>();</span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li><strong>闭包的三个 trait</strong>：<code>Fn</code>（只读）、<code>FnMut</code>（可变）、<code>FnOnce</code>（消耗）由闭包的实际使用方式自动确定</li>
-<li><strong><code>move</code> 关键字</strong>：强制转移捕获变量的所有权（非 <code>Copy</code> 类型）或复制（<code>Copy</code> 类型）</li>
-<li><strong>编译时优化</strong>：闭包在编译时转换为匿名结构体，零参数闭包可被完全优化</li>
-<li><strong>典型应用</strong>：解决生命周期问题，特别是线程间传递数据时</li>
+<li>**<code>Result&amp;lt;T, E&amp;gt;</code>**：用于处理可恢复错误，通过 <code>match</code>、<code>?</code>、链式方法灵活处理</li>
+<li>**<code>Option&amp;lt;T&amp;gt;</code>**：用于处理可能缺失的值，避免空指针问题</li>
+<li><strong><code>?</code> 运算符</strong>：最简洁的错误传播方式，配合 <code>From</code> trait 实现自动错误转换</li>
+<li><strong>自定义错误类型</strong>：实现 <code>Error</code> 和 <code>Display</code> trait，推荐使用 <code>thiserror</code> 库简化代码</li>
+<li>**<code>panic!</code>**：处理不可恢复错误，通过栈展开保证资源安全</li>
+<li>**<code>catch_unwind</code>**：在特定场景（如隔离第三方库）捕获 panic，但需注意其限制</li>
 </ul>
 ]]></content>
       <tags>
@@ -2611,226 +2837,14 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust中错误处理机制</title>
-    <url>/2023/08/24/Rust%E4%B8%AD%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<p>Rust 的错误处理是通过 <code>Result</code> 类型和 <code>panic!</code> 宏两个层次来完成的：</p>
+    <title>Rust学习笔记</title>
+    <url>/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
 <span id="more"></span>
-
-<table>
-<thead>
-<tr>
-<th>错误类型</th>
-<th>特征</th>
-<th>处理方式</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>可恢复错误</td>
-<td>程序逻辑上可以预期并处理，比如文件不存在、网络超时</td>
-<td>使用 <code>Result&amp;lt;T, E&amp;gt;</code></td>
-</tr>
-<tr>
-<td>不可恢复错误</td>
-<td>程序出现 bug 或严重问题，无法继续运行</td>
-<td>使用 <code>panic!</code> 宏</td>
-</tr>
-<tr>
-<td>可选值缺失</td>
-<td>一个值可能存在 <code>Some(T)</code> 或不存在 <code>None</code>，避免空指针问题</td>
-<td>使用 <code>Option&amp;lt;T&amp;gt;</code></td>
-</tr>
-</tbody></table>
-<h2 id="可恢复错误（Result-lt-T-E-gt-）"><a href="#可恢复错误（Result-lt-T-E-gt-）" class="headerlink" title="可恢复错误（Result&lt;T, E&gt;）"></a>可恢复错误（Result&lt;T, E&gt;）</h2><p><code>Result</code> 是一个泛型枚举，强制调用者处理成功和失败两种情况（是零开销的，由编译器静态保证必须处理）：</p>
-<ul>
-<li><code>T</code>：成功时返回的值类型；</li>
-<li><code>E</code>：错误时返回的错误类型。</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io::Error;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">open_file</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;File, Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">file</span> = File::<span class="title function_ invoke__">open</span>(<span class="string">&quot;hello.txt&quot;</span>);</span><br><span class="line">    <span class="keyword">match</span> file &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(f) =&gt; <span class="title function_ invoke__">Ok</span>(f),</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; <span class="title function_ invoke__">Err</span>(e),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><h4 id="unwrap-和-expect"><a href="#unwrap-和-expect" class="headerlink" title="unwrap 和 expect"></a><code>unwrap</code> 和 <code>expect</code></h4><p>快速处理错误，失败时会 panic：</p>
-<ul>
-<li><code>unwrap()</code>：若 <code>Result</code> 为 <code>Ok(v)</code> 则返回 <code>v</code>；若为 <code>Err(e)</code> 则触发 <code>panic!</code>（适合 “理论上不可能失败” 的场景）。</li>
-<li><code>expect(msg)</code>：功能与 <code>unwrap</code> 类似，但可自定义 <code>panic!</code> 的错误消息（更易调试）。</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::read_to_string;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 若文件不存在，unwrap会 panic</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = <span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;test.txt&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 自定义 panic 消息</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = <span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;test.txt&quot;</span>).<span class="title function_ invoke__">expect</span>(<span class="string">&quot;读取 test.txt 失败&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="链式方法"><a href="#链式方法" class="headerlink" title="链式方法"></a>链式方法</h4><p><code>Result</code> 提供了大量链式方法，用于灵活地处理成功或失败分支：</p>
-<table>
-<thead>
-<tr>
-<th>方法</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>.is_ok()</code></td>
-<td>是否是 <code>Ok</code></td>
-</tr>
-<tr>
-<td><code>.is_err()</code></td>
-<td>是否是 <code>Err</code></td>
-</tr>
-<tr>
-<td><code>.ok()</code></td>
-<td>取值，返回 <code>Option&amp;lt;T&amp;gt;</code></td>
-</tr>
-<tr>
-<td><code>.err()</code></td>
-<td>取错误，返回 <code>Option&amp;lt;E&amp;gt;</code></td>
-</tr>
-<tr>
-<td><code>.unwrap()</code></td>
-<td>成功取值 T，否则 panic</td>
-</tr>
-<tr>
-<td><code>.expect(msg)</code></td>
-<td>成功取值 T，否则 panic 并打印 msg</td>
-</tr>
-<tr>
-<td><code>.unwrap_or(default)</code></td>
-<td>失败则返回默认值</td>
-</tr>
-<tr>
-<td><code>.unwrap_or_else(f)</code></td>
-<td>失败时执行函数生成默认值</td>
-</tr>
-<tr>
-<td><code>.map(f)</code></td>
-<td>若是 Ok，应用函数 <code>F(T) -&amp;gt; U</code> 到内部值；否则返回原 Err</td>
-</tr>
-<tr>
-<td><code>.map_err(f)</code></td>
-<td>对 Err 执行 map</td>
-</tr>
-<tr>
-<td><code>.and_then(f)</code></td>
-<td>若是 Ok，应用函数 <code>F(T) -&amp;gt; Result&amp;lt;U, E&amp;gt;</code> 到内部值；否则返回原 Err</td>
-</tr>
-<tr>
-<td><code>.or_else(f)</code></td>
-<td>对 Err 执行 f</td>
-</tr>
-</tbody></table>
-<h4 id="map-与-unwrap-示例"><a href="#map-与-unwrap-示例" class="headerlink" title="map 与 unwrap 示例"></a>map 与 unwrap 示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">parse_and_double</span>(vec: <span class="type">Vec</span>&lt;&amp;<span class="type">str</span>&gt;) <span class="punctuation">-&gt;</span> <span class="type">Vec</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">    vec.<span class="title function_ invoke__">into_iter</span>()</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|s| &#123;</span><br><span class="line">            s.parse::&lt;<span class="type">i32</span>&gt;()</span><br><span class="line">                .<span class="title function_ invoke__">map</span>(|n| (n * <span class="number">2</span>).<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">                .<span class="title function_ invoke__">unwrap_or_else</span>(|_| s.<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">        &#125;)</span><br><span class="line">        .<span class="title function_ invoke__">collect</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">test_parse_and_double</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">vec</span> = <span class="built_in">vec!</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;three&quot;</span>, <span class="string">&quot;4&quot;</span>];</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">doubled</span> = <span class="title function_ invoke__">parse_and_double</span>(vec);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(doubled, <span class="built_in">vec!</span>[<span class="string">&quot;2&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;three&quot;</span>, <span class="string">&quot;8&quot;</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="错误传播（-运算符）"><a href="#错误传播（-运算符）" class="headerlink" title="错误传播（? 运算符）"></a>错误传播（<code>?</code> 运算符）</h3><p><code>?</code> 是 Rust 中最常用的错误传播工具：</p>
-<ul>
-<li>如果是 <code>Ok(t)</code>，提取 <code>t</code>；</li>
-<li>如果是 <code>Err(e)</code>，提前返回当前函数，并将错误向上传递。</li>
-</ul>
-<h4 id="文件读写示例"><a href="#文件读写示例" class="headerlink" title="文件读写示例"></a>文件读写示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io::&#123;<span class="keyword">self</span>, Read&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_username</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">String</span>, io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    File::<span class="title function_ invoke__">open</span>(<span class="string">&quot;username.txt&quot;</span>)?.<span class="title function_ invoke__">read_to_string</span>(&amp;<span class="keyword">mut</span> s)?;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_username_verbose</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">String</span>, io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">s</span> = <span class="type">String</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">f</span> = <span class="keyword">match</span> File::<span class="title function_ invoke__">open</span>(<span class="string">&quot;username.txt&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(file) =&gt; file,</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; <span class="keyword">return</span> <span class="title function_ invoke__">Err</span>(e),</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">match</span> f.<span class="title function_ invoke__">read_to_string</span>(&amp;<span class="keyword">mut</span> s) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="title function_ invoke__">Ok</span>(s),</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(e) =&gt; <span class="title function_ invoke__">Err</span>(e),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="错误类型自动转换"><a href="#错误类型自动转换" class="headerlink" title="错误类型自动转换"></a>错误类型自动转换</h4><p>当使用 <code>?</code> 时，错误类型会自动通过 <code>From</code> trait 转换。这意味着可以组合不同来源的错误，只要能被转换到同一个错误类型。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::num::ParseIntError;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">Io</span>(io::Error),</span><br><span class="line">    <span class="title function_ invoke__">Parse</span>(ParseIntError),</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;io::Error&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(e: io::Error) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Io</span>(e)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;ParseIntError&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(e: ParseIntError) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Parse</span>(e)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_and_parse</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">i32</span>, MyError&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = std::fs::<span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;data.txt&quot;</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">num</span> = content.<span class="title function_ invoke__">trim</span>().<span class="title function_ invoke__">parse</span>()?;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(num)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Option-枚举：处理”空值”"><a href="#Option-枚举：处理”空值”" class="headerlink" title="Option 枚举：处理”空值”"></a><code>Option</code> 枚举：处理”空值”</h3><p><code>Option</code> 虽不直接表示”错误”，但用于处理”可能没有值”的场景（避免空指针异常）；可认为 <code>Option</code> 是 <code>Result</code> 的一个简化版本（错误类型固定为 <code>()</code>）。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">Option</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="title function_ invoke__">Some</span>(T), <span class="comment">// 有值：包含具体值（类型为 T）</span></span><br><span class="line">    <span class="literal">None</span>,    <span class="comment">// 无值：表示&quot;空&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="Option-的常用方法"><a href="#Option-的常用方法" class="headerlink" title="Option 的常用方法"></a>Option 的常用方法</h4><table>
-<thead>
-<tr>
-<th>方法</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>is_some() / is_none()</code></td>
-<td>检查是否有值</td>
-</tr>
-<tr>
-<td><code>unwrap()</code></td>
-<td>直接取值（若为 None 则 panic）</td>
-</tr>
-<tr>
-<td><code>unwrap_or(default)</code></td>
-<td>若为 None 返回默认值</td>
-</tr>
-<tr>
-<td><code>unwrap_or_else(f)</code></td>
-<td>若为 None 执行函数返回值</td>
-</tr>
-<tr>
-<td><code>map(f)</code></td>
-<td>映射 Some 中的值</td>
-</tr>
-<tr>
-<td><code>and_then(f)</code></td>
-<td>链式操作，f 返回 Option</td>
-</tr>
-<tr>
-<td><code>ok_or(err)</code></td>
-<td>转换为 Result</td>
-</tr>
-<tr>
-<td><code>filter(pred)</code></td>
-<td>条件筛选</td>
-</tr>
-</tbody></table>
-<h4 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">find_user</span>(id: <span class="type">u32</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> id == <span class="number">1</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">Some</span>(<span class="string">&quot;Alice&quot;</span>.<span class="title function_ invoke__">to_string</span>()) <span class="comment">// 找到用户</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="literal">None</span> <span class="comment">// 未找到用户</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 方式 1：match 匹配</span></span><br><span class="line">    <span class="keyword">match</span> <span class="title function_ invoke__">find_user</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">Some</span>(name) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;找到用户：&#123;&#125;&quot;</span>, name),</span><br><span class="line">        <span class="literal">None</span> =&gt; <span class="built_in">println!</span>(<span class="string">&quot;用户不存在&quot;</span>),</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式 2：? 运算符（需函数返回 Option）</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(user) = <span class="title function_ invoke__">find_user</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;用户：&#123;&#125;&quot;</span>, user);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式 3：map 链式处理</span></span><br><span class="line">    <span class="title function_ invoke__">find_user</span>(<span class="number">1</span>)</span><br><span class="line">        .<span class="title function_ invoke__">map</span>(|name| <span class="built_in">println!</span>(<span class="string">&quot;找到用户：&#123;&#125;&quot;</span>, name))</span><br><span class="line">        .<span class="title function_ invoke__">unwrap_or_else</span>(|| <span class="built_in">println!</span>(<span class="string">&quot;用户不存在&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="自定义错误类型"><a href="#自定义错误类型" class="headerlink" title="自定义错误类型"></a>自定义错误类型</h3><h4 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h4><p>自定义错误类型需要满足：</p>
-<ul>
-<li>必须实现 <code>std::error::Error</code> trait：使其成为标准错误类型；</li>
-<li>必须实现 <code>std::fmt::Display</code> trait：以提供用户友好的错误信息。</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fmt;</span><br><span class="line"><span class="keyword">use</span> std::error::Error;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义错误枚举：包含两种错误类型</span></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">enum</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">Io</span>(io::Error),           <span class="comment">// 包装 IO 错误</span></span><br><span class="line">    <span class="title function_ invoke__">Parse</span>(<span class="type">String</span>),           <span class="comment">// 解析错误（携带错误信息）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 Display trait：定义错误的用户可见信息</span></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">fmt</span>::Display <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">fmt</span>(&amp;<span class="keyword">self</span>, f: &amp;<span class="keyword">mut</span> fmt::Formatter&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> fmt::<span class="type">Result</span> &#123;</span><br><span class="line">        <span class="keyword">match</span> <span class="keyword">self</span> &#123;</span><br><span class="line">            MyError::<span class="title function_ invoke__">Io</span>(err) =&gt; <span class="built_in">write!</span>(f, <span class="string">&quot;IO error: &#123;&#125;&quot;</span>, err),</span><br><span class="line">            MyError::<span class="title function_ invoke__">Parse</span>(msg) =&gt; <span class="built_in">write!</span>(f, <span class="string">&quot;Parse error: &#123;&#125;&quot;</span>, msg),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 Error trait：标记为标准错误类型</span></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Error</span> <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="实现-From"><a href="#实现-From" class="headerlink" title="实现 From"></a>实现 <code>From</code></h4><p>为错误类型实现 <code>From</code>，这样就能使用 <code>?</code> 运算符自动转换错误。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;std::io::Error&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(err: std::io::Error) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Io</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">From</span>&lt;std::num::ParseIntError&gt; <span class="keyword">for</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">from</span>(err: std::num::ParseIntError) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        MyError::<span class="title function_ invoke__">Parse</span>(err.<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">read_number_from_file</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">i32</span>, MyError&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">content</span> = std::fs::<span class="title function_ invoke__">read_to_string</span>(<span class="string">&quot;data.txt&quot;</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">num</span> = content.<span class="title function_ invoke__">trim</span>().<span class="title function_ invoke__">parse</span>()?;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(num)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="三方库简化错误定义"><a href="#三方库简化错误定义" class="headerlink" title="三方库简化错误定义"></a>三方库简化错误定义</h4><p>手写 <code>Display</code>、<code>From</code> 很繁琐，Rust 社区提供了两个常用库。</p>
-<h5 id="thiserror（-derive-Error-）-定义结构化错误"><a href="#thiserror（-derive-Error-）-定义结构化错误" class="headerlink" title="thiserror（#[derive(Error)]）- 定义结构化错误"></a><code>thiserror</code>（<code>#[derive(Error)]</code>）- 定义结构化错误</h5><ul>
-<li><code>#[derive(Error, Debug)]</code>：自动生成 <code>Error</code> 和 <code>Debug</code> trait 的实现。</li>
-<li><code>#[error(&quot;消息模板&quot;)]</code>：定义 <code>Display</code> trait 的输出格式。</li>
-<li><code>#[from]</code>：自动实现 <code>From&amp;lt;T&amp;gt;</code> trait（<code>T</code> 是字段类型），允许通过 <code>?</code> 运算符将 <code>T</code> 类型的错误自动转换为当前自定义错误。</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> thiserror::Error;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug, Error)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">enum</span> <span class="title class_">MyError</span> &#123;</span><br><span class="line">    <span class="meta">#[error(<span class="string">&quot;IO error: &#123;0&#125;&quot;</span>)]</span></span><br><span class="line">    <span class="title function_ invoke__">Io</span>(<span class="meta">#[from]</span> std::io::Error),</span><br><span class="line">    </span><br><span class="line">    <span class="meta">#[error(<span class="string">&quot;Parse error: &#123;0&#125;&quot;</span>)]</span></span><br><span class="line">    <span class="title function_ invoke__">Parse</span>(<span class="meta">#[from]</span> std::num::ParseIntError),</span><br><span class="line">    </span><br><span class="line">    <span class="meta">#[error(<span class="string">&quot;Not found&quot;</span>)]</span></span><br><span class="line">    NotFound,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="anyhow-简化上层错误处理"><a href="#anyhow-简化上层错误处理" class="headerlink" title="anyhow - 简化上层错误处理"></a><code>anyhow</code> - 简化上层错误处理</h5><ul>
-<li><code>anyhow::Result&amp;lt;T&amp;gt;</code> 实际是 <code>Result&amp;lt;T, anyhow::Error&amp;gt;</code></li>
-<li>可容纳任何实现 <code>Error</code> trait 的类型，无需手动转换</li>
-<li><code>context</code> 方法会将原始错误，并添加额外描述，便于追踪错误发生的场景。</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> anyhow::&#123;<span class="type">Result</span>, Context&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数返回 anyhow::Error，可容纳任何实现 Error trait 的类型</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">test_anyhow</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    <span class="title function_ invoke__">test_my_error</span>()</span><br><span class="line">        .<span class="title function_ invoke__">context</span>(<span class="string">&quot;test failed&quot;</span>)?; <span class="comment">// 为错误添加上下文</span></span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="不可恢复错误（panic-）"><a href="#不可恢复错误（panic-）" class="headerlink" title="不可恢复错误（panic!）"></a>不可恢复错误（panic!）</h2><p>当程序遇到不可恢复的错误（如违反内存安全、逻辑断言失败）时，使用 <code>panic!</code> 宏触发程序终止。默认会导致程序终止，但在某些场景下（如隔离第三方库的崩溃、实现容错机制），我们需要”安全捕获” <code>panic</code> 以避免程序整体崩溃。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">divide</span>(a: <span class="type">i32</span>, b: <span class="type">i32</span>) <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> b == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">panic!</span>(<span class="string">&quot;除数不能为 0&quot;</span>); <span class="comment">// 逻辑错误：不允许除 0</span></span><br><span class="line">    &#125;</span><br><span class="line">    a / b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Panic-的执行流程"><a href="#Panic-的执行流程" class="headerlink" title="Panic 的执行流程"></a>Panic 的执行流程</h3><p>当 <code>panic!</code> 被触发时，Rust 默认会执行”栈展开”（可在 <code>Cargo.toml</code> 中添加 <code>panic = &quot;abort&quot;</code> 直接终止，不进行展开）：</p>
-<ul>
-<li>从 <code>panic!</code> 发生的位置开始，沿着调用栈向上回溯。</li>
-<li>依次调用每个栈帧中局部变量的析构函数（清理资源，如关闭文件、释放锁等）。</li>
-<li>最终打印错误信息（包含 <code>panic!</code> 的位置和消息）并终止程序。</li>
-</ul>
-<p>这种行为保证了”资源安全” —— 即使程序崩溃，也不会泄露资源。</p>
-<h3 id="catch-unwind"><a href="#catch-unwind" class="headerlink" title="catch_unwind"></a><code>catch_unwind</code></h3><p><code>catch_unwind</code> 接收一个闭包作为参数，返回 <code>Result&lt;(), Box&lt;dyn Any + Send&gt;&gt;</code>：</p>
-<ul>
-<li>若闭包执行中未发生 <code>panic</code>，返回 <code>Ok(())</code>。</li>
-<li>若发生 <code>panic</code>，返回 <code>Err(cause)</code>，其中 <code>cause</code> 是 <code>panic!</code> 传递的值（包装为 <code>Box&lt;dyn Any + Send&gt;</code>）。</li>
-</ul>
-<h4 id="基本使用示例"><a href="#基本使用示例" class="headerlink" title="基本使用示例"></a>基本使用示例</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::panic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 捕获闭包中的 panic</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">result</span> = panic::<span class="title function_ invoke__">catch_unwind</span>(|| &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;执行可能 panic 的代码&quot;</span>);</span><br><span class="line">        <span class="built_in">panic!</span>(<span class="string">&quot;发生错误！&quot;</span>); <span class="comment">// 触发 panic</span></span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 处理捕获结果</span></span><br><span class="line">    <span class="keyword">match</span> result &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;未发生 panic&quot;</span>),</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(cause) =&gt; &#123;</span><br><span class="line">            <span class="comment">// 将 cause 转换为具体类型（通常是 &amp;str 或 String）</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(msg) = cause.downcast_ref::&lt;&amp;<span class="type">str</span>&gt;() &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;捕获到 panic：&#123;&#125;&quot;</span>, msg);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(msg) = cause.downcast_ref::&lt;<span class="type">String</span>&gt;() &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;捕获到 panic：&#123;&#125;&quot;</span>, msg);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;捕获到未知类型的 panic&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="catch-unwind-的限制"><a href="#catch-unwind-的限制" class="headerlink" title="catch_unwind 的限制"></a><code>catch_unwind</code> 的限制</h4><p><code>catch_unwind</code> 并非万能，存在以下关键限制：</p>
-<ul>
-<li><strong>仅能捕获”栈展开”的 panic</strong>：若程序配置为 <code>panic = &quot;abort&quot;</code>，<code>catch_unwind</code> 无法捕获（因为不会触发栈展开）。</li>
-<li><strong>无法捕获所有终止情况</strong>：如调用 <code>std::process::abort()</code>、操作系统信号（如 <code>SIGKILL</code>）导致的终止，<code>catch_unwind</code> 无效。</li>
-<li><strong>闭包需满足 <code>Send</code> 约束</strong>：<code>catch_unwind</code> 的闭包参数要求 <code>FnOnce() + Send</code>，这意味着闭包中不能包含非 <code>Send</code> 类型（如 <code>Rc</code>、<code>RefCell</code> 等线程不安全类型）。</li>
-<li><strong>程序状态可能不稳定</strong>：<code>panic</code> 发生时，栈展开会清理局部资源，但全局状态、共享资源可能处于不一致状态（如部分更新的缓存）。捕获 <code>panic</code> 后需谨慎处理，避免依赖不稳定状态。</li>
-</ul>
-<h4 id="有效载荷-Payload"><a href="#有效载荷-Payload" class="headerlink" title="有效载荷 (Payload)"></a>有效载荷 (Payload)</h4><p><code>panic!()</code> 可以携带 <code>&amp;&#39;static str</code> 或 <code>String</code> 等任意 <code>Any + Send</code> 类型作为 payload。捕获后可以尝试 <code>downcast_ref</code> 来读取消息：</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::panic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Err</span>(payload) = panic::<span class="title function_ invoke__">catch_unwind</span>(|| <span class="built_in">panic!</span>(<span class="string">&quot;oh no&quot;</span>)) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(s) = payload.downcast_ref::&lt;&amp;<span class="type">str</span>&gt;() &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;&amp;str payload: &#123;&#125;&quot;</span>, s);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(s) = payload.downcast_ref::&lt;<span class="type">String</span>&gt;() &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;String payload: &#123;&#125;&quot;</span>, s);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;未知 payload 类型&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="资源与不变式"><a href="#资源与不变式" class="headerlink" title="资源与不变式"></a>资源与不变式</h4><p>当线程在持有 <code>Mutex</code> 时 panic，该 <code>Mutex</code> 会被标记为”poisoned”（污染）。随后 <code>lock()</code> 会返回 <code>PoisonError</code>，表示需要小心处理共享状态可能处于不一致状态。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">0</span>);</span><br><span class="line"><span class="comment">// 线程 panic 造成 poison 的示例请参见文档</span></span><br><span class="line"><span class="keyword">match</span> m.<span class="title function_ invoke__">lock</span>() &#123;</span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(<span class="keyword">mut</span> guard) =&gt; *guard += <span class="number">1</span>,</span><br><span class="line">    <span class="title function_ invoke__">Err</span>(poisoned) =&gt; &#123;</span><br><span class="line">        <span class="comment">// 取回锁仍然可用的数据，但知道它可能不一致</span></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = poisoned.<span class="title function_ invoke__">into_inner</span>();</span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li>**<code>Result&amp;lt;T, E&amp;gt;</code>**：用于处理可恢复错误，通过 <code>match</code>、<code>?</code>、链式方法灵活处理</li>
-<li>**<code>Option&amp;lt;T&amp;gt;</code>**：用于处理可能缺失的值，避免空指针问题</li>
-<li><strong><code>?</code> 运算符</strong>：最简洁的错误传播方式，配合 <code>From</code> trait 实现自动错误转换</li>
-<li><strong>自定义错误类型</strong>：实现 <code>Error</code> 和 <code>Display</code> trait，推荐使用 <code>thiserror</code> 库简化代码</li>
-<li>**<code>panic!</code>**：处理不可恢复错误，通过栈展开保证资源安全</li>
-<li>**<code>catch_unwind</code>**：在特定场景（如隔离第三方库）捕获 panic，但需注意其限制</li>
-</ul>
+<p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p>
+<p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p>
+<p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p>
+<p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>
 ]]></content>
       <tags>
         <tag>Rust</tag>
@@ -2909,20 +2923,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">run_sync_channel</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">sync_channel</span>(<span class="number">2</span>); <span class="comment">// 容量 2</span></span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">5</span> &#123;</span><br><span class="line">            tx.<span class="title function_ invoke__">send</span>(i).<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 当队列满时会阻塞</span></span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;发送: &#123;&#125;&quot;</span>, i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">v</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;接收: &#123;&#125;&quot;</span>, v);</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(std::time::Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">50</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="小结与参考"><a href="#小结与参考" class="headerlink" title="小结与参考"></a>小结与参考</h2><p>Rust 的线程与通道模型以所有权为核心，消息传递可以在不加锁的情况下安全地移动数据。对于性能和扩展性要求较高的场景，<code>crossbeam-channel</code> 是比标准库更好的选择；需要广播时选择合适的广播库。</p>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rust学习笔记</title>
-    <url>/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
-<span id="more"></span>
-<p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p>
-<p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p>
-<p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p>
-<p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>
 ]]></content>
       <tags>
         <tag>Rust</tag>
@@ -4695,7 +4695,7 @@ protected void onCreate(Bundle savedInstanceState) &#123;
   </entry>
   <entry>
     <title>什么是以太坊</title>
-    <url>/2025/12/02/%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A5%E5%A4%AA%E5%9D%8A/</url>
+    <url>/2025/08/02/%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A5%E5%A4%AA%E5%9D%8A/</url>
     <content><![CDATA[<h2 id="什么是以太坊"><a href="#什么是以太坊" class="headerlink" title="什么是以太坊"></a>什么是以太坊</h2><p>以太坊是一个 Layer 1 区块链，它作为一个开源的、分布式计算平台，用于开发和部署智能合约和去中心化应用（dApps）。它扩展了比特币提出的区块链技术的属性，强调安全性和去中心化，以扩展其用例。</p>
 <p>以太坊最初使用工作量证明（PoW）共识机制，但在 2022 年通过一项名为”The Merge”的升级过渡到权益证明（PoS）系统。这使其能源消耗降低了 99.95%，使以太坊成为一个低碳网络。</p>
 <p>以太币（ETH）是市值第二大的加密货币，是用以太坊区块链上交易的原生代币。</p>
@@ -4801,17 +4801,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>如何解决hexo首页显示博客的全部文章</title>
-    <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
-<span id="more"></span>
-
-<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p><code>首页在主题的_config.yml中把设置打开：（安装时默认就打开了） excerpt_description: true</code></p>
-<h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
-<h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
-]]></content>
-  </entry>
-  <entry>
     <title>函数响应式编程——RxJava</title>
     <url>/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/</url>
     <content><![CDATA[<p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
@@ -4830,6 +4819,17 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       <tags>
         <tag>RxJava</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>如何解决hexo首页显示博客的全部文章</title>
+    <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
+<span id="more"></span>
+
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p><code>首页在主题的_config.yml中把设置打开：（安装时默认就打开了） excerpt_description: true</code></p>
+<h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
+<h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
+]]></content>
   </entry>
   <entry>
     <title>比特币的输入输出详解</title>
