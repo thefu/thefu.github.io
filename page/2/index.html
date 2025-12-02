@@ -186,6 +186,78 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/" class="post-title-link" itemprop="url">Rust中Protobuf使用简介</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-01-26 19:33:37" itemprop="dateCreated datePublished" datetime="2024-01-26T19:33:37+08:00">2024-01-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-11-26 22:41:08" itemprop="dateModified" datetime="2025-11-26T22:41:08+08:00">2025-11-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Protobuf（Protocol Buffers）是 Google 推出的高效序列化协议。Rust中，prost 是最主流的 Protobuf 实现，提供了编译期代码生成和运行时序列化&#x2F;反序列化能力。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/01/26/Rust%E4%B8%ADProtobuf%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -842,84 +914,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/" class="post-title-link" itemprop="url">redis 相关知识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-24 13:40:16" itemprop="dateCreated datePublished" datetime="2023-05-24T13:40:16+08:00">2023-05-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-24 13:50:09" itemprop="dateModified" datetime="2023-06-24T13:50:09+08:00">2023-06-24</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
-<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
-<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
-<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
-<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
-<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -989,7 +983,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

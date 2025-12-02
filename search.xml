@@ -23,6 +23,20 @@
       </tags>
   </entry>
   <entry>
+    <title>APP性能优化的一些建议</title>
+    <url>/2022/10/15/APP%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BB%BA%E8%AE%AE/</url>
+    <content><![CDATA[<p>除了利用性能测试工具分析性能应用，寻找优化控件，开发者在开发过程中，就应该注意一些性能优化技巧，养成良好的开发习惯，减轻性能优化的负担。下面是一些优化建议：</p>
+<span id="more"></span>
+<p>1.在LinearLayout和RelativeLayout都可以完成布局的情况下优先选择LinearLayout，可以减少View的层级，但是注意相同组件可能RelativeLayout绘制时间长<br>2.onDraw中不要创建新的局部对象，onDraw方法中不要做耗时的任务<br>3.不要在主线程进行网络访问&#x2F;大文件的IO操作<br>4.绘制UI时，尽量减少绘制UI层次；减少不必要的view嵌套<br>5.当我们的布局是用的FrameLayout的时候，我们可以把它改成merge，可以避免自己的帧布局和系统的ContentFrameLayout帧布局重叠造成重复计算（measure和layout）<br>6.在view层级相同的情况下，尽量使用LinearLayout而不是RelativeLayout；因为RelativeLayout在测量的时候会测量两次，而LinearLayout测量一次<br>7.删除控件中无用的属性<br>8.布局复用，比如listview布局复用<br>9.尽量避免过度绘制（overdraw）比如：背景经常容易造成过度绘制，由于我们布局设置了背景，溶蚀用到MaterialDesign的主题会默认给一个背景。这时应该把主题添加的背景去掉；还有移除XML中非必须的背景<br>10.自定义view优化，使用canvas.clipRect()来帮助系统识别那些可见的区域，只有在这个区域内才会被绘制。也是避免过度绘制。<br>11.启动优化，启动速度的监控，发现影响启动速度的问题所在，优化启动逻辑，提高应用的启动速度。比如闪屏页面，合理优化布局，加载逻辑优化，数据准备。<br>12.合理的刷新机制，尽量减少刷新次数，尽量避免后台有高的CPU线程运行，缩小刷新区域。</p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Android developer 必备的几个资源</title>
     <url>/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/</url>
     <content><![CDATA[<p>作为一名合格的 Android Coder，除了认真工作，写出优秀代码外，我们还需要在日新月异的技术栈中找到有用的资源，来装备自己，开阔视野。希望以下的资源对大家有用。</p>
@@ -92,20 +106,6 @@
 <p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;WindowManager.java的内部类LayoutParams extends ViewGroup.LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams() {<br>            super(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);<br>            ……<br>        }</p>
 <p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;ViewGroup.java内部类LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams(int width, int height) {<br>            this.width &#x3D; width;<br>            this.height &#x3D; height;<br>        }&#96;<br>该参数表示的是PhoneWindow的LayoutParams属性，其width和height值均为LayoutParmas.MATCH_PARENT。<br>在源码中，WindowPhone和DecorView通过组合方法联系在一起的，而DecorView是整个View体系的根View。在前面handleResumeActivity()方法代码片段中，当Activity启动后，就通过第14行的addView方法，来间接调用ViewRootImpl类中的performTraversals()，从而实现视图的绘制。</p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>APP性能优化的一些建议</title>
-    <url>/2022/10/15/APP%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BB%BA%E8%AE%AE/</url>
-    <content><![CDATA[<p>除了利用性能测试工具分析性能应用，寻找优化控件，开发者在开发过程中，就应该注意一些性能优化技巧，养成良好的开发习惯，减轻性能优化的负担。下面是一些优化建议：</p>
-<span id="more"></span>
-<p>1.在LinearLayout和RelativeLayout都可以完成布局的情况下优先选择LinearLayout，可以减少View的层级，但是注意相同组件可能RelativeLayout绘制时间长<br>2.onDraw中不要创建新的局部对象，onDraw方法中不要做耗时的任务<br>3.不要在主线程进行网络访问&#x2F;大文件的IO操作<br>4.绘制UI时，尽量减少绘制UI层次；减少不必要的view嵌套<br>5.当我们的布局是用的FrameLayout的时候，我们可以把它改成merge，可以避免自己的帧布局和系统的ContentFrameLayout帧布局重叠造成重复计算（measure和layout）<br>6.在view层级相同的情况下，尽量使用LinearLayout而不是RelativeLayout；因为RelativeLayout在测量的时候会测量两次，而LinearLayout测量一次<br>7.删除控件中无用的属性<br>8.布局复用，比如listview布局复用<br>9.尽量避免过度绘制（overdraw）比如：背景经常容易造成过度绘制，由于我们布局设置了背景，溶蚀用到MaterialDesign的主题会默认给一个背景。这时应该把主题添加的背景去掉；还有移除XML中非必须的背景<br>10.自定义view优化，使用canvas.clipRect()来帮助系统识别那些可见的区域，只有在这个区域内才会被绘制。也是避免过度绘制。<br>11.启动优化，启动速度的监控，发现影响启动速度的问题所在，优化启动逻辑，提高应用的启动速度。比如闪屏页面，合理优化布局，加载逻辑优化，数据准备。<br>12.合理的刷新机制，尽量减少刷新次数，尽量避免后台有高的CPU线程运行，缩小刷新区域。</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
   </entry>
   <entry>
     <title>Android之碎片Fragment</title>
@@ -292,7 +292,7 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <span id="more"></span>
 <h2 id="什么是github？"><a href="#什么是github？" class="headerlink" title="什么是github？"></a>什么是github？</h2><p>GitHub是一个在线软件源代码托管服务平台，使用Git作为版本控制软件，是世界上最大的代码托管网站和开源社区。我们使用的是github上的一个服务，GitHub Pages，它是由GitHub提供的一个网页寄存服务，可以用于存放静态网页，包括博客，项目文档甚至整本书。一般GitHub Pages使用github.io的子域名，但是用户也可以使用第三方域名。</p>
 <h2 id="搭建步骤："><a href="#搭建步骤：" class="headerlink" title="搭建步骤："></a>搭建步骤：</h2><h3 id="1-GitHub创建个人仓库"><a href="#1-GitHub创建个人仓库" class="headerlink" title="1.GitHub创建个人仓库"></a>1.GitHub创建个人仓库</h3><p>登录到GitHub，如果没有GitHub账号，使用你的邮箱注册GitHub账号，点击GitHub中的New repository创建新仓库，仓库名应该为：“用户名.github.io”这个用户名使用你的github账号名称代替，这是一个相对固定的写法。</p>
-<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#98;&#46;&#x63;&#111;&#x6d;">&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#98;&#46;&#x63;&#111;&#x6d;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
+<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#x67;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#111;&#109;">&#x67;&#x69;&#116;&#x40;&#x67;&#x69;&#x74;&#104;&#117;&#98;&#x2e;&#x63;&#111;&#109;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
 <h3 id="3-安装Node-js"><a href="#3-安装Node-js" class="headerlink" title="3.安装Node.js"></a>3.安装Node.js</h3><p>Hexo基于Node.js，<a href="https://nodejs.org/en/download/">Node.js下载地址</a>，注意安装node.js会包含环境变量及npm的安装，安装后，检测node.js是否安装成功，在命令行输入node -v，检测npm是否安装成功，npm -v<br>到这儿，安装Hexo的环境已经全部搭建完成。</p>
 <h3 id="4-安装Hexo"><a href="#4-安装Hexo" class="headerlink" title="4.安装Hexo"></a>4.安装Hexo</h3><p>hexo就是我们的个人博客网站的框架，这里需要自己在电脑里创建一个文件夹，可以命名为Blog，Hexo框架与以后你自己发布的网页都在这个文件夹中，创建好后，进入文件夹中，打开命令行窗口。<br>使用npm命令安装Hexo，输入：<br>npm install -g hexo-cli<br>这个安装时间较长耐心等待，安装完成后，初始化我们的博客，输入：<br>hexo init blog<br>注意：这里的命令都是作用在刚刚创建的blog文件夹中。<br>在命令行中输入启动命令：<br>hexo server<br>打开浏览器哦网址可以看到网站的样式</p>
 <h3 id="5-推送网站"><a href="#5-推送网站" class="headerlink" title="5.推送网站"></a>5.推送网站</h3><p>上面只是在本地预览，接下来要做的就是推送网站，也就是发布网站，让我们的网站可以被更多人访问到。在设置之前，需要解释一个概念，在blog根目录里的_config.yml文件称为站点配置文件<br>进入themes文件夹，里面也有个_config.yml文件，这个称为主题配置文件<br>现在需要做的是将我们的Hexo和GitHub关联起来，打开站点的配置文件_config.yml，翻到最后修改为：<br>deploy:<br>type: git<br>repo: 这里填入你之前在GitHub上创建仓库的完整历经，记得加上.git<br>branch: master<br>保存站点配置文件。<br>其实就是给hexo d这个命令做相应的配置，让hexo知道你要把blog部署在哪个位置，很显然，我们部署在我们GitHub的仓库里，最后安装git部署插件，输入命令：<br>npm install hexo-deployer-git –save<br>这时，我们分别输入三条命令：<br>hexo clean<br>hexo g<br>hexo d<br>其实第三条hexo d就是部署网站的命令，d是deploy的缩写，完成后，打开浏览器，在地址栏输入你的放置个人网站的仓库路径，你就可以发现你的博客已经上线了，可以在网络上被访问到。</p>
@@ -3064,6 +3064,82 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>Rust智能指针</title>
+    <url>/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</url>
+    <content><![CDATA[<p>Rust的智能指针：内存管理的利器</p>
+<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
+<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
+<span id="more"></span>
+
+<h2 id="什么是智能指针？"><a href="#什么是智能指针？" class="headerlink" title="什么是智能指针？"></a>什么是智能指针？</h2><p>智能指针是一个包装类型，它模拟了传统指针的行为，并且提供了一些额外的功能，尤其是与内存管理相关的功能。在Rust中，智能指针通常实现了Drop trait，这意味着它们能够在生命周期结束时自动清理资源。</p>
+<p>Rust中的智能指针常见的有以下几种：</p>
+<ul>
+<li><strong>Box<T></T></strong></li>
+<li><strong>Rc<T></T></strong> 和 <strong>Arc<T></T></strong></li>
+<li><strong>RefCell<T></T></strong> 和 <strong>Mutex<T></T></strong></li>
+</ul>
+<ol>
+<li>Box<T> — 在堆上分配内存</T></li>
+</ol>
+<p>Box<T>是Rust最基本的智能指针之一，它用于在堆上分配内存并存储数据。Box通过所有权系统管理堆上的数据，确保在Box离开作用域时自动清理内存。</T></p>
+<p><strong>示例</strong></p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>); <span class="comment">// 在堆上分配整数 5</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;b = &#123;&#125;&quot;</span>, b);</span><br><span class="line">&#125; <span class="comment">// 当 b 离开作用域时，堆上的内存会自动被释放</span></span><br></pre></td></tr></table></figure>
+
+
+<p>在这个例子中，Box::new(5)会在堆上为整数5分配内存，并返回一个指向该内存的Box。当b离开作用域时，Box会自动释放堆上的内存，避免内存泄漏。</p>
+<p>使用场景</p>
+<ul>
+<li>当你想要在堆上存储大对象（例如大型数组或结构体）时，<code>Box&lt;T&gt;</code> 是非常有用的。</li>
+<li>当你需要拥有数据的唯一所有权时，Box 是一个简洁的解决方案。</li>
+</ul>
+<h3 id="2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数"><a href="#2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数" class="headerlink" title="2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数"></a>2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数</h3><p>Rc<T>（Reference Counted）和Arc<T>（Atomic Reference Counted）都实现了引用计数智能指针，用于共享内存。与Box<T>不同，Rc<T>和Arc<T>允许多个所有者共享对数据的引用。</T></T></T></T></T></p>
+<ul>
+<li><code>Rc&lt;T&gt;</code>：在单线程中使用，性能较高。</li>
+<li><code>Arc&lt;T&gt;</code>：线程安全的版本，适用于多线程环境。</li>
+</ul>
+<h4 id="示例：使用Rc-lt-T-gt"><a href="#示例：使用Rc-lt-T-gt" class="headerlink" title="示例：使用Rc&lt;T&gt;"></a>示例：使用Rc&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hello, world!&quot;</span>));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = Rc::<span class="title function_ invoke__">clone</span>(&amp;s); <span class="comment">// 克隆 Rc，增加引用计数</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;s = &#123;&#125;, s2 = &#123;&#125;&quot;</span>, s, s2);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Reference count: &#123;&#125;&quot;</span>, Rc::<span class="title function_ invoke__">strong_count</span>(&amp;s)); <span class="comment">// 打印引用计数</span></span><br><span class="line">&#125; <span class="comment">// 当所有 Rc 指针离开作用域时，内存会被释放</span></span><br></pre></td></tr></table></figure>
+
+<p>使用场景</p>
+<ul>
+<li><code>Rc&lt;T&gt;</code> 适合用于需要多个所有者共享数据的场景，且只在单线程环境中使用。</li>
+<li><code>Arc&lt;T&gt;</code> 适用于多线程环境，允许多个线程共享数据，确保线程安全。</li>
+</ul>
+<h3 id="3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性"><a href="#3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性" class="headerlink" title="3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性"></a>3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性</h3><p>虽然Rust的所有权和借用系统通常不允许同时存在多个可变引用，但通过智能指针，我们可以绕过这一限制，提供内部可变性。</p>
+<ul>
+<li><code>RefCell&lt;T&gt;</code>：允许在单线程中进行可变借用，提供运行时的借用检查。</li>
+<li><code>Mutex&lt;T&gt;</code>：提供多线程中的内部可变性，确保数据在多个线程之间的安全共享。</li>
+</ul>
+<h4 id="示例：使用RefCell-lt-T-gt"><a href="#示例：使用RefCell-lt-T-gt" class="headerlink" title="示例：使用RefCell&lt;T&gt;"></a>示例：使用RefCell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::RefCell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = RefCell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    *x.<span class="title function_ invoke__">borrow_mut</span>() = <span class="number">10</span>; <span class="comment">// 可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>()); <span class="comment">// 不可变借用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在这个例子中，RefCell允许我们通过borrow_mut()方法进行可变借用，并在运行时检查借用规则。</p>
+<h4 id="示例：使用Mutex-lt-T-gt"><a href="#示例：使用Mutex-lt-T-gt" class="headerlink" title="示例：使用Mutex&lt;T&gt;"></a>示例：使用Mutex&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 获取锁</span></span><br><span class="line">        *num = <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;m = &#123;&#125;&quot;</span>, m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Mutex<T>确保在多线程环境中，只有一个线程能访问数据，避免数据竞争。</T></p>
+<p><strong>使用场景</strong></p>
+<ul>
+<li><code>RefCell&lt;T&gt;</code> 适合用于需要动态检查和管理可变借用的单线程应用。</li>
+<li><code>Mutex&lt;T&gt;</code> 用于多线程环境下，确保数据的线程安全访问。</li>
+</ul>
+<h3 id="4-Cell-lt-T-gt-—-简单的内部可变性"><a href="#4-Cell-lt-T-gt-—-简单的内部可变性" class="headerlink" title="4. Cell&lt;T&gt; — 简单的内部可变性"></a>4. Cell&lt;T&gt; — 简单的内部可变性</h3><p>Cell<T>提供了一种非常轻量级的方式来实现内部可变性，适用于无需引用的情况下存储数据。它通常用于存储基本类型数据，如整数、布尔值等。</T></p>
+<h4 id="示例：使用Cell-lt-T-gt"><a href="#示例：使用Cell-lt-T-gt" class="headerlink" title="示例：使用Cell&lt;T&gt;"></a>示例：使用Cell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::Cell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = Cell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    x.<span class="title function_ invoke__">set</span>(<span class="number">10</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">get</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用场景</p>
+<p><code>Cell&lt;T&gt;</code> 适合在单线程中提供简单的可变数据存储，尤其是对于基础数据类型。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Rust的智能指针提供了强大的内存管理能力，它们在确保内存安全的同时，也使得我们能够更灵活地操作数据。在Rust中，智能指针不仅仅是内存管理的工具，更是借用和所有权系统的核心组成部分，它们帮助开发者避免内存泄漏和数据竞争的问题。</p>
+<ul>
+<li>**Box<T>**：适用于堆分配数据，拥有唯一所有权。</T></li>
+<li><strong>Rc<T></T></strong> 和 **Arc<T>**：适用于共享数据，提供引用计数。</T></li>
+<li><strong>RefCell<T></T></strong> 和 **Mutex<T>**：提供内部可变性，支持单线程和多线程场景。</T></li>
+<li>**Cell<T>**：适用于简单类型的数据存储，支持内部可变性。</T></li>
+</ul>
+<p>通过合理选择合适的智能指针，我们可以写出既高效又安全的Rust程序。</p>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust编译参数与优化控制</title>
     <url>/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/</url>
     <content><![CDATA[<p>Rust 的核心工具包括：</p>
@@ -3608,82 +3684,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <li>理解 <code>opt-level</code>、<code>lto</code>、<code>codegen-units</code> 等参数可以精细调优性能和体积</li>
 <li>使用 <code>cargo build -v</code> 可以看到实际的 rustc 命令，便于学习和调试</li>
 </ul>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rust智能指针</title>
-    <url>/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</url>
-    <content><![CDATA[<p>Rust的智能指针：内存管理的利器</p>
-<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
-<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
-<span id="more"></span>
-
-<h2 id="什么是智能指针？"><a href="#什么是智能指针？" class="headerlink" title="什么是智能指针？"></a>什么是智能指针？</h2><p>智能指针是一个包装类型，它模拟了传统指针的行为，并且提供了一些额外的功能，尤其是与内存管理相关的功能。在Rust中，智能指针通常实现了Drop trait，这意味着它们能够在生命周期结束时自动清理资源。</p>
-<p>Rust中的智能指针常见的有以下几种：</p>
-<ul>
-<li><strong>Box<T></T></strong></li>
-<li><strong>Rc<T></T></strong> 和 <strong>Arc<T></T></strong></li>
-<li><strong>RefCell<T></T></strong> 和 <strong>Mutex<T></T></strong></li>
-</ul>
-<ol>
-<li>Box<T> — 在堆上分配内存</T></li>
-</ol>
-<p>Box<T>是Rust最基本的智能指针之一，它用于在堆上分配内存并存储数据。Box通过所有权系统管理堆上的数据，确保在Box离开作用域时自动清理内存。</T></p>
-<p><strong>示例</strong></p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>); <span class="comment">// 在堆上分配整数 5</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;b = &#123;&#125;&quot;</span>, b);</span><br><span class="line">&#125; <span class="comment">// 当 b 离开作用域时，堆上的内存会自动被释放</span></span><br></pre></td></tr></table></figure>
-
-
-<p>在这个例子中，Box::new(5)会在堆上为整数5分配内存，并返回一个指向该内存的Box。当b离开作用域时，Box会自动释放堆上的内存，避免内存泄漏。</p>
-<p>使用场景</p>
-<ul>
-<li>当你想要在堆上存储大对象（例如大型数组或结构体）时，<code>Box&lt;T&gt;</code> 是非常有用的。</li>
-<li>当你需要拥有数据的唯一所有权时，Box 是一个简洁的解决方案。</li>
-</ul>
-<h3 id="2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数"><a href="#2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数" class="headerlink" title="2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数"></a>2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数</h3><p>Rc<T>（Reference Counted）和Arc<T>（Atomic Reference Counted）都实现了引用计数智能指针，用于共享内存。与Box<T>不同，Rc<T>和Arc<T>允许多个所有者共享对数据的引用。</T></T></T></T></T></p>
-<ul>
-<li><code>Rc&lt;T&gt;</code>：在单线程中使用，性能较高。</li>
-<li><code>Arc&lt;T&gt;</code>：线程安全的版本，适用于多线程环境。</li>
-</ul>
-<h4 id="示例：使用Rc-lt-T-gt"><a href="#示例：使用Rc-lt-T-gt" class="headerlink" title="示例：使用Rc&lt;T&gt;"></a>示例：使用Rc&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hello, world!&quot;</span>));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = Rc::<span class="title function_ invoke__">clone</span>(&amp;s); <span class="comment">// 克隆 Rc，增加引用计数</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;s = &#123;&#125;, s2 = &#123;&#125;&quot;</span>, s, s2);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Reference count: &#123;&#125;&quot;</span>, Rc::<span class="title function_ invoke__">strong_count</span>(&amp;s)); <span class="comment">// 打印引用计数</span></span><br><span class="line">&#125; <span class="comment">// 当所有 Rc 指针离开作用域时，内存会被释放</span></span><br></pre></td></tr></table></figure>
-
-<p>使用场景</p>
-<ul>
-<li><code>Rc&lt;T&gt;</code> 适合用于需要多个所有者共享数据的场景，且只在单线程环境中使用。</li>
-<li><code>Arc&lt;T&gt;</code> 适用于多线程环境，允许多个线程共享数据，确保线程安全。</li>
-</ul>
-<h3 id="3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性"><a href="#3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性" class="headerlink" title="3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性"></a>3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性</h3><p>虽然Rust的所有权和借用系统通常不允许同时存在多个可变引用，但通过智能指针，我们可以绕过这一限制，提供内部可变性。</p>
-<ul>
-<li><code>RefCell&lt;T&gt;</code>：允许在单线程中进行可变借用，提供运行时的借用检查。</li>
-<li><code>Mutex&lt;T&gt;</code>：提供多线程中的内部可变性，确保数据在多个线程之间的安全共享。</li>
-</ul>
-<h4 id="示例：使用RefCell-lt-T-gt"><a href="#示例：使用RefCell-lt-T-gt" class="headerlink" title="示例：使用RefCell&lt;T&gt;"></a>示例：使用RefCell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::RefCell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = RefCell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    *x.<span class="title function_ invoke__">borrow_mut</span>() = <span class="number">10</span>; <span class="comment">// 可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>()); <span class="comment">// 不可变借用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>在这个例子中，RefCell允许我们通过borrow_mut()方法进行可变借用，并在运行时检查借用规则。</p>
-<h4 id="示例：使用Mutex-lt-T-gt"><a href="#示例：使用Mutex-lt-T-gt" class="headerlink" title="示例：使用Mutex&lt;T&gt;"></a>示例：使用Mutex&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 获取锁</span></span><br><span class="line">        *num = <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;m = &#123;&#125;&quot;</span>, m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Mutex<T>确保在多线程环境中，只有一个线程能访问数据，避免数据竞争。</T></p>
-<p><strong>使用场景</strong></p>
-<ul>
-<li><code>RefCell&lt;T&gt;</code> 适合用于需要动态检查和管理可变借用的单线程应用。</li>
-<li><code>Mutex&lt;T&gt;</code> 用于多线程环境下，确保数据的线程安全访问。</li>
-</ul>
-<h3 id="4-Cell-lt-T-gt-—-简单的内部可变性"><a href="#4-Cell-lt-T-gt-—-简单的内部可变性" class="headerlink" title="4. Cell&lt;T&gt; — 简单的内部可变性"></a>4. Cell&lt;T&gt; — 简单的内部可变性</h3><p>Cell<T>提供了一种非常轻量级的方式来实现内部可变性，适用于无需引用的情况下存储数据。它通常用于存储基本类型数据，如整数、布尔值等。</T></p>
-<h4 id="示例：使用Cell-lt-T-gt"><a href="#示例：使用Cell-lt-T-gt" class="headerlink" title="示例：使用Cell&lt;T&gt;"></a>示例：使用Cell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::Cell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = Cell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    x.<span class="title function_ invoke__">set</span>(<span class="number">10</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">get</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用场景</p>
-<p><code>Cell&lt;T&gt;</code> 适合在单线程中提供简单的可变数据存储，尤其是对于基础数据类型。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Rust的智能指针提供了强大的内存管理能力，它们在确保内存安全的同时，也使得我们能够更灵活地操作数据。在Rust中，智能指针不仅仅是内存管理的工具，更是借用和所有权系统的核心组成部分，它们帮助开发者避免内存泄漏和数据竞争的问题。</p>
-<ul>
-<li>**Box<T>**：适用于堆分配数据，拥有唯一所有权。</T></li>
-<li><strong>Rc<T></T></strong> 和 **Arc<T>**：适用于共享数据，提供引用计数。</T></li>
-<li><strong>RefCell<T></T></strong> 和 **Mutex<T>**：提供内部可变性，支持单线程和多线程场景。</T></li>
-<li>**Cell<T>**：适用于简单类型的数据存储，支持内部可变性。</T></li>
-</ul>
-<p>通过合理选择合适的智能指针，我们可以写出既高效又安全的Rust程序。</p>
 ]]></content>
       <tags>
         <tag>Rust</tag>
@@ -4694,6 +4694,60 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>什么是以太坊</title>
+    <url>/2025/12/02/%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A5%E5%A4%AA%E5%9D%8A/</url>
+    <content><![CDATA[<h2 id="什么是以太坊"><a href="#什么是以太坊" class="headerlink" title="什么是以太坊"></a>什么是以太坊</h2><p>以太坊是一个 Layer 1 区块链，它作为一个开源的、分布式计算平台，用于开发和部署智能合约和去中心化应用（dApps）。它扩展了比特币提出的区块链技术的属性，强调安全性和去中心化，以扩展其用例。</p>
+<p>以太坊最初使用工作量证明（PoW）共识机制，但在 2022 年通过一项名为”The Merge”的升级过渡到权益证明（PoS）系统。这使其能源消耗降低了 99.95%，使以太坊成为一个低碳网络。</p>
+<p>以太币（ETH）是市值第二大的加密货币，是用以太坊区块链上交易的原生代币。</p>
+<h2 id="面向开发者的以太坊核心特性"><a href="#面向开发者的以太坊核心特性" class="headerlink" title="面向开发者的以太坊核心特性"></a>面向开发者的以太坊核心特性</h2><p>以太坊为开发者提供了强大的工具，例如以太坊虚拟机（EVM）和智能合约。这些特性支持创建和部署可互操作的去中心化资产、服务和应用（dApps）。</p>
+<p><strong>智能合约</strong>是自动执行的代码，记录在区块链上，并作为 dApps 的支柱。</p>
+<p>作为一个去中心化网络，以太坊允许用户保持对其资产和身份的控制。它的点对点（P2P）架构促进了协调、协议和数字资产的转移。</p>
+<h2 id="以太坊如何工作"><a href="#以太坊如何工作" class="headerlink" title="以太坊如何工作"></a>以太坊如何工作</h2><h3 id="以太坊中的权益证明"><a href="#以太坊中的权益证明" class="headerlink" title="以太坊中的权益证明"></a>以太坊中的权益证明</h3><p>以太坊区块链作为网络的主干，记录和存储所有交易和智能合约数据。它采用权益证明（PoS）共识机制，该机制要求节点存入并质押 32 个 ETH 才能成为验证者。</p>
+<p>从 PoW 的迁移使以太坊能够实施分片链，从而提高数据处理能力和网络吞吐量。</p>
+<p>区块链的透明、可靠和抗审查性质确保它没有单点故障，从而提供安全性和弹性。</p>
+<h3 id="以太坊虚拟机（EVM）"><a href="#以太坊虚拟机（EVM）" class="headerlink" title="以太坊虚拟机（EVM）"></a>以太坊虚拟机（EVM）</h3><p>EVM 是以太坊的原生处理系统。它规定了创建智能合约的预定义规则，并促进它们与节点之间的无缝交互。</p>
+<p>EVM 作为状态机运行，逐块执行脚本，以基于预定规则创建新的有效状态。</p>
+<p>当用户执行智能合约时，EVM 会解释合约的固有代码，并使用这些信息来执行指定的任务。EVM 确保智能合约的代码按照指定的方式精确执行。</p>
+<h2 id="以太坊的核心概念"><a href="#以太坊的核心概念" class="headerlink" title="以太坊的核心概念"></a>以太坊的核心概念</h2><p>比特币介绍了区块链技术。作为第一个去中心化网络，它解决了双重支付的挑战，这是一个允许系统复制货币的关键流程。此外，比特币使用户能够在没有权威的情况下建立价值。尽管这项创新非常强大，但它将区块链的使用案例限制在少数几个。</p>
+<h3 id="智能合约如何使以太坊具有灵活性"><a href="#智能合约如何使以太坊具有灵活性" class="headerlink" title="智能合约如何使以太坊具有灵活性"></a>智能合约如何使以太坊具有灵活性</h3><p>比特币的 PoW 网络难以扩展，限制了其原生代币 BTC 主要用作价值存储。另一方面，以太坊已经升级了当前的互联网基础设施，利用智能合约来自动化日常流程。</p>
+<p><strong>以太坊智能合约</strong>是计算机代码，可以促进、执行和验证协议的谈判和交付。换句话说，它们是自动执行的、在以太坊区块链上记录的程序化协议，旨在按照”如果-那么”逻辑运行。</p>
+<p>这意味着它们定义了一个动作 Y，如果一个动作 X 的所有子集都满足，那么该动作就会发生。</p>
+<p>以太坊的特性允许用户执行更复杂的过程，例如借贷和赚取利息，以及更复杂的金融交易，而无需依赖银行和经纪代理等中介机构。</p>
+<h2 id="什么是以太坊-2-0"><a href="#什么是以太坊-2-0" class="headerlink" title="什么是以太坊 2.0"></a>什么是以太坊 2.0</h2><p>以太坊 2.0（或 ETH2）代表以太坊网络的一项重大升级，旨在显著提高可扩展性、安全性、速度和整体效率。引入此升级是为了让以太坊在发展的同时解决其现有的局限性。</p>
+<p>被称为”The Merge”的过渡已于 2022 年 9 月成功实施，将原始以太坊区块链与 ETH2 区块链相结合。</p>
+<h3 id="为什么以太坊-2-0-是必要的"><a href="#为什么以太坊-2-0-是必要的" class="headerlink" title="为什么以太坊 2.0 是必要的"></a>为什么以太坊 2.0 是必要的</h3><p>将流行的加密资产迁移到新平台并非易事，但对于以太坊来说，适应和发展是必要的。</p>
+<p>ETH 1.0 区块链用于交易验证的工作量证明（PoW）方法导致了瓶颈、费用增加和大量资源消耗（尤其是电力）。</p>
+<h2 id="以太坊用例"><a href="#以太坊用例" class="headerlink" title="以太坊用例"></a>以太坊用例</h2><p>以太坊的多功能性导致了各个行业中各种实际应用。下面，我们将探讨以太坊区块链的一些最具影响力的用例。</p>
+<h3 id="去中心化金融应用（dApp）"><a href="#去中心化金融应用（dApp）" class="headerlink" title="去中心化金融应用（dApp）"></a>去中心化金融应用（dApp）</h3><p>这些协议通过锚定在可编程、无需许可的区块链网络上的智能合约提供金融服务和工具。在提供服务时，它们消除了银行、经纪公司和交易所等中间人。</p>
+<h3 id="非同质化代币（NFT）"><a href="#非同质化代币（NFT）" class="headerlink" title="非同质化代币（NFT）"></a>非同质化代币（NFT）</h3><p>这些数字资产无法被替换或复制，并且对于它们所代表的物品来说是独一无二的。它们象征着各种资产的所有权，包括艺术品、房地产、收藏品和游戏内物品。</p>
+<h3 id="自主身份（SSI）"><a href="#自主身份（SSI）" class="headerlink" title="自主身份（SSI）"></a>自主身份（SSI）</h3><p>保护在线身份和私人信息对于防止未经授权的访问或身份盗窃至关重要。SSI 提供了一种更安全的方式来存储此类数据，并提供安全共享的条款。</p>
+<h3 id="可追溯性和供应链管理"><a href="#可追溯性和供应链管理" class="headerlink" title="可追溯性和供应链管理"></a>可追溯性和供应链管理</h3><p>供应链描述了商品从来源地到预期客户的路径。可追溯性跟踪这些商品在两个关键点之间的流动。以太坊区块链的透明账本可以通过锁定假冒产品来保护供应链。</p>
+<h3 id="DAO-的开发"><a href="#DAO-的开发" class="headerlink" title="DAO 的开发"></a>DAO 的开发</h3><p>去中心化自治组织（DAO）支持 Web 3、游戏和风险投资等领域的去中心化决策。DAO 使用智能合约来自动化投票、投资和收益分配，确保透明度，而无需第三方。</p>
+<h2 id="了解以太坊的安全模型"><a href="#了解以太坊的安全模型" class="headerlink" title="了解以太坊的安全模型"></a>了解以太坊的安全模型</h2><p>以太坊的安全性由去中心化的节点网络维护，这使其具有很强的抗攻击能力。质押 ETH 的验证者在保护交易和维护区块链的完整性方面发挥着关键作用。</p>
+<p>质押的 ETH 越多，网络就变得越强大和更具弹性，因为它会阻止潜在的威胁并增加任何攻击的成本。</p>
+<p>通过要求验证者质押 32 个 ETH，以太坊为诚实行为创造了强大的激励措施，确保验证者在经济上有动力按照网络的最佳利益行事。</p>
+<h2 id="ETH-质押和再质押"><a href="#ETH-质押和再质押" class="headerlink" title="ETH 质押和再质押"></a>ETH 质押和再质押</h2><h3 id="以太坊质押"><a href="#以太坊质押" class="headerlink" title="以太坊质押"></a>以太坊质押</h3><p>要成为验证者并保护以太坊网络，用户需要质押 32 个 ETH。这种质押过程不仅有助于网络安全，而且还会奖励参与者。</p>
+<p>用户还可以加入质押池或使用中心化交易所，这些交易所提供少量质押服务，从而使那些没有全部 32 个 ETH 的人更容易参与。</p>
+<h3 id="以太坊再质押"><a href="#以太坊再质押" class="headerlink" title="以太坊再质押"></a>以太坊再质押</h3><p>以太坊再质押允许用户重用其质押的 ETH 来保护核心网络之外的其他服务和协议，从而有效地提高其资产的效用。</p>
+<p>EigenLayer、Symbiotic 和 Karak 等平台提供再质押解决方案，为质押者提供最大化回报的机会，同时为更广泛的以太坊生态系统做出贡献。</p>
+<h2 id="谁创建了以太坊区块链"><a href="#谁创建了以太坊区块链" class="headerlink" title="谁创建了以太坊区块链"></a>谁创建了以太坊区块链</h2><p>以太坊由俄罗斯出生的加拿大计算机程序员 Vitalik Buterin 与 Gavin Wood、Jeff Wilke、Joseph Lubin、Charles Hoskinson、Mihai Alisie、Amir Chetrit 和 Anthony Di Iorio 共同创建。除了 Vitalik 之外，所有人都离开了以太坊去追求其他兴趣。</p>
+<p>Gavin 后来创建了 Polkadot 和 Kusama，并编写了 Solidity 编程语言。Joseph 是以太坊投资孵化器 Consensys 的创始人，而 Charles 是 Input Output Global（IOG）的联合创始人兼首席执行官。</p>
+<p>Amir 为 Colored Coin 项目做出了贡献，而 Anthony 创立了 Jaxx 加密钱包和 Decentral。Mihai 创建了 Akasha 并共同创立了 Bitcoin Magazine。</p>
+<p>通过以太坊基金会，该平台从 2014 年进行的在线众筹中获得了约 1800 万美元。</p>
+<h2 id="关于以太坊的常见问题"><a href="#关于以太坊的常见问题" class="headerlink" title="关于以太坊的常见问题"></a>关于以太坊的常见问题</h2><h3 id="什么是以太坊（ETH）"><a href="#什么是以太坊（ETH）" class="headerlink" title="什么是以太坊（ETH）?"></a>什么是以太坊（ETH）?</h3><p>以太坊是一个 Layer 1 区块链，构建为开源的、分布式计算平台，用于创建和部署去中心化应用（dApp）。</p>
+<h3 id="什么是以太坊-2-0（ETH2）"><a href="#什么是以太坊-2-0（ETH2）" class="headerlink" title="什么是以太坊 2.0（ETH2）?"></a>什么是以太坊 2.0（ETH2）?</h3><p>以太坊 2.0 是以太坊网络的一项重大升级，旨在提高可扩展性、安全性和效率。它涉及从工作量证明（PoW）过渡到权益证明（PoS），以解决以前的网络限制。</p>
+<h3 id="以太坊-2-0-的好处是什么"><a href="#以太坊-2-0-的好处是什么" class="headerlink" title="以太坊 2.0 的好处是什么?"></a>以太坊 2.0 的好处是什么?</h3><p>以太坊 2.0 提高了可扩展性，通过过渡到权益证明降低了能源消耗，并允许通过分片链更有效地处理交易。</p>
+<h3 id="以太坊区块链的核心概念是什么"><a href="#以太坊区块链的核心概念是什么" class="headerlink" title="以太坊区块链的核心概念是什么?"></a>以太坊区块链的核心概念是什么?</h3><p>以太坊已经升级了互联网基础设施，利用智能合约来自动化日常流程。以太坊的特性允许用户执行更复杂的过程，例如借贷和赚取利息，以及更复杂的金融交易，而无需依赖银行和经纪代理等中介机构。</p>
+<h3 id="什么是以太坊再质押"><a href="#什么是以太坊再质押" class="headerlink" title="什么是以太坊再质押?"></a>什么是以太坊再质押?</h3><p>以太坊再质押允许用户重用其质押的 ETH 来保护核心网络之外的其他服务和协议，从而提供更高的回报并支持更广泛的以太坊生态系统。EigenLayer、Symbiotic 和 Karak 等平台促进了再质押。</p>
+<h3 id="谁创建了以太坊"><a href="#谁创建了以太坊" class="headerlink" title="谁创建了以太坊?"></a>谁创建了以太坊?</h3><p>以太坊由俄罗斯出生的加拿大计算机程序员 Vitalik Buterin 与 Gavin Wood、Jeff Wilke、Joseph Lubin、Charles Hoskinson、Mihai Alisie、Amir Chetrit 和 Anthony Di Iorio 共同创建。</p>
+<h3 id="以太坊区块链的用例是什么"><a href="#以太坊区块链的用例是什么" class="headerlink" title="以太坊区块链的用例是什么?"></a>以太坊区块链的用例是什么?</h3><p>以太坊区块链非常适合托管 DeFi 应用、NFT 和数字收藏品，运行智能合约和 dApp 来自动化金融服务，以及促进可追溯性和供应链管理。</p>
+<hr>
+]]></content>
+      <tags>
+        <tag>web3</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>使用Android sharesheet在Android应用程序中分享内容和链接</title>
     <url>/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/</url>
     <content><![CDATA[<p>为何要使用Android sharesheet<br>主要有三点原因：</p>
@@ -4747,6 +4801,17 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>如何解决hexo首页显示博客的全部文章</title>
+    <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
+<span id="more"></span>
+
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p><code>首页在主题的_config.yml中把设置打开：（安装时默认就打开了） excerpt_description: true</code></p>
+<h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
+<h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
+]]></content>
+  </entry>
+  <entry>
     <title>函数响应式编程——RxJava</title>
     <url>/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/</url>
     <content><![CDATA[<p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
@@ -4767,20 +4832,11 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>如何解决hexo首页显示博客的全部文章</title>
-    <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
-<span id="more"></span>
-
-<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><p><code>首页在主题的_config.yml中把设置打开：（安装时默认就打开了） excerpt_description: true</code></p>
-<h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
-<h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
-]]></content>
-  </entry>
-  <entry>
     <title>比特币的输入输出详解</title>
     <url>/2025/06/01/%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<h2 id="比特币简介"><a href="#比特币简介" class="headerlink" title="比特币简介"></a>比特币简介</h2><p>比特币（Bitcoin）是由中本聪（Satoshi Nakamoto）于2008年提出、2009年正式上线的去中心化数字货币。它基于区块链技术，通过点对点网络实现无需信任的价值转移。比特币的核心特性包括：</p>
+    <content><![CDATA[<h2 id="比特币简介"><a href="#比特币简介" class="headerlink" title="比特币简介"></a>比特币简介</h2><p>比特币（Bitcoin）是由中本聪（Satoshi Nakamoto）于2008年提出、2009年正式上线的去中心化数字货币。它基于区块链技术，通过点对点网络实现无需信任的价值转移。</p>
+<span id="more"></span>
+<p>比特币的核心特性包括：</p>
 <ul>
 <li><strong>去中心化</strong>：没有中央机构或第三方，所有节点平等参与。</li>
 <li><strong>总量有限</strong>：总发行量为2100万枚，通胀可控。</li>
