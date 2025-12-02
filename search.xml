@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>APP性能优化的一些建议</title>
-    <url>/2022/10/15/APP%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BB%BA%E8%AE%AE/</url>
-    <content><![CDATA[<p>除了利用性能测试工具分析性能应用，寻找优化控件，开发者在开发过程中，就应该注意一些性能优化技巧，养成良好的开发习惯，减轻性能优化的负担。下面是一些优化建议：</p>
-<span id="more"></span>
-<p>1.在LinearLayout和RelativeLayout都可以完成布局的情况下优先选择LinearLayout，可以减少View的层级，但是注意相同组件可能RelativeLayout绘制时间长<br>2.onDraw中不要创建新的局部对象，onDraw方法中不要做耗时的任务<br>3.不要在主线程进行网络访问&#x2F;大文件的IO操作<br>4.绘制UI时，尽量减少绘制UI层次；减少不必要的view嵌套<br>5.当我们的布局是用的FrameLayout的时候，我们可以把它改成merge，可以避免自己的帧布局和系统的ContentFrameLayout帧布局重叠造成重复计算（measure和layout）<br>6.在view层级相同的情况下，尽量使用LinearLayout而不是RelativeLayout；因为RelativeLayout在测量的时候会测量两次，而LinearLayout测量一次<br>7.删除控件中无用的属性<br>8.布局复用，比如listview布局复用<br>9.尽量避免过度绘制（overdraw）比如：背景经常容易造成过度绘制，由于我们布局设置了背景，溶蚀用到MaterialDesign的主题会默认给一个背景。这时应该把主题添加的背景去掉；还有移除XML中非必须的背景<br>10.自定义view优化，使用canvas.clipRect()来帮助系统识别那些可见的区域，只有在这个区域内才会被绘制。也是避免过度绘制。<br>11.启动优化，启动速度的监控，发现影响启动速度的问题所在，优化启动逻辑，提高应用的启动速度。比如闪屏页面，合理优化布局，加载逻辑优化，数据准备。<br>12.合理的刷新机制，尽量减少刷新次数，尽量避免后台有高的CPU线程运行，缩小刷新区域。</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ADB(android调试桥)</title>
     <url>/2022/10/15/ADB-android%E8%B0%83%E8%AF%95%E6%A1%A5/</url>
     <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>android调试桥（adb）是一种功能多样的命令行工具，可让您与设备进行通信。adb命令可用于执行各种设备操作（例如安装和调试应用）,并提供对Unix shell（可用来在设备商运行各种命令）的访问权限。它是一种客户端-服务器程序，包括以下三个组件：<br>客户端：用于发送命令。客户端在开发机器上运行。您可以通过发出adb命令从命令行终端调用客户端。<br>守护程序（adbd）：用于在设备商运行命令。守护程序在每个设备上作为后台进程运行。<br>服务器：用于管理客户端与守护程序之间的通信。服务器在开发机器上作为后台进程运行。</p>
@@ -106,6 +92,20 @@
 <p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;WindowManager.java的内部类LayoutParams extends ViewGroup.LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams() {<br>            super(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);<br>            ……<br>        }</p>
 <p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;ViewGroup.java内部类LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams(int width, int height) {<br>            this.width &#x3D; width;<br>            this.height &#x3D; height;<br>        }&#96;<br>该参数表示的是PhoneWindow的LayoutParams属性，其width和height值均为LayoutParmas.MATCH_PARENT。<br>在源码中，WindowPhone和DecorView通过组合方法联系在一起的，而DecorView是整个View体系的根View。在前面handleResumeActivity()方法代码片段中，当Activity启动后，就通过第14行的addView方法，来间接调用ViewRootImpl类中的performTraversals()，从而实现视图的绘制。</p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>APP性能优化的一些建议</title>
+    <url>/2022/10/15/APP%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BB%BA%E8%AE%AE/</url>
+    <content><![CDATA[<p>除了利用性能测试工具分析性能应用，寻找优化控件，开发者在开发过程中，就应该注意一些性能优化技巧，养成良好的开发习惯，减轻性能优化的负担。下面是一些优化建议：</p>
+<span id="more"></span>
+<p>1.在LinearLayout和RelativeLayout都可以完成布局的情况下优先选择LinearLayout，可以减少View的层级，但是注意相同组件可能RelativeLayout绘制时间长<br>2.onDraw中不要创建新的局部对象，onDraw方法中不要做耗时的任务<br>3.不要在主线程进行网络访问&#x2F;大文件的IO操作<br>4.绘制UI时，尽量减少绘制UI层次；减少不必要的view嵌套<br>5.当我们的布局是用的FrameLayout的时候，我们可以把它改成merge，可以避免自己的帧布局和系统的ContentFrameLayout帧布局重叠造成重复计算（measure和layout）<br>6.在view层级相同的情况下，尽量使用LinearLayout而不是RelativeLayout；因为RelativeLayout在测量的时候会测量两次，而LinearLayout测量一次<br>7.删除控件中无用的属性<br>8.布局复用，比如listview布局复用<br>9.尽量避免过度绘制（overdraw）比如：背景经常容易造成过度绘制，由于我们布局设置了背景，溶蚀用到MaterialDesign的主题会默认给一个背景。这时应该把主题添加的背景去掉；还有移除XML中非必须的背景<br>10.自定义view优化，使用canvas.clipRect()来帮助系统识别那些可见的区域，只有在这个区域内才会被绘制。也是避免过度绘制。<br>11.启动优化，启动速度的监控，发现影响启动速度的问题所在，优化启动逻辑，提高应用的启动速度。比如闪屏页面，合理优化布局，加载逻辑优化，数据准备。<br>12.合理的刷新机制，尽量减少刷新次数，尽量避免后台有高的CPU线程运行，缩小刷新区域。</p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
   </entry>
   <entry>
     <title>Android之碎片Fragment</title>
@@ -268,13 +268,31 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>EditText:android:focusable和android:focusableInTouchMode的区别</title>
+    <url>/2022/10/15/EditText-android-focusable%E5%92%8Candroid-focusableInTouchMode%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
+    <content><![CDATA[<p>本文向大家介绍EditText:android:focusable和android:focusableInTouchMode的区别，主要包括EditText:android:focusable和android:focusableInTouchMode的区别使用实例，应用技巧，基本知识点总结和需要注意事项，具有一定的参考价值。<br>android:focusable</p>
+<span id="more"></span>
+<p>之所以有这个属性主要是因为android系统不仅仅是针对手机的，有可能在电视，手表等等的非触摸输入设备上（比如android TV）这些设备只有物理上下键不具备触摸功能，<br>那么当把这个属性值设置为true的时候，比如你按了一下向下键，屏幕上的内容就会对应选中一个向下的控件（如果这个控件设置android:focusable&#x3D;true的话），否则就会选中下一个具备focusable能力的控件。<br>android:focusableInTouchMode<br>与上面的那种情况相反，如果是针对手机开发的话，那么大部分手机都具备触摸功能，那么这个属性有什么作用呢？<br>从交互的角度来讲，焦点的作用其实就是为了提示用户当前控件已经被选中了，可以进行下一步的操作。比如在android5.0上新退出的Material Design效果上面，如果一个EditText被选中了，那么它的输入框就会更换颜色以示区别，但是在手机开发中并不是所有的控件都需要有选中的这种状态，通常在点击后可能只想达到某种效果（如点击按钮就是想触发点击事件，不需要有选中效果），那么这个时候，如果把android:focusableInTouchMode设置为true，此时执行的就是更换焦点操作，相应的事件就无法得到及时相应，这样的体验就会很不好。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:background=&quot;#ddffff&quot;</span><br><span class="line">    android:gravity=&quot;center&quot;</span><br><span class="line">    android:orientation=&quot;vertical&quot;</span><br><span class="line">    android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">    &gt;</span><br><span class="line">    </span><br><span class="line">    &lt;View</span><br><span class="line">        android:id=&quot;@+id/view_test&quot;</span><br><span class="line">        android:layout_width=&quot;100dip&quot;</span><br><span class="line">        android:layout_height=&quot;100dip&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        android:background=&quot;#ff0000&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;Button</span><br><span class="line">        android:id=&quot;@+id/bt_test&quot;</span><br><span class="line">        android:layout_width=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_height=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_marginBottom=&quot;20dp&quot;</span><br><span class="line">        android:text=&quot;click me&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">&lt;/LinearLayout&gt;</span><br></pre></td></tr></table></figure>
+<p>我们分别为LinearLayout，View，Button都增加一个触摸时能够获取到焦点的属性</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yuneec.testdemo;</span><br><span class="line">import android.os.Bundle;import android.support.v7.app.AppCompatActivity;import android.util.Log;import android.view.View;import android.widget.Button;</span><br><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private View view_test;</span><br><span class="line">    private Button bt_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line">        view_test = findViewById(R.id.view_test);</span><br><span class="line">        bt_test = (Button) findViewById(R.id.bt_test);</span><br><span class="line"></span><br><span class="line">        view_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        view_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先点击View，发现View的onClick事件未打印，再点击view，发现view的onclick事件可以正常打印了。<br>然后点击button，发现button的onclick事件也未打印，再点击一次button，发现button的onclick事件可以正常打印了。<br>这说明第一次点击view或者button，知识单纯将焦点转换到了view和button上，此时会调用onFocusChangeListener方法，只有当再次点击的时候才会调用onClick方法。<br>因此，这种操作对Button来说是多余的，而button的android:focusableInTouchMode属性默认也就是false。<br>但对于EditText这种控件来说就不一样了，比方说一个界面上有很多EditText，在你点击了其中一个的时候，你必须先告知用户他点击的是哪一个，这样用户才不会输错，事实上在android源代码里面，EditText的focusableInTouchMode属性默认也就是True。</p>
+]]></content>
+      <categories>
+        <category>android</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GitHub+Hexo搭建个人博客网站</title>
     <url>/2022/09/18/GitHub-Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99/</url>
     <content><![CDATA[<h2 id="什么是hexo？"><a href="#什么是hexo？" class="headerlink" title="什么是hexo？"></a>什么是hexo？</h2><p>Hexo是一款基于Node.js的静态博客框架，特点是快速，简介并且高效的博客框架，Hexo使用Markdown解析文章，在几秒内，即可利用靓丽的主题生成静态网页。它可以方便的生成静态网页托管在GitHub和其他托管平台上，是搭建博客的首选框架。</p>
 <span id="more"></span>
 <h2 id="什么是github？"><a href="#什么是github？" class="headerlink" title="什么是github？"></a>什么是github？</h2><p>GitHub是一个在线软件源代码托管服务平台，使用Git作为版本控制软件，是世界上最大的代码托管网站和开源社区。我们使用的是github上的一个服务，GitHub Pages，它是由GitHub提供的一个网页寄存服务，可以用于存放静态网页，包括博客，项目文档甚至整本书。一般GitHub Pages使用github.io的子域名，但是用户也可以使用第三方域名。</p>
 <h2 id="搭建步骤："><a href="#搭建步骤：" class="headerlink" title="搭建步骤："></a>搭建步骤：</h2><h3 id="1-GitHub创建个人仓库"><a href="#1-GitHub创建个人仓库" class="headerlink" title="1.GitHub创建个人仓库"></a>1.GitHub创建个人仓库</h3><p>登录到GitHub，如果没有GitHub账号，使用你的邮箱注册GitHub账号，点击GitHub中的New repository创建新仓库，仓库名应该为：“用户名.github.io”这个用户名使用你的github账号名称代替，这是一个相对固定的写法。</p>
-<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#x62;&#x2e;&#x63;&#111;&#x6d;">&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#x62;&#x2e;&#x63;&#111;&#x6d;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
+<h3 id="2-安装git"><a href="#2-安装git" class="headerlink" title="2.安装git"></a>2.安装git</h3><p>什么是git？简单来说Git是开源的分布式版本控制系统，用于敏捷高效的处理项目。我们网站在本地搭建好了，需要使用Git同步到GitHub上，推荐一个巨好的<a href="http://git.oschina.net/progit/index.html">git教程</a>。<br>安装成功后，将你的Git与GitHub账号绑定，鼠标右击打开Git Bash，设置user.name和user.eamil配置信息：<br>git config –global user.name “你的GitHub用户名”<br>git config –global user.email “你的GitHub注册邮箱”<br>生成ssh密钥文件：<br>ssh-keygen -t rsa -C “你的GitHub注册邮箱”<br>然后直接三个回车即可，默认不需要设置密码<br>然后找到生成的.ssh文件夹中的id_rsa.pub密钥，将内容全部复制<br>打开GitHub_Settings_keys页面，新建new SSH Key<br>Title为标题，任意填写即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH Key。<br>在git bash中检测GitHub公钥是否成功，输入ssh <a href="mailto:&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#98;&#46;&#x63;&#111;&#x6d;">&#x67;&#105;&#116;&#64;&#x67;&#105;&#x74;&#104;&#117;&#98;&#46;&#x63;&#111;&#x6d;</a><br>这里之所以设置GitHub密钥的原因是，通过非对称加密的公钥与私钥来完成加密，公钥放置在github上，私钥放置在自己的电脑里。github要求每次推送代码都是合法用户，所以每次推送都要输入账号密码验证推送用户是否合法用户，为了省去每次输入密码的步骤，采用ssh，当你推送的时候，git就会匹配你的私钥跟github上面的公钥是否是配对的，若是匹配就认为你是合法用户，则允许推送。</p>
 <h3 id="3-安装Node-js"><a href="#3-安装Node-js" class="headerlink" title="3.安装Node.js"></a>3.安装Node.js</h3><p>Hexo基于Node.js，<a href="https://nodejs.org/en/download/">Node.js下载地址</a>，注意安装node.js会包含环境变量及npm的安装，安装后，检测node.js是否安装成功，在命令行输入node -v，检测npm是否安装成功，npm -v<br>到这儿，安装Hexo的环境已经全部搭建完成。</p>
 <h3 id="4-安装Hexo"><a href="#4-安装Hexo" class="headerlink" title="4.安装Hexo"></a>4.安装Hexo</h3><p>hexo就是我们的个人博客网站的框架，这里需要自己在电脑里创建一个文件夹，可以命名为Blog，Hexo框架与以后你自己发布的网页都在这个文件夹中，创建好后，进入文件夹中，打开命令行窗口。<br>使用npm命令安装Hexo，输入：<br>npm install -g hexo-cli<br>这个安装时间较长耐心等待，安装完成后，初始化我们的博客，输入：<br>hexo init blog<br>注意：这里的命令都是作用在刚刚创建的blog文件夹中。<br>在命令行中输入启动命令：<br>hexo server<br>打开浏览器哦网址可以看到网站的样式</p>
 <h3 id="5-推送网站"><a href="#5-推送网站" class="headerlink" title="5.推送网站"></a>5.推送网站</h3><p>上面只是在本地预览，接下来要做的就是推送网站，也就是发布网站，让我们的网站可以被更多人访问到。在设置之前，需要解释一个概念，在blog根目录里的_config.yml文件称为站点配置文件<br>进入themes文件夹，里面也有个_config.yml文件，这个称为主题配置文件<br>现在需要做的是将我们的Hexo和GitHub关联起来，打开站点的配置文件_config.yml，翻到最后修改为：<br>deploy:<br>type: git<br>repo: 这里填入你之前在GitHub上创建仓库的完整历经，记得加上.git<br>branch: master<br>保存站点配置文件。<br>其实就是给hexo d这个命令做相应的配置，让hexo知道你要把blog部署在哪个位置，很显然，我们部署在我们GitHub的仓库里，最后安装git部署插件，输入命令：<br>npm install hexo-deployer-git –save<br>这时，我们分别输入三条命令：<br>hexo clean<br>hexo g<br>hexo d<br>其实第三条hexo d就是部署网站的命令，d是deploy的缩写，完成后，打开浏览器，在地址栏输入你的放置个人网站的仓库路径，你就可以发现你的博客已经上线了，可以在网络上被访问到。</p>
@@ -975,24 +993,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>EditText:android:focusable和android:focusableInTouchMode的区别</title>
-    <url>/2022/10/15/EditText-android-focusable%E5%92%8Candroid-focusableInTouchMode%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
-    <content><![CDATA[<p>本文向大家介绍EditText:android:focusable和android:focusableInTouchMode的区别，主要包括EditText:android:focusable和android:focusableInTouchMode的区别使用实例，应用技巧，基本知识点总结和需要注意事项，具有一定的参考价值。<br>android:focusable</p>
-<span id="more"></span>
-<p>之所以有这个属性主要是因为android系统不仅仅是针对手机的，有可能在电视，手表等等的非触摸输入设备上（比如android TV）这些设备只有物理上下键不具备触摸功能，<br>那么当把这个属性值设置为true的时候，比如你按了一下向下键，屏幕上的内容就会对应选中一个向下的控件（如果这个控件设置android:focusable&#x3D;true的话），否则就会选中下一个具备focusable能力的控件。<br>android:focusableInTouchMode<br>与上面的那种情况相反，如果是针对手机开发的话，那么大部分手机都具备触摸功能，那么这个属性有什么作用呢？<br>从交互的角度来讲，焦点的作用其实就是为了提示用户当前控件已经被选中了，可以进行下一步的操作。比如在android5.0上新退出的Material Design效果上面，如果一个EditText被选中了，那么它的输入框就会更换颜色以示区别，但是在手机开发中并不是所有的控件都需要有选中的这种状态，通常在点击后可能只想达到某种效果（如点击按钮就是想触发点击事件，不需要有选中效果），那么这个时候，如果把android:focusableInTouchMode设置为true，此时执行的就是更换焦点操作，相应的事件就无法得到及时相应，这样的体验就会很不好。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:background=&quot;#ddffff&quot;</span><br><span class="line">    android:gravity=&quot;center&quot;</span><br><span class="line">    android:orientation=&quot;vertical&quot;</span><br><span class="line">    android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">    &gt;</span><br><span class="line">    </span><br><span class="line">    &lt;View</span><br><span class="line">        android:id=&quot;@+id/view_test&quot;</span><br><span class="line">        android:layout_width=&quot;100dip&quot;</span><br><span class="line">        android:layout_height=&quot;100dip&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        android:background=&quot;#ff0000&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;Button</span><br><span class="line">        android:id=&quot;@+id/bt_test&quot;</span><br><span class="line">        android:layout_width=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_height=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_marginBottom=&quot;20dp&quot;</span><br><span class="line">        android:text=&quot;click me&quot;</span><br><span class="line">        android:focusableInTouchMode=&quot;true&quot;</span><br><span class="line">        /&gt;</span><br><span class="line">&lt;/LinearLayout&gt;</span><br></pre></td></tr></table></figure>
-<p>我们分别为LinearLayout，View，Button都增加一个触摸时能够获取到焦点的属性</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yuneec.testdemo;</span><br><span class="line">import android.os.Bundle;import android.support.v7.app.AppCompatActivity;import android.util.Log;import android.view.View;import android.widget.Button;</span><br><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private View view_test;</span><br><span class="line">    private Button bt_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line">        view_test = findViewById(R.id.view_test);</span><br><span class="line">        bt_test = (Button) findViewById(R.id.bt_test);</span><br><span class="line"></span><br><span class="line">        view_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        view_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnClickListener(new View.OnClickListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onClick(View v) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, click................&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        bt_test.setOnFocusChangeListener(new View.OnFocusChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onFocusChange(View v, boolean hasFocus) &#123;</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;==========================================&quot;);</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am button, focus: &quot;+bt_test.isFocused());</span><br><span class="line">                Log.i(&quot;xp.chen&quot;, &quot;I am view, focus: &quot;+view_test.isFocused());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们先点击View，发现View的onClick事件未打印，再点击view，发现view的onclick事件可以正常打印了。<br>然后点击button，发现button的onclick事件也未打印，再点击一次button，发现button的onclick事件可以正常打印了。<br>这说明第一次点击view或者button，知识单纯将焦点转换到了view和button上，此时会调用onFocusChangeListener方法，只有当再次点击的时候才会调用onClick方法。<br>因此，这种操作对Button来说是多余的，而button的android:focusableInTouchMode属性默认也就是false。<br>但对于EditText这种控件来说就不一样了，比方说一个界面上有很多EditText，在你点击了其中一个的时候，你必须先告知用户他点击的是哪一个，这样用户才不会输错，事实上在android源代码里面，EditText的focusableInTouchMode属性默认也就是True。</p>
-]]></content>
-      <categories>
-        <category>android</category>
-      </categories>
-      <tags>
-        <tag>android</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rust中所有权和作用域以及生周期</title>
     <url>/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/</url>
     <content><![CDATA[<p>在rust中，作用域（Scope）和所有权（Ownership）是保证内存安全的核心机制，它们共同决定了变量的生命周期和内存管理方式，无需垃圾回收即可避免悬垂指针、双重释放等内存问题。</p>
@@ -1185,92 +1185,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust中的 Send 和 Sync trait 详解</title>
-    <url>/2023/09/20/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<p>Rust中的标记 trait（Marker Trait）<code>Send</code> 和 <code>Sync</code> 是并发安全的核心基石。用于标记类型的并发安全属性，让编译器在编译时检查线程间数据传递的合法性，从根源上避免数据竞争（Data Race）。</p>
-<span id="more"></span>
-
-<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><ul>
-<li>**<code>Send</code>**：类型的值能不能在线程之间”移动所有权”。</li>
-<li>**<code>Sync</code>**：类型的值能不能在多个线程中”共享引用 &amp;T”。</li>
-</ul>
-<h3 id="重要原则"><a href="#重要原则" class="headerlink" title="重要原则"></a>重要原则</h3><ul>
-<li>对同一个值进行<strong>并发访问（只读）</strong>是内存安全的。</li>
-<li><strong>并发修改</strong>仍然要靠锁&#x2F;原子&#x2F;其他机制。</li>
-</ul>
-<h2 id="1-Send-所有权在线程间的转移"><a href="#1-Send-所有权在线程间的转移" class="headerlink" title="1. Send - 所有权在线程间的转移"></a>1. Send - 所有权在线程间的转移</h2><p>一个类型 <code>T</code> 是 <code>Send</code>，表示把 <code>T</code> 的一个值从一个线程移动到另一个线程，不会引发数据竞争或内存安全问题。</p>
-<h3 id="Send-的特点"><a href="#Send-的特点" class="headerlink" title="Send 的特点"></a>Send 的特点</h3><ul>
-<li>移动的是<strong>所有权</strong>，而不是引用。</li>
-<li>移动之后，原线程不能再用这个值（所有权已经被 move）。</li>
-</ul>
-<h3 id="不是-Send-的类型（-Send）"><a href="#不是-Send-的类型（-Send）" class="headerlink" title="不是 Send 的类型（!Send）"></a>不是 Send 的类型（<code>!Send</code>）</h3><p>绝大多数类型自动实现 <code>Send</code>，以下一些例外：</p>
-<ul>
-<li>**<code>Rc&lt;T&gt;</code>**：引用计数是非原子操作，跨线程转移会导致计数竞争（数据竞争）。</li>
-<li>**<code>RefCell&lt;T&gt;</code> &#x2F; <code>Cell&lt;T&gt;</code>**：内部可变性无同步机制，跨线程转移后，多个线程可能同时修改数据。</li>
-<li>**裸指针 <code>*const T</code> &#x2F; <code>*mut T</code>**：无安全保证，直接跨线程转移可能导致悬垂指针或数据竞争。</li>
-<li>**<code>UnsafeCell&lt;T&gt;</code>**：内部可变性的底层实现，本身 <code>!Send</code>（但基于它的线程安全类型如 <code>Mutex</code> 会手动实现 <code>Send</code>）。</li>
-</ul>
-<h3 id="Send-示例"><a href="#Send-示例" class="headerlink" title="Send 示例"></a>Send 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">    <span class="comment">// Vec&lt;i32&gt; 是 Send，通过move把所有权移到线程中</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, v);</span><br><span class="line">    &#125;);</span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-Sync-引用在线程间的共享"><a href="#2-Sync-引用在线程间的共享" class="headerlink" title="2. Sync - 引用在线程间的共享"></a>2. Sync - 引用在线程间的共享</h2><p>一个类型 <code>T</code> 是 <code>Sync</code>，表示可以安全地被多个线程共享（即 <code>&amp;T</code> 是 <code>Send</code>）。即，如果一个类型的引用 <code>&amp;T</code> 能安全跨线程传递，那么这个类型就是 <code>Sync</code>（多个线程持有 <code>&amp;T</code> 不会导致数据竞争）。</p>
-<h3 id="不是-Sync-的类型（-Sync）"><a href="#不是-Sync-的类型（-Sync）" class="headerlink" title="不是 Sync 的类型（!Sync）"></a>不是 Sync 的类型（<code>!Sync</code>）</h3><p>任何允许通过共享引用 <code>&amp;T</code> 获得可变访问且没有同步保护的类型，都不是 <code>Sync</code>：</p>
-<ul>
-<li>**<code>Cell&lt;T&gt;</code> &#x2F; <code>RefCell&lt;T&gt;</code>**：允许通过 <code>&amp;T</code> 改变内部数据（”内部可变性”），但不保证线程安全。</li>
-<li>**<code>Rc&lt;T&gt;</code>**：通过共享引用可以克隆 <code>Rc</code> 得到更多引用，从而在多线程下导致竞争。</li>
-<li><strong>非线程安全的 FFI 对象</strong>，如果通过 <code>&amp;</code> 能调用会修改内部状态的方法。</li>
-</ul>
-<h3 id="Sync-示例"><a href="#Sync-示例" class="headerlink" title="Sync 示例"></a>Sync 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data</span> = Arc::<span class="title function_ invoke__">new</span>(Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>)); <span class="comment">// Arc&lt;Mutex&lt;i32&gt;&gt;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data_clone</span> = data.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = data_clone.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 加锁，独占访问</span></span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;).<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Auto-Trait-自动推导"><a href="#3-Auto-Trait-自动推导" class="headerlink" title="3. Auto Trait - 自动推导"></a>3. Auto Trait - 自动推导</h2><p><code>Send</code> 和 <code>Sync</code> 都是 auto trait，编译器会根据类型的组成部分自动推导实现。</p>
-<h3 id="Send-和-Sync-的四种组合"><a href="#Send-和-Sync-的四种组合" class="headerlink" title="Send 和 Sync 的四种组合"></a>Send 和 Sync 的四种组合</h3><table>
-<thead>
-<tr>
-<th>组合</th>
-<th>说明</th>
-<th>例子</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Send + Sync</code></td>
-<td>可以在线程间移动，也可以多线程共享引用</td>
-<td><code>i32</code>、<code>Mutex&lt;T&gt;</code>等</td>
-</tr>
-<tr>
-<td><code>Send + !Sync</code></td>
-<td>可以在线程间移动，但不能多线程共享引用</td>
-<td>一些 <code>*mut T</code> 封装、<code>Sender&lt;T&gt;</code></td>
-</tr>
-<tr>
-<td><code>!Send + Sync</code></td>
-<td>不能跨线程移动；不移动，只读共享是安全的</td>
-<td>少数特殊 FFI 对象（较少见）</td>
-</tr>
-<tr>
-<td><code>!Send + !Sync</code></td>
-<td>既不能跨线程移动，也不能多线程共享引用</td>
-<td><code>Rc&lt;RefCell&lt;T&gt;&gt;</code> 等</td>
-</tr>
-</tbody></table>
-<h2 id="4-手动实现-Send-和-Sync"><a href="#4-手动实现-Send-和-Sync" class="headerlink" title="4. 手动实现 Send 和 Sync"></a>4. 手动实现 Send 和 Sync</h2><p>只有在特殊情况下（写底层库 &#x2F; FFI 封装 &#x2F; 自己的锁和原子数据结构时）才会需要手动实现 <code>Send</code> 和 <code>Sync</code>：</p>
-<ul>
-<li><code>unsafe impl Send</code> &#x2F; <code>unsafe impl Sync</code> 是非常严肃的承诺</li>
-<li>要自己保证所有可能的并发访问路径都不会产生数据竞争、悬垂指针等。</li>
-</ul>
-<h3 id="手动实现示例：用-Mutex-保护裸指针"><a href="#手动实现示例：用-Mutex-保护裸指针" class="headerlink" title="手动实现示例：用 Mutex 保护裸指针"></a>手动实现示例：用 Mutex 保护裸指针</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类型：用 Mutex 保护裸指针（裸指针本身 !Send/!Sync）</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SafePtr</span>&lt;T&gt;(Mutex&lt;*<span class="keyword">mut</span> T&gt;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T&gt; SafePtr&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">new</span>(value: T) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ptr</span> = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(value)); <span class="comment">// 裸指针指向堆内存</span></span><br><span class="line">        <span class="title function_ invoke__">SafePtr</span>(Mutex::<span class="title function_ invoke__">new</span>(ptr))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全访问：通过 Mutex 加锁，保证独占访问</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">get</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123; <span class="title function_ invoke__">Some</span>(&amp;**guard) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">set</span>(&amp;<span class="keyword">self</span>, new_value: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123;</span><br><span class="line">            std::ptr::<span class="title function_ invoke__">drop_in_place</span>(*guard);</span><br><span class="line">            *guard = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(new_value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动实现 Send 和 Sync，因为我们通过 Mutex 确保了线程安全</span></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Send</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Sync</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li><strong><code>Send</code></strong> 保证所有权可以安全地在线程间转移</li>
-<li><strong><code>Sync</code></strong> 保证引用可以安全地在多个线程间共享</li>
-<li>大多数类型会自动实现这些 trait</li>
-<li>只有在处理特殊情况（裸指针、FFI、自定义同步原语）时才需要手动实现</li>
-<li>手动实现 <code>unsafe impl Send/Sync</code> 时要特别谨慎，确保确实满足并发安全条件</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rust中模块定义与导入</title>
     <url>/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/</url>
     <content><![CDATA[<p>模块（mod）是Rust的核心代码组织工具，用于解决命名冲突、控制代码可见性（封装）、拆分大型项目。</p>
@@ -1457,6 +1371,92 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <li><strong>可见性修饰符</strong>控制元素的访问范围</li>
 <li><strong>绝对&#x2F;相对路径</strong>用于引用模块元素</li>
 <li><strong>重导出（pub use）</strong>可以简化外部 API</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rust中的 Send 和 Sync trait 详解</title>
+    <url>/2023/09/20/Rust%E4%B8%AD%E7%9A%84-Send-%E5%92%8C-Sync-trait-%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<p>Rust中的标记 trait（Marker Trait）<code>Send</code> 和 <code>Sync</code> 是并发安全的核心基石。用于标记类型的并发安全属性，让编译器在编译时检查线程间数据传递的合法性，从根源上避免数据竞争（Data Race）。</p>
+<span id="more"></span>
+
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><ul>
+<li>**<code>Send</code>**：类型的值能不能在线程之间”移动所有权”。</li>
+<li>**<code>Sync</code>**：类型的值能不能在多个线程中”共享引用 &amp;T”。</li>
+</ul>
+<h3 id="重要原则"><a href="#重要原则" class="headerlink" title="重要原则"></a>重要原则</h3><ul>
+<li>对同一个值进行<strong>并发访问（只读）</strong>是内存安全的。</li>
+<li><strong>并发修改</strong>仍然要靠锁&#x2F;原子&#x2F;其他机制。</li>
+</ul>
+<h2 id="1-Send-所有权在线程间的转移"><a href="#1-Send-所有权在线程间的转移" class="headerlink" title="1. Send - 所有权在线程间的转移"></a>1. Send - 所有权在线程间的转移</h2><p>一个类型 <code>T</code> 是 <code>Send</code>，表示把 <code>T</code> 的一个值从一个线程移动到另一个线程，不会引发数据竞争或内存安全问题。</p>
+<h3 id="Send-的特点"><a href="#Send-的特点" class="headerlink" title="Send 的特点"></a>Send 的特点</h3><ul>
+<li>移动的是<strong>所有权</strong>，而不是引用。</li>
+<li>移动之后，原线程不能再用这个值（所有权已经被 move）。</li>
+</ul>
+<h3 id="不是-Send-的类型（-Send）"><a href="#不是-Send-的类型（-Send）" class="headerlink" title="不是 Send 的类型（!Send）"></a>不是 Send 的类型（<code>!Send</code>）</h3><p>绝大多数类型自动实现 <code>Send</code>，以下一些例外：</p>
+<ul>
+<li>**<code>Rc&lt;T&gt;</code>**：引用计数是非原子操作，跨线程转移会导致计数竞争（数据竞争）。</li>
+<li>**<code>RefCell&lt;T&gt;</code> &#x2F; <code>Cell&lt;T&gt;</code>**：内部可变性无同步机制，跨线程转移后，多个线程可能同时修改数据。</li>
+<li>**裸指针 <code>*const T</code> &#x2F; <code>*mut T</code>**：无安全保证，直接跨线程转移可能导致悬垂指针或数据竞争。</li>
+<li>**<code>UnsafeCell&lt;T&gt;</code>**：内部可变性的底层实现，本身 <code>!Send</code>（但基于它的线程安全类型如 <code>Mutex</code> 会手动实现 <code>Send</code>）。</li>
+</ul>
+<h3 id="Send-示例"><a href="#Send-示例" class="headerlink" title="Send 示例"></a>Send 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">    <span class="comment">// Vec&lt;i32&gt; 是 Send，通过move把所有权移到线程中</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, v);</span><br><span class="line">    &#125;);</span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-Sync-引用在线程间的共享"><a href="#2-Sync-引用在线程间的共享" class="headerlink" title="2. Sync - 引用在线程间的共享"></a>2. Sync - 引用在线程间的共享</h2><p>一个类型 <code>T</code> 是 <code>Sync</code>，表示可以安全地被多个线程共享（即 <code>&amp;T</code> 是 <code>Send</code>）。即，如果一个类型的引用 <code>&amp;T</code> 能安全跨线程传递，那么这个类型就是 <code>Sync</code>（多个线程持有 <code>&amp;T</code> 不会导致数据竞争）。</p>
+<h3 id="不是-Sync-的类型（-Sync）"><a href="#不是-Sync-的类型（-Sync）" class="headerlink" title="不是 Sync 的类型（!Sync）"></a>不是 Sync 的类型（<code>!Sync</code>）</h3><p>任何允许通过共享引用 <code>&amp;T</code> 获得可变访问且没有同步保护的类型，都不是 <code>Sync</code>：</p>
+<ul>
+<li>**<code>Cell&lt;T&gt;</code> &#x2F; <code>RefCell&lt;T&gt;</code>**：允许通过 <code>&amp;T</code> 改变内部数据（”内部可变性”），但不保证线程安全。</li>
+<li>**<code>Rc&lt;T&gt;</code>**：通过共享引用可以克隆 <code>Rc</code> 得到更多引用，从而在多线程下导致竞争。</li>
+<li><strong>非线程安全的 FFI 对象</strong>，如果通过 <code>&amp;</code> 能调用会修改内部状态的方法。</li>
+</ul>
+<h3 id="Sync-示例"><a href="#Sync-示例" class="headerlink" title="Sync 示例"></a>Sync 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data</span> = Arc::<span class="title function_ invoke__">new</span>(Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>)); <span class="comment">// Arc&lt;Mutex&lt;i32&gt;&gt;</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">data_clone</span> = data.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = data_clone.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 加锁，独占访问</span></span><br><span class="line">        *guard += <span class="number">1</span>;</span><br><span class="line">    &#125;).<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, data.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>()); <span class="comment">// 输出 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Auto-Trait-自动推导"><a href="#3-Auto-Trait-自动推导" class="headerlink" title="3. Auto Trait - 自动推导"></a>3. Auto Trait - 自动推导</h2><p><code>Send</code> 和 <code>Sync</code> 都是 auto trait，编译器会根据类型的组成部分自动推导实现。</p>
+<h3 id="Send-和-Sync-的四种组合"><a href="#Send-和-Sync-的四种组合" class="headerlink" title="Send 和 Sync 的四种组合"></a>Send 和 Sync 的四种组合</h3><table>
+<thead>
+<tr>
+<th>组合</th>
+<th>说明</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Send + Sync</code></td>
+<td>可以在线程间移动，也可以多线程共享引用</td>
+<td><code>i32</code>、<code>Mutex&lt;T&gt;</code>等</td>
+</tr>
+<tr>
+<td><code>Send + !Sync</code></td>
+<td>可以在线程间移动，但不能多线程共享引用</td>
+<td>一些 <code>*mut T</code> 封装、<code>Sender&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>!Send + Sync</code></td>
+<td>不能跨线程移动；不移动，只读共享是安全的</td>
+<td>少数特殊 FFI 对象（较少见）</td>
+</tr>
+<tr>
+<td><code>!Send + !Sync</code></td>
+<td>既不能跨线程移动，也不能多线程共享引用</td>
+<td><code>Rc&lt;RefCell&lt;T&gt;&gt;</code> 等</td>
+</tr>
+</tbody></table>
+<h2 id="4-手动实现-Send-和-Sync"><a href="#4-手动实现-Send-和-Sync" class="headerlink" title="4. 手动实现 Send 和 Sync"></a>4. 手动实现 Send 和 Sync</h2><p>只有在特殊情况下（写底层库 &#x2F; FFI 封装 &#x2F; 自己的锁和原子数据结构时）才会需要手动实现 <code>Send</code> 和 <code>Sync</code>：</p>
+<ul>
+<li><code>unsafe impl Send</code> &#x2F; <code>unsafe impl Sync</code> 是非常严肃的承诺</li>
+<li>要自己保证所有可能的并发访问路径都不会产生数据竞争、悬垂指针等。</li>
+</ul>
+<h3 id="手动实现示例：用-Mutex-保护裸指针"><a href="#手动实现示例：用-Mutex-保护裸指针" class="headerlink" title="手动实现示例：用 Mutex 保护裸指针"></a>手动实现示例：用 Mutex 保护裸指针</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类型：用 Mutex 保护裸指针（裸指针本身 !Send/!Sync）</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SafePtr</span>&lt;T&gt;(Mutex&lt;*<span class="keyword">mut</span> T&gt;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;T&gt; SafePtr&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">new</span>(value: T) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ptr</span> = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(value)); <span class="comment">// 裸指针指向堆内存</span></span><br><span class="line">        <span class="title function_ invoke__">SafePtr</span>(Mutex::<span class="title function_ invoke__">new</span>(ptr))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全访问：通过 Mutex 加锁，保证独占访问</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">get</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;&amp;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123; <span class="title function_ invoke__">Some</span>(&amp;**guard) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">set</span>(&amp;<span class="keyword">self</span>, new_value: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = <span class="keyword">self</span>.<span class="number">0</span>.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        <span class="keyword">unsafe</span> &#123;</span><br><span class="line">            std::ptr::<span class="title function_ invoke__">drop_in_place</span>(*guard);</span><br><span class="line">            *guard = <span class="type">Box</span>::<span class="title function_ invoke__">into_raw</span>(<span class="type">Box</span>::<span class="title function_ invoke__">new</span>(new_value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动实现 Send 和 Sync，因为我们通过 Mutex 确保了线程安全</span></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Send</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span>&lt;T: <span class="built_in">Send</span>&gt; <span class="built_in">Sync</span> <span class="keyword">for</span> <span class="title class_">SafePtr</span>&lt;T&gt; &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong><code>Send</code></strong> 保证所有权可以安全地在线程间转移</li>
+<li><strong><code>Sync</code></strong> 保证引用可以安全地在多个线程间共享</li>
+<li>大多数类型会自动实现这些 trait</li>
+<li>只有在处理特殊情况（裸指针、FFI、自定义同步原语）时才需要手动实现</li>
+<li>手动实现 <code>unsafe impl Send/Sync</code> 时要特别谨慎，确保确实满足并发安全条件</li>
 </ul>
 ]]></content>
       <tags>
@@ -2611,20 +2611,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust学习笔记</title>
-    <url>/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
-<span id="more"></span>
-<p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p>
-<p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p>
-<p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p>
-<p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>
-]]></content>
-      <tags>
-        <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rust中错误处理机制</title>
     <url>/2023/08/24/Rust%E4%B8%AD%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<p>Rust 的错误处理是通过 <code>Result</code> 类型和 <code>panic!</code> 宏两个层次来完成的：</p>
@@ -2851,76 +2837,227 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust智能指针</title>
-    <url>/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</url>
-    <content><![CDATA[<p>Rust的智能指针：内存管理的利器</p>
-<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
-<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
+    <title>Rust多线程编程之Thread与Channel</title>
+    <url>/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/</url>
+    <content><![CDATA[<h2 id="Rust-多线程编程之-Thread-与-Channel"><a href="#Rust-多线程编程之-Thread-与-Channel" class="headerlink" title="Rust 多线程编程之 Thread 与 Channel"></a>Rust 多线程编程之 Thread 与 Channel</h2><p>Rust 利用所有权（Ownership）系统在编译时保证线程安全，从根本上杜绝数据竞争（data race）。本文整理并补充了原文关于 <code>std::thread</code> 与 <code>std::sync::mpsc</code>（Channel） 的用法、错误处理、以及多消费者 &#x2F; 广播等实战模式与示例。</p>
 <span id="more"></span>
 
-<h2 id="什么是智能指针？"><a href="#什么是智能指针？" class="headerlink" title="什么是智能指针？"></a>什么是智能指针？</h2><p>智能指针是一个包装类型，它模拟了传统指针的行为，并且提供了一些额外的功能，尤其是与内存管理相关的功能。在Rust中，智能指针通常实现了Drop trait，这意味着它们能够在生命周期结束时自动清理资源。</p>
-<p>Rust中的智能指针常见的有以下几种：</p>
-<ul>
-<li><strong>Box<T></T></strong></li>
-<li><strong>Rc<T></T></strong> 和 <strong>Arc<T></T></strong></li>
-<li><strong>RefCell<T></T></strong> 和 <strong>Mutex<T></T></strong></li>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>线程模型与所有权</li>
+<li><code>std::thread</code>：创建与管理线程</li>
+<li>线程间通信：<code>std::sync::mpsc</code></li>
+<li>错误处理（<code>send</code> &#x2F; <code>recv</code>）</li>
+<li>多消费者与广播模式</li>
+<li>使用 <code>crossbeam-channel</code> 的进阶示例</li>
+<li>小结与参考</li>
 </ul>
+<hr>
+<h2 id="线程模型与所有权"><a href="#线程模型与所有权" class="headerlink" title="线程模型与所有权"></a>线程模型与所有权</h2><p>Rust 标准库采用 1:1 线程模型（每个 Rust 线程对应一个操作系统线程）。通过所有权与类型系统，Rust 在编译期就能防止数据竞争，减少运行时同步错误。</p>
+<p>要注意：如果在新线程中使用主线程的变量，必须将这些变量的所有权移动（<code>move</code>）到闭包中，或使用线程安全的共享类型（例如 <code>Arc&lt;Mutex&lt;T&gt;&gt;</code>）。</p>
+<h2 id="std-thread：创建与管理线程"><a href="#std-thread：创建与管理线程" class="headerlink" title="std::thread：创建与管理线程"></a><code>std::thread</code>：创建与管理线程</h2><p>最常用的创建线程方式是 <code>thread::spawn</code>，它接收一个闭包并返回 <code>JoinHandle&lt;T&gt;</code>，可以用来等待线程结束并获取返回值。</p>
+<p>示例：简单的 <code>spawn</code> 与 <code>join</code></p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">	<span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 必须使用 move 将 v 的所有权转移到新线程</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;向量 v: &#123;:?&#125;&quot;</span>, v);</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">10</span>));</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 等待线程结束</span></span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>thread::Builder</code> 可以设置线程名、栈大小等：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">builder</span> = thread::Builder::<span class="title function_ invoke__">new</span>()</span><br><span class="line">    .<span class="title function_ invoke__">name</span>(<span class="string">&quot;channel-test&quot;</span>.<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">    .<span class="title function_ invoke__">stack_size</span>(<span class="number">4</span> * <span class="number">1024</span> * <span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">handle</span> = builder.<span class="title function_ invoke__">spawn</span>(|| &#123;</span><br><span class="line">    <span class="comment">// 线程体</span></span><br><span class="line">&#125;).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br></pre></td></tr></table></figure>
+
+<p>线程可以被 <code>join</code>（等待）或“detach”（即不 join，让操作系统接管）。对需要保证执行完成的工作使用 <code>join</code>。</p>
+<h2 id="线程间通信：std-sync-mpsc"><a href="#线程间通信：std-sync-mpsc" class="headerlink" title="线程间通信：std::sync::mpsc"></a>线程间通信：<code>std::sync::mpsc</code></h2><p>Rust 标准库提供基于消息传递的通道（Channel）：<code>std::sync::mpsc</code>（multiple producer, single consumer）。通道传递的是值的所有权，因此天然避免了数据竞争问题。</p>
+<ul>
+<li><code>Sender&lt;T&gt;</code>：发送端，可以 <code>clone()</code> 支持多生产者。</li>
+<li><code>Receiver&lt;T&gt;</code>：接收端，默认不可克隆（单消费者）。</li>
+</ul>
+<p>创建通道：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">channel</span>(); <span class="comment">// 无界通道</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">tx_clone</span> = tx.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">    tx.<span class="title function_ invoke__">send</span>(<span class="string">&quot;hello&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> <span class="variable">received</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;接收到: &#123;&#125;&quot;</span>, received);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>mpsc::sync_channel(n)</code> 可以创建带缓存容量的通道（阻塞发送者直到有空间）。当容量为 0 时，发送方会严格等待接收方（同步模式）。</p>
+<h3 id="发送-x2F-接收的返回值与错误处理"><a href="#发送-x2F-接收的返回值与错误处理" class="headerlink" title="发送&#x2F;接收的返回值与错误处理"></a>发送&#x2F;接收的返回值与错误处理</h3><p><code>send</code> 与 <code>recv</code> 都会返回 <code>Result</code>：</p>
+<ul>
+<li><code>send</code> 返回 <code>Result&lt;(), SendError&lt;T&gt;&gt;</code>：当所有 <code>Receiver</code> 被丢弃时，发送会失败并返回错误；发送失败会把要发送的值带回 <code>SendError&lt;T&gt;</code>。</li>
+<li><code>recv</code> 返回 <code>Result&lt;T, RecvError&gt;</code>：当所有 <code>Sender</code> 已被丢弃且通道中无更多消息时，<code>recv</code> 返回错误。</li>
+</ul>
+<p>示例：处理 <code>send</code>&#x2F;<code>recv</code> 错误</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> (tx, rx) = mpsc::channel::&lt;<span class="type">i32</span>&gt;();</span><br><span class="line"></span><br><span class="line">thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">    <span class="keyword">if</span> tx.<span class="title function_ invoke__">send</span>(<span class="number">1</span>).<span class="title function_ invoke__">is_err</span>() &#123;</span><br><span class="line">        eprintln!(<span class="string">&quot;发送失败：接收者已关闭&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">match</span> rx.<span class="title function_ invoke__">recv</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(v) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;收到: &#123;&#125;&quot;</span>, v),</span><br><span class="line">    <span class="title function_ invoke__">Err</span>(_) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;通道已关闭，无更多数据&quot;</span>),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="多消费者（Multiple-Consumers）与选择方案"><a href="#多消费者（Multiple-Consumers）与选择方案" class="headerlink" title="多消费者（Multiple Consumers）与选择方案"></a>多消费者（Multiple Consumers）与选择方案</h2><p>标准库的 <code>mpsc</code> 仅提供单消费者。要实现多消费者或更高性能的并发消费模型，可以选择：</p>
 <ol>
-<li>Box<T> — 在堆上分配内存</T></li>
+<li>使用 <code>crossbeam-channel</code>（推荐，性能好、功能丰富，支持 MPMC&#x2F;广播等）。</li>
+<li>用 <code>Arc&lt;Mutex&lt;Receiver&gt;&gt;</code> 包裹 <code>Receiver</code>（不推荐，锁带来开销且降低并发性能）。</li>
 </ol>
-<p>Box<T>是Rust最基本的智能指针之一，它用于在堆上分配内存并存储数据。Box通过所有权系统管理堆上的数据，确保在Box离开作用域时自动清理内存。</T></p>
-<p><strong>示例</strong></p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>); <span class="comment">// 在堆上分配整数 5</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;b = &#123;&#125;&quot;</span>, b);</span><br><span class="line">&#125; <span class="comment">// 当 b 离开作用域时，堆上的内存会自动被释放</span></span><br></pre></td></tr></table></figure>
+<p>示例：使用 <code>crossbeam_channel::unbounded</code> 实现多个消费者抢占消息（竞争消费）：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> crossbeam_channel::unbounded;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">run_mpmc</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (s, r) = unbounded::&lt;<span class="type">String</span>&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">3</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">r_clone</span> = r.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">        thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">            <span class="keyword">for</span> <span class="variable">msg</span> <span class="keyword">in</span> r_clone.<span class="title function_ invoke__">iter</span>() &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;消费者 &#123;&#125; 收到: &#123;&#125;&quot;</span>, i, msg);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">5</span> &#123;</span><br><span class="line">        s.<span class="title function_ invoke__">send</span>(<span class="built_in">format!</span>(<span class="string">&quot;消息 &#123;&#125;&quot;</span>, i)).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 发送端 drop 后，消费者会结束迭代</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
-<p>在这个例子中，Box::new(5)会在堆上为整数5分配内存，并返回一个指向该内存的Box。当b离开作用域时，Box会自动释放堆上的内存，避免内存泄漏。</p>
-<p>使用场景</p>
+<p><code>crossbeam-channel</code> 的特点是高性能并且支持多种模式（无界&#x2F;有界、超时、选择等）。</p>
+<h2 id="广播模式"><a href="#广播模式" class="headerlink" title="广播模式"></a>广播模式</h2><p>如果需要广播（同一条消息被多个消费者都收到），可以选择：</p>
 <ul>
-<li>当你想要在堆上存储大对象（例如大型数组或结构体）时，<code>Box&lt;T&gt;</code> 是非常有用的。</li>
-<li>当你需要拥有数据的唯一所有权时，Box 是一个简洁的解决方案。</li>
+<li>异步环境下：<code>tokio::sync::broadcast</code>。</li>
+<li>同步（阻塞）场景：使用 <code>bus</code>、<code>postage</code> 等 crate（<code>bus</code> 示例）：</li>
 </ul>
-<h3 id="2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数"><a href="#2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数" class="headerlink" title="2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数"></a>2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数</h3><p>Rc<T>（Reference Counted）和Arc<T>（Atomic Reference Counted）都实现了引用计数智能指针，用于共享内存。与Box<T>不同，Rc<T>和Arc<T>允许多个所有者共享对数据的引用。</T></T></T></T></T></p>
-<ul>
-<li><code>Rc&lt;T&gt;</code>：在单线程中使用，性能较高。</li>
-<li><code>Arc&lt;T&gt;</code>：线程安全的版本，适用于多线程环境。</li>
-</ul>
-<h4 id="示例：使用Rc-lt-T-gt"><a href="#示例：使用Rc-lt-T-gt" class="headerlink" title="示例：使用Rc&lt;T&gt;"></a>示例：使用Rc&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hello, world!&quot;</span>));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = Rc::<span class="title function_ invoke__">clone</span>(&amp;s); <span class="comment">// 克隆 Rc，增加引用计数</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;s = &#123;&#125;, s2 = &#123;&#125;&quot;</span>, s, s2);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Reference count: &#123;&#125;&quot;</span>, Rc::<span class="title function_ invoke__">strong_count</span>(&amp;s)); <span class="comment">// 打印引用计数</span></span><br><span class="line">&#125; <span class="comment">// 当所有 Rc 指针离开作用域时，内存会被释放</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> bus::Bus;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">run_bus</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">bus</span> = Bus::<span class="title function_ invoke__">new</span>(<span class="number">10</span>); <span class="comment">// 容量 10</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">rx1</span> = bus.<span class="title function_ invoke__">add_rx</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">rx2</span> = bus.<span class="title function_ invoke__">add_rx</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;消费者 1 收到: &#123;&#125;&quot;</span>, rx1.<span class="title function_ invoke__">recv</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;消费者 2 收到: &#123;&#125;&quot;</span>, rx2.<span class="title function_ invoke__">recv</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    bus.<span class="title function_ invoke__">broadcast</span>(<span class="string">&quot;广播消息&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>使用场景</p>
-<ul>
-<li><code>Rc&lt;T&gt;</code> 适合用于需要多个所有者共享数据的场景，且只在单线程环境中使用。</li>
-<li><code>Arc&lt;T&gt;</code> 适用于多线程环境，允许多个线程共享数据，确保线程安全。</li>
+<p>注意：不同广播实现的语义不同（一些库是有容量限制并可能丢弃旧消息）。选择时请阅读对应库文档。</p>
+<h2 id="线程间通信的设计要点与最佳实践"><a href="#线程间通信的设计要点与最佳实践" class="headerlink" title="线程间通信的设计要点与最佳实践"></a>线程间通信的设计要点与最佳实践</h2><ul>
+<li>优先使用消息传递（ownership transfer）而非共享可变状态。</li>
+<li>对于需要多个消费者的高吞吐场景，优先考虑 <code>crossbeam-channel</code>。</li>
+<li>避免用 <code>Arc&lt;Mutex&lt;Receiver&gt;&gt;</code> 作为首选方案，因为锁可能成为瓶颈。</li>
+<li>使用 <code>sync_channel</code> 实现生产者速率限制（backpressure）。</li>
 </ul>
-<h3 id="3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性"><a href="#3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性" class="headerlink" title="3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性"></a>3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性</h3><p>虽然Rust的所有权和借用系统通常不允许同时存在多个可变引用，但通过智能指针，我们可以绕过这一限制，提供内部可变性。</p>
-<ul>
-<li><code>RefCell&lt;T&gt;</code>：允许在单线程中进行可变借用，提供运行时的借用检查。</li>
-<li><code>Mutex&lt;T&gt;</code>：提供多线程中的内部可变性，确保数据在多个线程之间的安全共享。</li>
+<h2 id="常见示例汇总"><a href="#常见示例汇总" class="headerlink" title="常见示例汇总"></a>常见示例汇总</h2><p>多生产者、单消费者（标准库）：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">run_mpsc_clone</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">channel</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">tx1</span> = tx.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">vals</span> = <span class="built_in">vec!</span>[<span class="string">&quot;消息1&quot;</span>, <span class="string">&quot;消息2&quot;</span>, <span class="string">&quot;消息3&quot;</span>];</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">val</span> <span class="keyword">in</span> vals &#123;</span><br><span class="line">            tx.<span class="title function_ invoke__">send</span>(val).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">            thread::<span class="title function_ invoke__">sleep</span>(std::time::Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">10</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">vals</span> = <span class="built_in">vec!</span>[<span class="string">&quot;消息A&quot;</span>, <span class="string">&quot;消息B&quot;</span>, <span class="string">&quot;消息C&quot;</span>];</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">val</span> <span class="keyword">in</span> vals &#123;</span><br><span class="line">            tx1.<span class="title function_ invoke__">send</span>(val).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">received</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;主线程收到: &#123;&#125;&quot;</span>, received);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>sync_channel</code> 的同步发送示例（实现 backpressure）：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">run_sync_channel</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">sync_channel</span>(<span class="number">2</span>); <span class="comment">// 容量 2</span></span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">5</span> &#123;</span><br><span class="line">            tx.<span class="title function_ invoke__">send</span>(i).<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 当队列满时会阻塞</span></span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;发送: &#123;&#125;&quot;</span>, i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">v</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;接收: &#123;&#125;&quot;</span>, v);</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(std::time::Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">50</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结与参考"><a href="#小结与参考" class="headerlink" title="小结与参考"></a>小结与参考</h2><p>Rust 的线程与通道模型以所有权为核心，消息传递可以在不加锁的情况下安全地移动数据。对于性能和扩展性要求较高的场景，<code>crossbeam-channel</code> 是比标准库更好的选择；需要广播时选择合适的广播库。</p>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rust学习笔记</title>
+    <url>/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>
+<span id="more"></span>
+<p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p>
+<p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p>
+<p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p>
+<p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rust异步编程之async与.await</title>
+    <url>/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/</url>
+    <content><![CDATA[<p>Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。<code>async</code>&#x2F;<code>.await</code> 是Rust内置语法，用于让异步函数编写得像同步代码。<code>async</code> 将代码块转化成实现了 <code>Future</code> trait 的状态机。</p>
+<span id="more"></span>
+
+<h2 id="1-async-创建-Future"><a href="#1-async-创建-Future" class="headerlink" title="1. async - 创建 Future"></a>1. async - 创建 Future</h2><p><code>async</code> 是用于创建 Future 的语法糖，用来标记一个函数为异步函数。</p>
+<h3 id="异步函数（async-fn）"><a href="#异步函数（async-fn）" class="headerlink" title="异步函数（async fn）"></a>异步函数（async fn）</h3><ul>
+<li>调用后不会立即执行，而是返回一个 Future</li>
+<li>返回值会被自动包装为 Future</li>
+<li>异步函数内部可以直接使用 <code>.await</code></li>
+<li>异步函数的参数支持所有普通函数的参数类型（包括引用、所有权类型等），但要注意生命周期</li>
 </ul>
-<h4 id="示例：使用RefCell-lt-T-gt"><a href="#示例：使用RefCell-lt-T-gt" class="headerlink" title="示例：使用RefCell&lt;T&gt;"></a>示例：使用RefCell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::RefCell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = RefCell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    *x.<span class="title function_ invoke__">borrow_mut</span>() = <span class="number">10</span>; <span class="comment">// 可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>()); <span class="comment">// 不可变借用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>在这个例子中，RefCell允许我们通过borrow_mut()方法进行可变借用，并在运行时检查借用规则。</p>
-<h4 id="示例：使用Mutex-lt-T-gt"><a href="#示例：使用Mutex-lt-T-gt" class="headerlink" title="示例：使用Mutex&lt;T&gt;"></a>示例：使用Mutex&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 获取锁</span></span><br><span class="line">        *num = <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;m = &#123;&#125;&quot;</span>, m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Mutex<T>确保在多线程环境中，只有一个线程能访问数据，避免数据竞争。</T></p>
-<p><strong>使用场景</strong></p>
+<h3 id="异步块（async-…-）"><a href="#异步块（async-…-）" class="headerlink" title="异步块（async { … }）"></a>异步块（async { … }）</h3><p><code>async</code> 块可以捕获外部变量（类似闭包）</p>
 <ul>
-<li><code>RefCell&lt;T&gt;</code> 适合用于需要动态检查和管理可变借用的单线程应用。</li>
-<li><code>Mutex&lt;T&gt;</code> 用于多线程环境下，确保数据的线程安全访问。</li>
+<li><code>async &#123; ... &#125;</code>：默认像闭包捕获，按借用捕获外部变量</li>
+<li><code>async move &#123; ... &#125;</code>：把需要的变量按值 <code>move</code> 进 Future，Future 对它们具有所有权</li>
 </ul>
-<h3 id="4-Cell-lt-T-gt-—-简单的内部可变性"><a href="#4-Cell-lt-T-gt-—-简单的内部可变性" class="headerlink" title="4. Cell&lt;T&gt; — 简单的内部可变性"></a>4. Cell&lt;T&gt; — 简单的内部可变性</h3><p>Cell<T>提供了一种非常轻量级的方式来实现内部可变性，适用于无需引用的情况下存储数据。它通常用于存储基本类型数据，如整数、布尔值等。</T></p>
-<h4 id="示例：使用Cell-lt-T-gt"><a href="#示例：使用Cell-lt-T-gt" class="headerlink" title="示例：使用Cell&lt;T&gt;"></a>示例：使用Cell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::Cell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = Cell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    x.<span class="title function_ invoke__">set</span>(<span class="number">10</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">get</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="异步闭包"><a href="#异步闭包" class="headerlink" title="异步闭包"></a>异步闭包</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 异步函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">fetch_data</span>() <span class="punctuation">-&gt;</span> <span class="type">u32</span> &#123;</span><br><span class="line">    <span class="number">42</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步块</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">fut</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Working...&quot;</span>);</span><br><span class="line">    <span class="number">100</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步闭包</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">async_func</span> = <span class="keyword">async</span> |x: <span class="type">i32</span>| x + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 
-<p>使用场景</p>
-<p><code>Cell&lt;T&gt;</code> 适合在单线程中提供简单的可变数据存储，尤其是对于基础数据类型。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Rust的智能指针提供了强大的内存管理能力，它们在确保内存安全的同时，也使得我们能够更灵活地操作数据。在Rust中，智能指针不仅仅是内存管理的工具，更是借用和所有权系统的核心组成部分，它们帮助开发者避免内存泄漏和数据竞争的问题。</p>
+<h2 id="2-await-等待-Future-完成"><a href="#2-await-等待-Future-完成" class="headerlink" title="2. .await - 等待 Future 完成"></a>2. .await - 等待 Future 完成</h2><p><code>.await</code> 是用于等待 Future 执行完成的操作符；只能在 <code>async</code> 函数或 <code>async</code> 块内部使用。</p>
+<p>对 Future 调用 <code>.await</code>，会暂停当前 Future 的执行（并将线程让给其他可执行的 Future），直到被等待的 Future 完成，然后返回其 <code>Output</code> 结果。</p>
+<h3 id="await-工作原理"><a href="#await-工作原理" class="headerlink" title=".await 工作原理"></a>.await 工作原理</h3><p>Rust中代码编译扫描时，把每一个可能”挂起”的 <code>.await</code> 看作一个边界，把整个函数拆成几段；同时定义状态机，把后续要继续执行所需的局部变量保存下来。</p>
+<h3 id="await-示例"><a href="#await-示例" class="headerlink" title=".await 示例"></a>.await 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 原始示例函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">foo</span>() <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = <span class="keyword">async</span> &#123; <span class="number">2</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = x + y;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">w</span> = <span class="keyword">async</span> &#123; z * <span class="number">10</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    w</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 翻译的伪代码</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">FooState</span> &#123;</span><br><span class="line">    <span class="comment">// 初始状态</span></span><br><span class="line">    Start,</span><br><span class="line">    <span class="comment">// 正在等待第一个 .await： async &#123; 2 &#125;</span></span><br><span class="line">    AwaitY &#123;</span><br><span class="line">        <span class="comment">// 需要保存仍然会用到的局部变量</span></span><br><span class="line">        x: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 正在等待第二个 .await： async &#123; z * 10 &#125;</span></span><br><span class="line">    AwaitW &#123;</span><br><span class="line">        z: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    Done,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Future-异步计算的抽象"><a href="#3-Future-异步计算的抽象" class="headerlink" title="3. Future - 异步计算的抽象"></a>3. Future - 异步计算的抽象</h2><p>Future（<code>std::future::Future</code>）是 Rust 异步编程的基础，<code>async</code> 语法的本质是生成 Future，<code>.await</code> 则是触发 Future 执行并等待结果。</p>
+<h3 id="Future-Trait-定义"><a href="#Future-Trait-定义" class="headerlink" title="Future Trait 定义"></a>Future Trait 定义</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">trait</span> <span class="title class_">Future</span> &#123;</span><br><span class="line">    <span class="comment">// Future 最终产生的结果类型</span></span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 驱动 Future 执行：返回 Poll&lt;Output&gt;</span></span><br><span class="line">    <span class="comment">// waker：用于唤醒暂停的 Future</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">poll</span>(<span class="keyword">self</span>: Pin&lt;&amp;<span class="keyword">mut</span> <span class="keyword">Self</span>&gt;, cx: &amp;<span class="keyword">mut</span> Context&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> Poll&lt;<span class="keyword">Self</span>::Output&gt;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Poll 枚举：表示 Future 的执行状态</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Poll</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// Future 仍在执行中（需要等待某个事件，如 IO 完成）</span></span><br><span class="line">    Pending,</span><br><span class="line">    <span class="comment">// Future 已完成，返回结果 T</span></span><br><span class="line">    <span class="title function_ invoke__">Ready</span>(T),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Future-的特性"><a href="#Future-的特性" class="headerlink" title="Future 的特性"></a>Future 的特性</h3><p>Future 是惰性的——定义后不会自动执行，必须通过 <code>poll</code> 方法”驱动”它运行。只有当调用者（通常是异步执行器）调用 <code>poll</code> 时，Future 才会推进执行，直到遇到”需要等待的事件”（如网络请求、文件IO），此时返回 <code>Pending</code> 并暂停，等待被 <code>waker</code> 唤醒后再次执行。</p>
+<h2 id="4-执行器（Executor）"><a href="#4-执行器（Executor）" class="headerlink" title="4. 执行器（Executor）"></a>4. 执行器（Executor）</h2><p>要运行一个异步函数（<code>async fn</code>），必须使用一个执行器（Runtime &#x2F; Executor）来驱动它。</p>
+<h3 id="执行器使用方式"><a href="#执行器使用方式" class="headerlink" title="执行器使用方式"></a>执行器使用方式</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用程序入口</td>
+<td>使用宏</td>
+<td><code>#[tokio::main] async fn main() &#123; ... &#125;</code></td>
+</tr>
+<tr>
+<td>普通函数中</td>
+<td>手动创建 Runtime</td>
+<td><code>Runtime::new().unwrap().block_on(future)</code></td>
+</tr>
+<tr>
+<td>轻量级&#x2F;测试</td>
+<td>使用简单执行器</td>
+<td><code>futures::executor::block_on(future)</code></td>
+</tr>
+</tbody></table>
+<h3 id="并发执行多个-Future"><a href="#并发执行多个-Future" class="headerlink" title="并发执行多个 Future"></a>并发执行多个 Future</h3><p><code>async</code>&#x2F;<code>.await</code> 本身是串行的，若要并发执行多个 Future，需使用并发宏：</p>
 <ul>
-<li>**Box<T>**：适用于堆分配数据，拥有唯一所有权。</T></li>
-<li><strong>Rc<T></T></strong> 和 **Arc<T>**：适用于共享数据，提供引用计数。</T></li>
-<li><strong>RefCell<T></T></strong> 和 **Mutex<T>**：提供内部可变性，支持单线程和多线程场景。</T></li>
-<li>**Cell<T>**：适用于简单类型的数据存储，支持内部可变性。</T></li>
+<li><strong><code>tokio::join!</code></strong> &#x2F; **<code>async_std::future::join!</code>**：等待所有 Future 完成（类似 Promise.all）</li>
+<li><strong><code>tokio::select!</code></strong> &#x2F; **<code>async_std::future::select!</code>**：等待第一个完成的 Future（类似 Promise.race）</li>
+<li>**<code>tokio::try_join!</code>**：并发执行，且所有 Future 均返回 <code>Result</code>，一旦有一个失败则立即返回错误</li>
 </ul>
-<p>通过合理选择合适的智能指针，我们可以写出既高效又安全的Rust程序。</p>
+<h2 id="5-运行时（Runtime）"><a href="#5-运行时（Runtime）" class="headerlink" title="5. 运行时（Runtime）"></a>5. 运行时（Runtime）</h2><p>运行时是驱动异步任务（Future）执行的”引擎”，负责线程池管理、任务调度、IO事件复用（如 epoll&#x2F;kqueue）等底层工作。</p>
+<h3 id="运行时的三个核心部分"><a href="#运行时的三个核心部分" class="headerlink" title="运行时的三个核心部分"></a>运行时的三个核心部分</h3><ol>
+<li><p><strong>Executor（执行器）</strong></p>
+<ul>
+<li>负责不断调用 <code>Future::poll()</code> 推进任务执行</li>
+<li>支持任务调度、任务队列、线程池等</li>
+</ul>
+</li>
+<li><p><strong>Reactor（反应器）</strong></p>
+<ul>
+<li>基于操作系统的 IO 多路复用机制（epoll&#x2F;Linux、kqueue&#x2F;macOS、IOCP&#x2F;Windows）</li>
+<li>当 socket、文件或计时器可用时，唤醒对应任务</li>
+</ul>
+</li>
+<li><p><strong>Concurrency Primitives（并发原语）</strong></p>
+<ul>
+<li>提供异步锁（如 <code>Mutex</code>）、通道（<code>Channel</code>）、计时器（<code>Timer</code>）等工具，支持多任务安全通信</li>
+</ul>
+</li>
+</ol>
+<h3 id="常见运行时库对比"><a href="#常见运行时库对比" class="headerlink" title="常见运行时库对比"></a>常见运行时库对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Tokio</th>
+<th>async-std</th>
+<th>futures</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能</td>
+<td>最高（多线程调度）</td>
+<td>中等</td>
+<td>轻量，适中</td>
+</tr>
+<tr>
+<td>使用体验</td>
+<td>偏工程化、配置丰富</td>
+<td>最接近标准库</td>
+<td>极简、底层</td>
+</tr>
+<tr>
+<td>生态支持</td>
+<td>最强（hyper, tonic, reqwest）</td>
+<td>中等</td>
+<td>少量核心库</td>
+</tr>
+<tr>
+<td>内部实现</td>
+<td>work-stealing + reactor</td>
+<td>smol 内核</td>
+<td>模块化组件</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>高并发服务端</td>
+<td>快速开发、教学</td>
+<td>小型嵌入式、自定义运行时</td>
+</tr>
+</tbody></table>
+<h3 id="Tokio-示例"><a href="#Tokio-示例" class="headerlink" title="Tokio 示例"></a>Tokio 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 并发执行两个任务</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task1</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 1 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task2</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">500</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 2 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// join! 等待两个任务都完成</span></span><br><span class="line">    tokio::join!(task1, task2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong><code>async</code></strong> 将函数或代码块转化为 Future</li>
+<li><strong><code>.await</code></strong> 用于暂停执行并等待 Future 完成</li>
+<li><strong>Future</strong> 是 Rust 异步编程的基础，需要通过执行器来驱动</li>
+<li><strong>执行器</strong> 负责调度和运行 Future，支持单线程或多线程并发</li>
+<li><strong>运行时</strong> 提供了完整的异步生态，Tokio 是最流行的选择</li>
+<li>异步编程适合 I&#x2F;O 密集型任务，可在单线程上实现高并发</li>
+</ul>
 ]]></content>
       <tags>
         <tag>Rust</tag>
@@ -3477,135 +3614,76 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>Rust异步编程之async与.await</title>
-    <url>/2023/10/23/Rust%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E4%B9%8Basync%E4%B8%8E-await/</url>
-    <content><![CDATA[<p>Rust的异步编程主要用于高并发I&#x2F;O密集型任务；Rust的异步模型基于 Future + Polling，在单线程上即可完成数千个并发任务。<code>async</code>&#x2F;<code>.await</code> 是Rust内置语法，用于让异步函数编写得像同步代码。<code>async</code> 将代码块转化成实现了 <code>Future</code> trait 的状态机。</p>
+    <title>Rust智能指针</title>
+    <url>/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</url>
+    <content><![CDATA[<p>Rust的智能指针：内存管理的利器</p>
+<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
+<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
 <span id="more"></span>
 
-<h2 id="1-async-创建-Future"><a href="#1-async-创建-Future" class="headerlink" title="1. async - 创建 Future"></a>1. async - 创建 Future</h2><p><code>async</code> 是用于创建 Future 的语法糖，用来标记一个函数为异步函数。</p>
-<h3 id="异步函数（async-fn）"><a href="#异步函数（async-fn）" class="headerlink" title="异步函数（async fn）"></a>异步函数（async fn）</h3><ul>
-<li>调用后不会立即执行，而是返回一个 Future</li>
-<li>返回值会被自动包装为 Future</li>
-<li>异步函数内部可以直接使用 <code>.await</code></li>
-<li>异步函数的参数支持所有普通函数的参数类型（包括引用、所有权类型等），但要注意生命周期</li>
-</ul>
-<h3 id="异步块（async-…-）"><a href="#异步块（async-…-）" class="headerlink" title="异步块（async { … }）"></a>异步块（async { … }）</h3><p><code>async</code> 块可以捕获外部变量（类似闭包）</p>
+<h2 id="什么是智能指针？"><a href="#什么是智能指针？" class="headerlink" title="什么是智能指针？"></a>什么是智能指针？</h2><p>智能指针是一个包装类型，它模拟了传统指针的行为，并且提供了一些额外的功能，尤其是与内存管理相关的功能。在Rust中，智能指针通常实现了Drop trait，这意味着它们能够在生命周期结束时自动清理资源。</p>
+<p>Rust中的智能指针常见的有以下几种：</p>
 <ul>
-<li><code>async &#123; ... &#125;</code>：默认像闭包捕获，按借用捕获外部变量</li>
-<li><code>async move &#123; ... &#125;</code>：把需要的变量按值 <code>move</code> 进 Future，Future 对它们具有所有权</li>
+<li><strong>Box<T></T></strong></li>
+<li><strong>Rc<T></T></strong> 和 <strong>Arc<T></T></strong></li>
+<li><strong>RefCell<T></T></strong> 和 <strong>Mutex<T></T></strong></li>
 </ul>
-<h3 id="异步闭包"><a href="#异步闭包" class="headerlink" title="异步闭包"></a>异步闭包</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 异步函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">fetch_data</span>() <span class="punctuation">-&gt;</span> <span class="type">u32</span> &#123;</span><br><span class="line">    <span class="number">42</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步块</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">fut</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Working...&quot;</span>);</span><br><span class="line">    <span class="number">100</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步闭包</span></span><br><span class="line"><span class="keyword">let</span> <span class="variable">async_func</span> = <span class="keyword">async</span> |x: <span class="type">i32</span>| x + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-await-等待-Future-完成"><a href="#2-await-等待-Future-完成" class="headerlink" title="2. .await - 等待 Future 完成"></a>2. .await - 等待 Future 完成</h2><p><code>.await</code> 是用于等待 Future 执行完成的操作符；只能在 <code>async</code> 函数或 <code>async</code> 块内部使用。</p>
-<p>对 Future 调用 <code>.await</code>，会暂停当前 Future 的执行（并将线程让给其他可执行的 Future），直到被等待的 Future 完成，然后返回其 <code>Output</code> 结果。</p>
-<h3 id="await-工作原理"><a href="#await-工作原理" class="headerlink" title=".await 工作原理"></a>.await 工作原理</h3><p>Rust中代码编译扫描时，把每一个可能”挂起”的 <code>.await</code> 看作一个边界，把整个函数拆成几段；同时定义状态机，把后续要继续执行所需的局部变量保存下来。</p>
-<h3 id="await-示例"><a href="#await-示例" class="headerlink" title=".await 示例"></a>.await 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 原始示例函数</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">foo</span>() <span class="punctuation">-&gt;</span> <span class="type">i32</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">y</span> = <span class="keyword">async</span> &#123; <span class="number">2</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">z</span> = x + y;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">w</span> = <span class="keyword">async</span> &#123; z * <span class="number">10</span> &#125;.<span class="keyword">await</span>;</span><br><span class="line">    </span><br><span class="line">    w</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 翻译的伪代码</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">FooState</span> &#123;</span><br><span class="line">    <span class="comment">// 初始状态</span></span><br><span class="line">    Start,</span><br><span class="line">    <span class="comment">// 正在等待第一个 .await： async &#123; 2 &#125;</span></span><br><span class="line">    AwaitY &#123;</span><br><span class="line">        <span class="comment">// 需要保存仍然会用到的局部变量</span></span><br><span class="line">        x: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 正在等待第二个 .await： async &#123; z * 10 &#125;</span></span><br><span class="line">    AwaitW &#123;</span><br><span class="line">        z: <span class="type">i32</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    Done,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Future-异步计算的抽象"><a href="#3-Future-异步计算的抽象" class="headerlink" title="3. Future - 异步计算的抽象"></a>3. Future - 异步计算的抽象</h2><p>Future（<code>std::future::Future</code>）是 Rust 异步编程的基础，<code>async</code> 语法的本质是生成 Future，<code>.await</code> 则是触发 Future 执行并等待结果。</p>
-<h3 id="Future-Trait-定义"><a href="#Future-Trait-定义" class="headerlink" title="Future Trait 定义"></a>Future Trait 定义</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">trait</span> <span class="title class_">Future</span> &#123;</span><br><span class="line">    <span class="comment">// Future 最终产生的结果类型</span></span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 驱动 Future 执行：返回 Poll&lt;Output&gt;</span></span><br><span class="line">    <span class="comment">// waker：用于唤醒暂停的 Future</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">poll</span>(<span class="keyword">self</span>: Pin&lt;&amp;<span class="keyword">mut</span> <span class="keyword">Self</span>&gt;, cx: &amp;<span class="keyword">mut</span> Context&lt;<span class="symbol">&#x27;_</span>&gt;) <span class="punctuation">-&gt;</span> Poll&lt;<span class="keyword">Self</span>::Output&gt;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Poll 枚举：表示 Future 的执行状态</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Poll</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">// Future 仍在执行中（需要等待某个事件，如 IO 完成）</span></span><br><span class="line">    Pending,</span><br><span class="line">    <span class="comment">// Future 已完成，返回结果 T</span></span><br><span class="line">    <span class="title function_ invoke__">Ready</span>(T),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Future-的特性"><a href="#Future-的特性" class="headerlink" title="Future 的特性"></a>Future 的特性</h3><p>Future 是惰性的——定义后不会自动执行，必须通过 <code>poll</code> 方法”驱动”它运行。只有当调用者（通常是异步执行器）调用 <code>poll</code> 时，Future 才会推进执行，直到遇到”需要等待的事件”（如网络请求、文件IO），此时返回 <code>Pending</code> 并暂停，等待被 <code>waker</code> 唤醒后再次执行。</p>
-<h2 id="4-执行器（Executor）"><a href="#4-执行器（Executor）" class="headerlink" title="4. 执行器（Executor）"></a>4. 执行器（Executor）</h2><p>要运行一个异步函数（<code>async fn</code>），必须使用一个执行器（Runtime &#x2F; Executor）来驱动它。</p>
-<h3 id="执行器使用方式"><a href="#执行器使用方式" class="headerlink" title="执行器使用方式"></a>执行器使用方式</h3><table>
-<thead>
-<tr>
-<th>场景</th>
-<th>方式</th>
-<th>示例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>应用程序入口</td>
-<td>使用宏</td>
-<td><code>#[tokio::main] async fn main() &#123; ... &#125;</code></td>
-</tr>
-<tr>
-<td>普通函数中</td>
-<td>手动创建 Runtime</td>
-<td><code>Runtime::new().unwrap().block_on(future)</code></td>
-</tr>
-<tr>
-<td>轻量级&#x2F;测试</td>
-<td>使用简单执行器</td>
-<td><code>futures::executor::block_on(future)</code></td>
-</tr>
-</tbody></table>
-<h3 id="并发执行多个-Future"><a href="#并发执行多个-Future" class="headerlink" title="并发执行多个 Future"></a>并发执行多个 Future</h3><p><code>async</code>&#x2F;<code>.await</code> 本身是串行的，若要并发执行多个 Future，需使用并发宏：</p>
-<ul>
-<li><strong><code>tokio::join!</code></strong> &#x2F; **<code>async_std::future::join!</code>**：等待所有 Future 完成（类似 Promise.all）</li>
-<li><strong><code>tokio::select!</code></strong> &#x2F; **<code>async_std::future::select!</code>**：等待第一个完成的 Future（类似 Promise.race）</li>
-<li>**<code>tokio::try_join!</code>**：并发执行，且所有 Future 均返回 <code>Result</code>，一旦有一个失败则立即返回错误</li>
-</ul>
-<h2 id="5-运行时（Runtime）"><a href="#5-运行时（Runtime）" class="headerlink" title="5. 运行时（Runtime）"></a>5. 运行时（Runtime）</h2><p>运行时是驱动异步任务（Future）执行的”引擎”，负责线程池管理、任务调度、IO事件复用（如 epoll&#x2F;kqueue）等底层工作。</p>
-<h3 id="运行时的三个核心部分"><a href="#运行时的三个核心部分" class="headerlink" title="运行时的三个核心部分"></a>运行时的三个核心部分</h3><ol>
-<li><p><strong>Executor（执行器）</strong></p>
-<ul>
-<li>负责不断调用 <code>Future::poll()</code> 推进任务执行</li>
-<li>支持任务调度、任务队列、线程池等</li>
-</ul>
-</li>
-<li><p><strong>Reactor（反应器）</strong></p>
-<ul>
-<li>基于操作系统的 IO 多路复用机制（epoll&#x2F;Linux、kqueue&#x2F;macOS、IOCP&#x2F;Windows）</li>
-<li>当 socket、文件或计时器可用时，唤醒对应任务</li>
-</ul>
-</li>
-<li><p><strong>Concurrency Primitives（并发原语）</strong></p>
-<ul>
-<li>提供异步锁（如 <code>Mutex</code>）、通道（<code>Channel</code>）、计时器（<code>Timer</code>）等工具，支持多任务安全通信</li>
-</ul>
-</li>
+<ol>
+<li>Box<T> — 在堆上分配内存</T></li>
 </ol>
-<h3 id="常见运行时库对比"><a href="#常见运行时库对比" class="headerlink" title="常见运行时库对比"></a>常见运行时库对比</h3><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>Tokio</th>
-<th>async-std</th>
-<th>futures</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>性能</td>
-<td>最高（多线程调度）</td>
-<td>中等</td>
-<td>轻量，适中</td>
-</tr>
-<tr>
-<td>使用体验</td>
-<td>偏工程化、配置丰富</td>
-<td>最接近标准库</td>
-<td>极简、底层</td>
-</tr>
-<tr>
-<td>生态支持</td>
-<td>最强（hyper, tonic, reqwest）</td>
-<td>中等</td>
-<td>少量核心库</td>
-</tr>
-<tr>
-<td>内部实现</td>
-<td>work-stealing + reactor</td>
-<td>smol 内核</td>
-<td>模块化组件</td>
-</tr>
-<tr>
-<td>适合场景</td>
-<td>高并发服务端</td>
-<td>快速开发、教学</td>
-<td>小型嵌入式、自定义运行时</td>
-</tr>
-</tbody></table>
-<h3 id="Tokio-示例"><a href="#Tokio-示例" class="headerlink" title="Tokio 示例"></a>Tokio 示例</h3><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 并发执行两个任务</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task1</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 1 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">task2</span> = <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">500</span>)).<span class="keyword">await</span>;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Task 2 done&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// join! 等待两个任务都完成</span></span><br><span class="line">    tokio::join!(task1, task2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Box<T>是Rust最基本的智能指针之一，它用于在堆上分配内存并存储数据。Box通过所有权系统管理堆上的数据，确保在Box离开作用域时自动清理内存。</T></p>
+<p><strong>示例</strong></p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="number">5</span>); <span class="comment">// 在堆上分配整数 5</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;b = &#123;&#125;&quot;</span>, b);</span><br><span class="line">&#125; <span class="comment">// 当 b 离开作用域时，堆上的内存会自动被释放</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li><strong><code>async</code></strong> 将函数或代码块转化为 Future</li>
-<li><strong><code>.await</code></strong> 用于暂停执行并等待 Future 完成</li>
-<li><strong>Future</strong> 是 Rust 异步编程的基础，需要通过执行器来驱动</li>
-<li><strong>执行器</strong> 负责调度和运行 Future，支持单线程或多线程并发</li>
-<li><strong>运行时</strong> 提供了完整的异步生态，Tokio 是最流行的选择</li>
-<li>异步编程适合 I&#x2F;O 密集型任务，可在单线程上实现高并发</li>
+
+<p>在这个例子中，Box::new(5)会在堆上为整数5分配内存，并返回一个指向该内存的Box。当b离开作用域时，Box会自动释放堆上的内存，避免内存泄漏。</p>
+<p>使用场景</p>
+<ul>
+<li>当你想要在堆上存储大对象（例如大型数组或结构体）时，<code>Box&lt;T&gt;</code> 是非常有用的。</li>
+<li>当你需要拥有数据的唯一所有权时，Box 是一个简洁的解决方案。</li>
 </ul>
+<h3 id="2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数"><a href="#2-Rc-lt-T-gt-和-Arc-lt-T-gt-—-引用计数" class="headerlink" title="2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数"></a>2. Rc&lt;T&gt; 和 Arc&lt;T&gt; — 引用计数</h3><p>Rc<T>（Reference Counted）和Arc<T>（Atomic Reference Counted）都实现了引用计数智能指针，用于共享内存。与Box<T>不同，Rc<T>和Arc<T>允许多个所有者共享对数据的引用。</T></T></T></T></T></p>
+<ul>
+<li><code>Rc&lt;T&gt;</code>：在单线程中使用，性能较高。</li>
+<li><code>Arc&lt;T&gt;</code>：线程安全的版本，适用于多线程环境。</li>
+</ul>
+<h4 id="示例：使用Rc-lt-T-gt"><a href="#示例：使用Rc-lt-T-gt" class="headerlink" title="示例：使用Rc&lt;T&gt;"></a>示例：使用Rc&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="type">String</span>::<span class="title function_ invoke__">from</span>(<span class="string">&quot;Hello, world!&quot;</span>));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">s2</span> = Rc::<span class="title function_ invoke__">clone</span>(&amp;s); <span class="comment">// 克隆 Rc，增加引用计数</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;s = &#123;&#125;, s2 = &#123;&#125;&quot;</span>, s, s2);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Reference count: &#123;&#125;&quot;</span>, Rc::<span class="title function_ invoke__">strong_count</span>(&amp;s)); <span class="comment">// 打印引用计数</span></span><br><span class="line">&#125; <span class="comment">// 当所有 Rc 指针离开作用域时，内存会被释放</span></span><br></pre></td></tr></table></figure>
+
+<p>使用场景</p>
+<ul>
+<li><code>Rc&lt;T&gt;</code> 适合用于需要多个所有者共享数据的场景，且只在单线程环境中使用。</li>
+<li><code>Arc&lt;T&gt;</code> 适用于多线程环境，允许多个线程共享数据，确保线程安全。</li>
+</ul>
+<h3 id="3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性"><a href="#3-RefCell-lt-T-gt-和-Mutex-lt-T-gt-—-可变性与内部可变性" class="headerlink" title="3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性"></a>3. RefCell&lt;T&gt; 和 Mutex&lt;T&gt; — 可变性与内部可变性</h3><p>虽然Rust的所有权和借用系统通常不允许同时存在多个可变引用，但通过智能指针，我们可以绕过这一限制，提供内部可变性。</p>
+<ul>
+<li><code>RefCell&lt;T&gt;</code>：允许在单线程中进行可变借用，提供运行时的借用检查。</li>
+<li><code>Mutex&lt;T&gt;</code>：提供多线程中的内部可变性，确保数据在多个线程之间的安全共享。</li>
+</ul>
+<h4 id="示例：使用RefCell-lt-T-gt"><a href="#示例：使用RefCell-lt-T-gt" class="headerlink" title="示例：使用RefCell&lt;T&gt;"></a>示例：使用RefCell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::RefCell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = RefCell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    *x.<span class="title function_ invoke__">borrow_mut</span>() = <span class="number">10</span>; <span class="comment">// 可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>()); <span class="comment">// 不可变借用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在这个例子中，RefCell允许我们通过borrow_mut()方法进行可变借用，并在运行时检查借用规则。</p>
+<h4 id="示例：使用Mutex-lt-T-gt"><a href="#示例：使用Mutex-lt-T-gt" class="headerlink" title="示例：使用Mutex&lt;T&gt;"></a>示例：使用Mutex&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::Mutex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 获取锁</span></span><br><span class="line">        *num = <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;m = &#123;&#125;&quot;</span>, m.<span class="title function_ invoke__">lock</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Mutex<T>确保在多线程环境中，只有一个线程能访问数据，避免数据竞争。</T></p>
+<p><strong>使用场景</strong></p>
+<ul>
+<li><code>RefCell&lt;T&gt;</code> 适合用于需要动态检查和管理可变借用的单线程应用。</li>
+<li><code>Mutex&lt;T&gt;</code> 用于多线程环境下，确保数据的线程安全访问。</li>
+</ul>
+<h3 id="4-Cell-lt-T-gt-—-简单的内部可变性"><a href="#4-Cell-lt-T-gt-—-简单的内部可变性" class="headerlink" title="4. Cell&lt;T&gt; — 简单的内部可变性"></a>4. Cell&lt;T&gt; — 简单的内部可变性</h3><p>Cell<T>提供了一种非常轻量级的方式来实现内部可变性，适用于无需引用的情况下存储数据。它通常用于存储基本类型数据，如整数、布尔值等。</T></p>
+<h4 id="示例：使用Cell-lt-T-gt"><a href="#示例：使用Cell-lt-T-gt" class="headerlink" title="示例：使用Cell&lt;T&gt;"></a>示例：使用Cell&lt;T&gt;</h4><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::Cell;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = Cell::<span class="title function_ invoke__">new</span>(<span class="number">5</span>);</span><br><span class="line">    x.<span class="title function_ invoke__">set</span>(<span class="number">10</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;x = &#123;&#125;&quot;</span>, x.<span class="title function_ invoke__">get</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用场景</p>
+<p><code>Cell&lt;T&gt;</code> 适合在单线程中提供简单的可变数据存储，尤其是对于基础数据类型。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Rust的智能指针提供了强大的内存管理能力，它们在确保内存安全的同时，也使得我们能够更灵活地操作数据。在Rust中，智能指针不仅仅是内存管理的工具，更是借用和所有权系统的核心组成部分，它们帮助开发者避免内存泄漏和数据竞争的问题。</p>
+<ul>
+<li>**Box<T>**：适用于堆分配数据，拥有唯一所有权。</T></li>
+<li><strong>Rc<T></T></strong> 和 **Arc<T>**：适用于共享数据，提供引用计数。</T></li>
+<li><strong>RefCell<T></T></strong> 和 **Mutex<T>**：提供内部可变性，支持单线程和多线程场景。</T></li>
+<li>**Cell<T>**：适用于简单类型的数据存储，支持内部可变性。</T></li>
+</ul>
+<p>通过合理选择合适的智能指针，我们可以写出既高效又安全的Rust程序。</p>
 ]]></content>
       <tags>
         <tag>Rust</tag>
@@ -3628,6 +3706,73 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 ]]></content>
       <tags>
         <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis 相关知识</title>
+    <url>/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
+<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
+<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
+<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
+<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
+<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
+</ul>
+<span id="more"></span>
+<h2 id="redis的数据结构"><a href="#redis的数据结构" class="headerlink" title="redis的数据结构"></a>redis的数据结构</h2><p>Redis支持五中数据类型：String、hash、list、set和zset（有序集合）</p>
+<h3 id="String-类型"><a href="#String-类型" class="headerlink" title="String 类型"></a>String 类型</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对</p>
+<blockquote>
+<p>set test “test”<br>OK<br>get test<br>“test”</p>
+</blockquote>
+<p>*注意：一个键最大能存储512MB</p>
+<h3 id="Hash（哈希）"><a href="#Hash（哈希）" class="headerlink" title="Hash（哈希）"></a>Hash（哈希）</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对集合，每个最外层key对应多个（key&#x3D;&#x3D;&gt;value）形式的键值对<br>使用时需要用命令HSET 和HGET命令。</p>
+<blockquote>
+<p>hset htest h1 “t1” h2 “t2”<br>2<br>hget htest h1<br>“t1”<br>hget htest h2<br>“t2”</p>
+</blockquote>
+<h3 id="List（列表）"><a href="#List（列表）" class="headerlink" title="List（列表）"></a>List（列表）</h3><p>是一个简单的字符串列表，排序默认按照插入顺序排序<br>需要用命令LPUSH 和LRANGE start end(给出索引起始和结束位置左闭又闭区间)命令。<br> lpush ltest qq<br>(integer) 1</p>
+<blockquote>
+<p>lpush ltest ll<br>(integer) 2<br>lrange ltest 0 10</p>
+</blockquote>
+<ol>
+<li>“ll”</li>
+<li>“qq”</li>
+</ol>
+<h3 id="set（集合）"><a href="#set（集合）" class="headerlink" title="set（集合）"></a>set（集合）</h3><p>添加一个string对象到对应的set集合中，成功返回1，如果元素已在集合中返回0<br>添加元素使用：sadd，显示所有元素使用 smembers</p>
+<blockquote>
+<p>sadd stest 1<br>(integer) 1<br>sadd stest 2<br>(integer) 1<br>sadd stest 1<br>(integer) 0<br>smembers stest</p>
+</blockquote>
+<ol>
+<li>“1”</li>
+<li>“2”</li>
+</ol>
+<h3 id="zset（有序集合）"><a href="#zset（有序集合）" class="headerlink" title="zset（有序集合）"></a>zset（有序集合）</h3><p>Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。<br>不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。<br>zset的成员是唯一的,但分数(score)却可以重复。<br>需要使用命令</p>
+<blockquote>
+<p>zadd ztest 0 t1<br>(integer) 1<br>zadd ztest 1 t2<br>(integer) 1<br>zadd ztest 0 t3<br>(integer) 1<br>zrangebyscore ztest 0 3</p>
+</blockquote>
+<ol>
+<li>“t1”</li>
+<li>“t3”</li>
+<li>“t2”</li>
+</ol>
+<h2 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h2><p>为什么需要持久化？<br>Redis的数据都存储在内存中，若没有配置持久化，redis重启后数据就丢失了，于是需要开启redis的持久化功能，将数据保存到磁盘上，重启后从磁盘恢复数据。redis提供了两种持久化方式：1.RDB持久化（定时将redis在内存中的数据生成快照，全量同步到磁盘）。2.AOF（append only file）持久化（将redis的操作日志以追加的方式写入文件）。</p>
+<ol>
+<li><p>RDB持久化<br>过程：在指定时间间隔内将内存中的数据集快照写入磁盘，实际操作过程就是fork一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用于二进制压缩存储。<br><a href="https://imgse.com/i/pCtU9i9"><img src="https://s1.ax1x.com/2023/06/24/pCtU9i9.png" alt="pCtU9i9.png"></a><br>优点：<br>1.redis只会包含一个文件，便于文件备份。可以配置每小时归档最近24小时的数据，同时每天归档最近30天的数据，通过这样的策略，一旦系统出现灾难性故障，可以很容易的进行恢复。<br>2.RDB适合于灾难恢复，可以很轻松的将一个单独的文件压缩后再转移到其他存储介质上。<br>3.性能最大化。fork出一个子进程完成持久化操作，避免了单个线程的IO问题。<br>4.相比于AOF机制，如果数据集很大，RDB的启动效率更高。<br>缺点：<br>1.无法保证数据的高可用性，即最大限度的避免数据丢失。如果在持久化之前出现宕机现象，此前未来得及写入磁盘的数据都将丢失。<br>2.fork子进程完成持久化操作时，如果数据集较大时，可能会导致服务器停止服务几百毫秒到1秒。</p>
+</li>
+<li><p>AOF持久化<br>过程：AOF以日志的形式来记录每个写操作，将redis执行过的所有写指令记录下来，只许追加文件但不允许改写文件，redis启动之后就会读取该文件重构数据集。默认是不开启的，需要将appendonly改为yes就开启了aof，重启后生效。<br><a href="https://imgse.com/i/pCtUCGR"><img src="https://s1.ax1x.com/2023/06/24/pCtUCGR.png" alt="pCtUCGR.png"></a><br>优点：<br>1.更高的数据安全性，保证数据在redis重启前后是一致的。<br>2.日志写操作采用的是append方式，写入过程中出现宕机也不会破坏日志文件中已存在的内容。<br>3.如果日志过大，redis会自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。<br>4.AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。<br>缺点：<br>1.对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>2.根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p>
+</li>
+</ol>
+<h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><p>1.主从模式<br>至少需要两台服务器，一台主节点（master），一台从节点（slave）。master主要负责写，slave主要负责读，主从模式实现了读写分离。<br><a href="https://imgse.com/i/pCtUkM6"><img src="https://s1.ax1x.com/2023/06/24/pCtUkM6.png" alt="pCtUkM6.png"></a><br>主从复制的作用：<br>数据冗余：实现了数据的热备份，是持久化之外的另一种数据冗余方式<br>故障恢复：master故障时，slave可以提供服务，实现故障快速恢复<br>负载均衡：master负责写，slave负责读。在写少读多的场景下可以极大提高redis吞吐量<br>高可用基石：主从复制是redis哨兵模式和集群模式的基础。<br>主从复制实现原理：<br>主从复制过程主要可以分为3个阶段：连接建立阶段、数据同步阶段、命令传播阶段。<br>连接建立阶段：在主从节点之间建立连接，为数据同步做准备。<br>数据同步阶段：执行数据的全量（或增量）复制（复制RDB文件）<br>命令传播阶段：主节点将已执行的命令发送给从节点，从节点接收命令并执行，从而实现主从节点的数据一致性<br>主从模式中，一个主节点可以有多个从节点。为了减少主从复制对主节点的性能影响，一个从节点可以作为另外一个从节点的主节点进行主从复制。<br>不足之处：主节点宕机之后，需要手动拉起从节点来提供业务，不能达到高可用。</p>
+<p>2.哨兵模式<br><a href="https://imgse.com/i/pCtUZZD"><img src="https://s1.ax1x.com/2023/06/24/pCtUZZD.png" alt="pCtUZZD.png"></a><br>哨兵模式的原理<br>Sentinel是一种特殊的redis节点，每个sentinel节点会维护与其他redis节点（包括master&#x2F;slave&#x2F;sentinel）的心跳。<br>当一个sentinel节点与master节点的心跳丢失时，这个sentinel节点就会认为master节点出现了故障，处于不可用的状态，这种判定叫作主观下线（即sentinel节点自己主观认为master下线了），之后，这个sentinel节点会与其他sentinel节点交换信息，如果发现认为主节点发生故障的sentinel节点的个数超过了某个阈值（通常为sentinel节点总数的1&#x2F;2+1，即超过半数），则sentinel会认为master节点已经处于客观下线的状态，即大家都认为master故障不可用了。<br>之后，sentinel节点中会选举处一个sentinel leader来执行redis主节点的故障转移。<br>被选举出的 Sentinel 领导者进行故障转移的具体步骤如下：<br>（1）在从节点列表中选出一个节点作为新的主节点</p>
+<ul>
+<li>过滤不健康或者不满足要求的节点；</li>
+<li>选择 slave-priority（优先级）最高的从节点， 如果存在则返回， 不存在则继续；</li>
+<li>选择复制偏移量最大的从节点 ， 如果存在则返回， 不存在则继续；</li>
+<li>选择 runid 最小的从节点。<br>（2）Sentinel 领导者节点会对选出来的从节点执行 slaveof no one 命令让其成为主节点。<br>（3）Sentinel 领导者节点会向剩余的从节点发送命令，让他们从新的主节点上复制数据。<br>（4）Sentinel 领导者会将原来的主节点更新为从节点， 并对其进行监控， 当其恢复后命令它去复制新的主节点。</li>
+</ul>
+<p>3.集群模式<br>如图所示集群模式其实就是多个主从复制的结构组合起来的，每一个主从复制结构可以看成一个节点，那么上面的Cluster集群中就有三个节点。<br><a href="https://imgse.com/i/pCtUmIH"><img src="https://s1.ax1x.com/2023/06/24/pCtUmIH.png" alt="pCtUmIH.png"></a></p>
+]]></content>
+      <tags>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -4027,73 +4172,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 ]]></content>
       <tags>
         <tag>Rust</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>redis 相关知识</title>
-    <url>/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
-<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
-<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
-<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
-<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
-<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
-</ul>
-<span id="more"></span>
-<h2 id="redis的数据结构"><a href="#redis的数据结构" class="headerlink" title="redis的数据结构"></a>redis的数据结构</h2><p>Redis支持五中数据类型：String、hash、list、set和zset（有序集合）</p>
-<h3 id="String-类型"><a href="#String-类型" class="headerlink" title="String 类型"></a>String 类型</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对</p>
-<blockquote>
-<p>set test “test”<br>OK<br>get test<br>“test”</p>
-</blockquote>
-<p>*注意：一个键最大能存储512MB</p>
-<h3 id="Hash（哈希）"><a href="#Hash（哈希）" class="headerlink" title="Hash（哈希）"></a>Hash（哈希）</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对集合，每个最外层key对应多个（key&#x3D;&#x3D;&gt;value）形式的键值对<br>使用时需要用命令HSET 和HGET命令。</p>
-<blockquote>
-<p>hset htest h1 “t1” h2 “t2”<br>2<br>hget htest h1<br>“t1”<br>hget htest h2<br>“t2”</p>
-</blockquote>
-<h3 id="List（列表）"><a href="#List（列表）" class="headerlink" title="List（列表）"></a>List（列表）</h3><p>是一个简单的字符串列表，排序默认按照插入顺序排序<br>需要用命令LPUSH 和LRANGE start end(给出索引起始和结束位置左闭又闭区间)命令。<br> lpush ltest qq<br>(integer) 1</p>
-<blockquote>
-<p>lpush ltest ll<br>(integer) 2<br>lrange ltest 0 10</p>
-</blockquote>
-<ol>
-<li>“ll”</li>
-<li>“qq”</li>
-</ol>
-<h3 id="set（集合）"><a href="#set（集合）" class="headerlink" title="set（集合）"></a>set（集合）</h3><p>添加一个string对象到对应的set集合中，成功返回1，如果元素已在集合中返回0<br>添加元素使用：sadd，显示所有元素使用 smembers</p>
-<blockquote>
-<p>sadd stest 1<br>(integer) 1<br>sadd stest 2<br>(integer) 1<br>sadd stest 1<br>(integer) 0<br>smembers stest</p>
-</blockquote>
-<ol>
-<li>“1”</li>
-<li>“2”</li>
-</ol>
-<h3 id="zset（有序集合）"><a href="#zset（有序集合）" class="headerlink" title="zset（有序集合）"></a>zset（有序集合）</h3><p>Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。<br>不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。<br>zset的成员是唯一的,但分数(score)却可以重复。<br>需要使用命令</p>
-<blockquote>
-<p>zadd ztest 0 t1<br>(integer) 1<br>zadd ztest 1 t2<br>(integer) 1<br>zadd ztest 0 t3<br>(integer) 1<br>zrangebyscore ztest 0 3</p>
-</blockquote>
-<ol>
-<li>“t1”</li>
-<li>“t3”</li>
-<li>“t2”</li>
-</ol>
-<h2 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h2><p>为什么需要持久化？<br>Redis的数据都存储在内存中，若没有配置持久化，redis重启后数据就丢失了，于是需要开启redis的持久化功能，将数据保存到磁盘上，重启后从磁盘恢复数据。redis提供了两种持久化方式：1.RDB持久化（定时将redis在内存中的数据生成快照，全量同步到磁盘）。2.AOF（append only file）持久化（将redis的操作日志以追加的方式写入文件）。</p>
-<ol>
-<li><p>RDB持久化<br>过程：在指定时间间隔内将内存中的数据集快照写入磁盘，实际操作过程就是fork一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用于二进制压缩存储。<br><a href="https://imgse.com/i/pCtU9i9"><img src="https://s1.ax1x.com/2023/06/24/pCtU9i9.png" alt="pCtU9i9.png"></a><br>优点：<br>1.redis只会包含一个文件，便于文件备份。可以配置每小时归档最近24小时的数据，同时每天归档最近30天的数据，通过这样的策略，一旦系统出现灾难性故障，可以很容易的进行恢复。<br>2.RDB适合于灾难恢复，可以很轻松的将一个单独的文件压缩后再转移到其他存储介质上。<br>3.性能最大化。fork出一个子进程完成持久化操作，避免了单个线程的IO问题。<br>4.相比于AOF机制，如果数据集很大，RDB的启动效率更高。<br>缺点：<br>1.无法保证数据的高可用性，即最大限度的避免数据丢失。如果在持久化之前出现宕机现象，此前未来得及写入磁盘的数据都将丢失。<br>2.fork子进程完成持久化操作时，如果数据集较大时，可能会导致服务器停止服务几百毫秒到1秒。</p>
-</li>
-<li><p>AOF持久化<br>过程：AOF以日志的形式来记录每个写操作，将redis执行过的所有写指令记录下来，只许追加文件但不允许改写文件，redis启动之后就会读取该文件重构数据集。默认是不开启的，需要将appendonly改为yes就开启了aof，重启后生效。<br><a href="https://imgse.com/i/pCtUCGR"><img src="https://s1.ax1x.com/2023/06/24/pCtUCGR.png" alt="pCtUCGR.png"></a><br>优点：<br>1.更高的数据安全性，保证数据在redis重启前后是一致的。<br>2.日志写操作采用的是append方式，写入过程中出现宕机也不会破坏日志文件中已存在的内容。<br>3.如果日志过大，redis会自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。<br>4.AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。<br>缺点：<br>1.对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>2.根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p>
-</li>
-</ol>
-<h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><p>1.主从模式<br>至少需要两台服务器，一台主节点（master），一台从节点（slave）。master主要负责写，slave主要负责读，主从模式实现了读写分离。<br><a href="https://imgse.com/i/pCtUkM6"><img src="https://s1.ax1x.com/2023/06/24/pCtUkM6.png" alt="pCtUkM6.png"></a><br>主从复制的作用：<br>数据冗余：实现了数据的热备份，是持久化之外的另一种数据冗余方式<br>故障恢复：master故障时，slave可以提供服务，实现故障快速恢复<br>负载均衡：master负责写，slave负责读。在写少读多的场景下可以极大提高redis吞吐量<br>高可用基石：主从复制是redis哨兵模式和集群模式的基础。<br>主从复制实现原理：<br>主从复制过程主要可以分为3个阶段：连接建立阶段、数据同步阶段、命令传播阶段。<br>连接建立阶段：在主从节点之间建立连接，为数据同步做准备。<br>数据同步阶段：执行数据的全量（或增量）复制（复制RDB文件）<br>命令传播阶段：主节点将已执行的命令发送给从节点，从节点接收命令并执行，从而实现主从节点的数据一致性<br>主从模式中，一个主节点可以有多个从节点。为了减少主从复制对主节点的性能影响，一个从节点可以作为另外一个从节点的主节点进行主从复制。<br>不足之处：主节点宕机之后，需要手动拉起从节点来提供业务，不能达到高可用。</p>
-<p>2.哨兵模式<br><a href="https://imgse.com/i/pCtUZZD"><img src="https://s1.ax1x.com/2023/06/24/pCtUZZD.png" alt="pCtUZZD.png"></a><br>哨兵模式的原理<br>Sentinel是一种特殊的redis节点，每个sentinel节点会维护与其他redis节点（包括master&#x2F;slave&#x2F;sentinel）的心跳。<br>当一个sentinel节点与master节点的心跳丢失时，这个sentinel节点就会认为master节点出现了故障，处于不可用的状态，这种判定叫作主观下线（即sentinel节点自己主观认为master下线了），之后，这个sentinel节点会与其他sentinel节点交换信息，如果发现认为主节点发生故障的sentinel节点的个数超过了某个阈值（通常为sentinel节点总数的1&#x2F;2+1，即超过半数），则sentinel会认为master节点已经处于客观下线的状态，即大家都认为master故障不可用了。<br>之后，sentinel节点中会选举处一个sentinel leader来执行redis主节点的故障转移。<br>被选举出的 Sentinel 领导者进行故障转移的具体步骤如下：<br>（1）在从节点列表中选出一个节点作为新的主节点</p>
-<ul>
-<li>过滤不健康或者不满足要求的节点；</li>
-<li>选择 slave-priority（优先级）最高的从节点， 如果存在则返回， 不存在则继续；</li>
-<li>选择复制偏移量最大的从节点 ， 如果存在则返回， 不存在则继续；</li>
-<li>选择 runid 最小的从节点。<br>（2）Sentinel 领导者节点会对选出来的从节点执行 slaveof no one 命令让其成为主节点。<br>（3）Sentinel 领导者节点会向剩余的从节点发送命令，让他们从新的主节点上复制数据。<br>（4）Sentinel 领导者会将原来的主节点更新为从节点， 并对其进行监控， 当其恢复后命令它去复制新的主节点。</li>
-</ul>
-<p>3.集群模式<br>如图所示集群模式其实就是多个主从复制的结构组合起来的，每一个主从复制结构可以看成一个节点，那么上面的Cluster集群中就有三个节点。<br><a href="https://imgse.com/i/pCtUmIH"><img src="https://s1.ax1x.com/2023/06/24/pCtUmIH.png" alt="pCtUmIH.png"></a></p>
-]]></content>
-      <tags>
-        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -4616,26 +4694,6 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
-    <title>函数响应式编程——RxJava</title>
-    <url>/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/</url>
-    <content><![CDATA[<p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
-<span id="more"></span>
-<p>RxJava是ReactiveX的一种Java实现，ReactiveX是Reactive Extensions的缩写，一般简写为Rx。<br>微软的定义是：Rx是一个函数库，让开发者可以利用可观察序列和LINQ风格查询操作符来编写异步和基于事件的程序。开发者可以用Observables表示异步数据流，用<br>LINQ操作符查询一部数据流，用Schedulers参数化一部数据流的并发处理，Rx可以这样定义：Rx &#x3D; Observables+LINQ+Schedulers。</p>
-<p>1.为何要用RxJava<br>说到异步操作，我们会想到Android的AsyncTask和Handler。但是随着请求的数量越来越多，代码逻辑将会变得越来越复杂而RxJava却仍旧能保持清晰的逻辑。<br>RxJava的原理就是创建一个Observable对象来干活，然后使用各种操作符建立起来的链式操作，就如同流水线一样，把你想要处理的数据一步一步地加工成你<br>想要的成品，然后发射给Subscriber处理</p>
-<p>2.RxJava与观察者模式<br>RxJava的异步操作是通过扩展的观察者模式来实现的。RxJava有4个角色Observable、Observer、Subscriber和Suject，这4个角色后面会具体讲解。<br>Observable和Observer 通过subscribe方法实现订阅关系，Observable就可以在需要的时候通知Observer</p>
-<p>3.RxJava的基本实现<br>1）创建Observer(观察者)<br>它决定事件触发的时候将有怎样的行为，其中onCompleted、onError和onNext是必须要实现的方法。<br>2）创建Observable(被观察者)<br>它决定什么时候触发事件以及触发怎样的事件。RxJava使用create方法，just方法，或者from方来创建一个Observable<br>2）Subscribe(订阅)<br>订阅只需要一行代码就可以了<br>observable.subscribe(subscriber)</p>
-<p>3.Subject<br>subject既可以是一个Observer，也可以是一个Observerable,它是连接Observer和Observerable的桥梁，因此，Subject可以被理解为Subject&#x3D;Observable+Observer。<br>RxJava提供了以下4种Subject:</p>
-<ol>
-<li>PublishSubject<br>publishsubject只会把在订阅发生的事件点之后来自原始Observable的数据发生给观察者。如果要确保来自原始Observable的所有数据都被分发，<br>则可以当所有观察者都已经订阅时才开始发射数据，或者改用ReplaySubject。<br>2）BehaviorSubject<br>当Observer订阅BehaviorSubject时，它开始发射原始Observable最近发射的数据<br>3）ReplaySubject<br>不管Observer何时订阅ReplaySubject，ReplaySubject均会发射所有来自原始Observable的数据给Observer。如果使用ReplaySubject作为Observer，注意不要在多个线程中调用onNext、onComplete和onError方法。这可能会导致顺序错乱，并且违反了Observer规则。<br>4）AsyncSubject<br>当Observable完成时，AsyncSubject只会发射来自原始Observable的最后一个数据</li>
-</ol>
-<p>4.RxJava操作符<br>RxJava操作符的类型分为创建操作符、变换操作符、过滤操作符、组合操作符、错误处理操作符、辅助操作符、条件和布尔操作符、算术和聚合操作符及连接操作符等，<br>而这些操作符类型下又有很多操作符，每个操作符可能还有很多变体。</p>
-<p>创建操作符：create,just,from,defer,range,interval,start,repeat,timer<br>变换操作符：map,flatMap,concatMap,switchMap等<br>过滤操作符：filter,elementAt,distince,skip,take<br>组合操作符：startWith,merge,concat,zip</p>
-]]></content>
-      <tags>
-        <tag>RxJava</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>使用Android sharesheet在Android应用程序中分享内容和链接</title>
     <url>/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/</url>
     <content><![CDATA[<p>为何要使用Android sharesheet<br>主要有三点原因：</p>
@@ -4689,6 +4747,26 @@ protected void onCreate(Bundle savedInstanceState) &#123;
       </tags>
   </entry>
   <entry>
+    <title>函数响应式编程——RxJava</title>
+    <url>/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/</url>
+    <content><![CDATA[<p>函数响应式编程是一种编程范式。我们常见的编程范式由命令式编程、函数式编程和逻辑式编程。我们常见的面向对象编程是一种命令式编程。命令式编程是面向计算机硬件的抽象，<br>有变量、赋值语句、表达式和控制语句。而函数式编程是面向数学的抽象，将计算描述为一种表达式求职，函数可以在任何地方定义，并且可以对函数进行组合。<br>响应式编程是一种面向数据流和变化传播的编程范式，数据更新是相关联的。把函数式编程里的一套思路和响应式编程合起来就是函数响应式编程。<br>在Android开发中使用函数响应式编程的主要有两大框架：一个是RxJava，另一个是Google推出的Agera。</p>
+<span id="more"></span>
+<p>RxJava是ReactiveX的一种Java实现，ReactiveX是Reactive Extensions的缩写，一般简写为Rx。<br>微软的定义是：Rx是一个函数库，让开发者可以利用可观察序列和LINQ风格查询操作符来编写异步和基于事件的程序。开发者可以用Observables表示异步数据流，用<br>LINQ操作符查询一部数据流，用Schedulers参数化一部数据流的并发处理，Rx可以这样定义：Rx &#x3D; Observables+LINQ+Schedulers。</p>
+<p>1.为何要用RxJava<br>说到异步操作，我们会想到Android的AsyncTask和Handler。但是随着请求的数量越来越多，代码逻辑将会变得越来越复杂而RxJava却仍旧能保持清晰的逻辑。<br>RxJava的原理就是创建一个Observable对象来干活，然后使用各种操作符建立起来的链式操作，就如同流水线一样，把你想要处理的数据一步一步地加工成你<br>想要的成品，然后发射给Subscriber处理</p>
+<p>2.RxJava与观察者模式<br>RxJava的异步操作是通过扩展的观察者模式来实现的。RxJava有4个角色Observable、Observer、Subscriber和Suject，这4个角色后面会具体讲解。<br>Observable和Observer 通过subscribe方法实现订阅关系，Observable就可以在需要的时候通知Observer</p>
+<p>3.RxJava的基本实现<br>1）创建Observer(观察者)<br>它决定事件触发的时候将有怎样的行为，其中onCompleted、onError和onNext是必须要实现的方法。<br>2）创建Observable(被观察者)<br>它决定什么时候触发事件以及触发怎样的事件。RxJava使用create方法，just方法，或者from方来创建一个Observable<br>2）Subscribe(订阅)<br>订阅只需要一行代码就可以了<br>observable.subscribe(subscriber)</p>
+<p>3.Subject<br>subject既可以是一个Observer，也可以是一个Observerable,它是连接Observer和Observerable的桥梁，因此，Subject可以被理解为Subject&#x3D;Observable+Observer。<br>RxJava提供了以下4种Subject:</p>
+<ol>
+<li>PublishSubject<br>publishsubject只会把在订阅发生的事件点之后来自原始Observable的数据发生给观察者。如果要确保来自原始Observable的所有数据都被分发，<br>则可以当所有观察者都已经订阅时才开始发射数据，或者改用ReplaySubject。<br>2）BehaviorSubject<br>当Observer订阅BehaviorSubject时，它开始发射原始Observable最近发射的数据<br>3）ReplaySubject<br>不管Observer何时订阅ReplaySubject，ReplaySubject均会发射所有来自原始Observable的数据给Observer。如果使用ReplaySubject作为Observer，注意不要在多个线程中调用onNext、onComplete和onError方法。这可能会导致顺序错乱，并且违反了Observer规则。<br>4）AsyncSubject<br>当Observable完成时，AsyncSubject只会发射来自原始Observable的最后一个数据</li>
+</ol>
+<p>4.RxJava操作符<br>RxJava操作符的类型分为创建操作符、变换操作符、过滤操作符、组合操作符、错误处理操作符、辅助操作符、条件和布尔操作符、算术和聚合操作符及连接操作符等，<br>而这些操作符类型下又有很多操作符，每个操作符可能还有很多变体。</p>
+<p>创建操作符：create,just,from,defer,range,interval,start,repeat,timer<br>变换操作符：map,flatMap,concatMap,switchMap等<br>过滤操作符：filter,elementAt,distince,skip,take<br>组合操作符：startWith,merge,concat,zip</p>
+]]></content>
+      <tags>
+        <tag>RxJava</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>如何解决hexo首页显示博客的全部文章</title>
     <url>/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/</url>
     <content><![CDATA[<p>在第一次书写博客后，应该会发现自己整篇博客的文章都在这个首页中显示，可能一个两个还好，但是越往后，自己写的博客越多，全都放在首页堆积，就会显得十分臃肿</p>
@@ -4698,6 +4776,85 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <h3 id="方法一：写概述"><a href="#方法一：写概述" class="headerlink" title="方法一：写概述"></a>方法一：写概述</h3><p>在文章的front-matter中（即new一个博客时生成的内容里）添加description，其中description中的内容就会被显示到首页上，其余一律不显示。<br><code>title: 让首页显示部分内容 date: 2020-02-23 22:55:10 description: 这是显示在首页的概述，正文内容均会被隐藏。</code><br>比较不方便的是还需要写一个概述，很多时候懒得写概述，于是就需要第二种方法了。</p>
 <h3 id="方法二：文章截断"><a href="#方法二：文章截断" class="headerlink" title="方法二：文章截断"></a>方法二：文章截断</h3><p>在需要截断的地方加入：<br><code>&lt;!--more--&gt;</code><br>首页就会显示这条以上的所有内容，隐藏接下来的内容。比如本文就是使用了这种方法<br>这个明显就方便许多，当然有利有弊，比如开头都是废话的首页开着就不是很爽，因此我一般会先选择方法二，如果感觉文章前面写的不好就用方法一。</p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>比特币的输入输出详解</title>
+    <url>/2025/06/01/%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<h2 id="比特币简介"><a href="#比特币简介" class="headerlink" title="比特币简介"></a>比特币简介</h2><p>比特币（Bitcoin）是由中本聪（Satoshi Nakamoto）于2008年提出、2009年正式上线的去中心化数字货币。它基于区块链技术，通过点对点网络实现无需信任的价值转移。比特币的核心特性包括：</p>
+<ul>
+<li><strong>去中心化</strong>：没有中央机构或第三方，所有节点平等参与。</li>
+<li><strong>总量有限</strong>：总发行量为2100万枚，通胀可控。</li>
+<li><strong>公开透明</strong>：所有交易都记录在区块链上，任何人可查验。</li>
+<li><strong>抗审查性</strong>：交易难以被单一实体阻断或篡改。</li>
+<li><strong>匿名性</strong>：用户通过地址进行交易，无需实名。</li>
+</ul>
+<p>比特币的出现不仅推动了数字货币和区块链技术的发展，也为全球金融体系带来了新的思考和变革方向。</p>
+<h2 id="比特币的输入输出（UTXO）机制详解"><a href="#比特币的输入输出（UTXO）机制详解" class="headerlink" title="比特币的输入输出（UTXO）机制详解"></a>比特币的输入输出（UTXO）机制详解</h2><p>比特币采用<strong>UTXO（Unspent Transaction Output，未花费交易输出）模型</strong>，这是理解比特币交易和账本结构的核心。</p>
+<h3 id="1-UTXO-模型概述"><a href="#1-UTXO-模型概述" class="headerlink" title="1. UTXO 模型概述"></a>1. UTXO 模型概述</h3><ul>
+<li><strong>UTXO</strong>：每一笔比特币交易的输出（output）都可以作为后续交易的输入（input）。未被花费的输出即为 UTXO。</li>
+<li><strong>账户体系 vs. UTXO</strong>：以太坊等采用账户余额模型，而比特币采用 UTXO 模型，每个 UTXO 都是独立的“零钱”。</li>
+</ul>
+<h3 id="2-比特币交易结构"><a href="#2-比特币交易结构" class="headerlink" title="2. 比特币交易结构"></a>2. 比特币交易结构</h3><p>一笔比特币交易（Transaction）由<strong>输入（Inputs）</strong>和<strong>输出（Outputs）</strong>两部分组成：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+-------------------+</span><br><span class="line">|   Transaction     |</span><br><span class="line">+-------------------+</span><br><span class="line">| Inputs  | Outputs |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>输入（Input）</strong>：引用之前某笔交易的输出（即 UTXO），并提供解锁脚本证明所有权。</li>
+<li><strong>输出（Output）</strong>：指定比特币的接收方和金额，形成新的 UTXO。</li>
+</ul>
+<h4 id="交易结构示意"><a href="#交易结构示意" class="headerlink" title="交易结构示意"></a>交易结构示意</h4><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Inputs: [</span><br><span class="line">  &#123; prev_txid, output_index, unlocking_script &#125;,</span><br><span class="line">  ...</span><br><span class="line">]</span><br><span class="line">Outputs: [</span><br><span class="line">  &#123; value, locking_script &#125;,</span><br><span class="line">  ...</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-输入（Input）详解"><a href="#3-输入（Input）详解" class="headerlink" title="3. 输入（Input）详解"></a>3. 输入（Input）详解</h3><p>每个输入包含：</p>
+<ul>
+<li><strong>引用的 UTXO</strong>：前一笔交易的 txid 和输出序号（output_index）。</li>
+<li><strong>解锁脚本（scriptSig）</strong>：证明你有权花费该 UTXO（通常是签名+公钥）。</li>
+</ul>
+<h3 id="4-输出（Output）详解"><a href="#4-输出（Output）详解" class="headerlink" title="4. 输出（Output）详解"></a>4. 输出（Output）详解</h3><p>每个输出包含：</p>
+<ul>
+<li><strong>金额（value）</strong>：该输出包含的比特币数量（单位：聪，1 BTC &#x3D; 1亿聪）。</li>
+<li><strong>锁定脚本（scriptPubKey）</strong>：规定谁能花费该输出（通常是接收方地址的哈希）。</li>
+</ul>
+<h3 id="5-UTXO-的生命周期"><a href="#5-UTXO-的生命周期" class="headerlink" title="5. UTXO 的生命周期"></a>5. UTXO 的生命周期</h3><ol>
+<li>交易 A 产生一个输出 O1，O1 成为 UTXO。</li>
+<li>交易 B 的输入引用 O1，O1 被花费，不再是 UTXO。</li>
+<li>交易 B 产生新的输出 O2、O3，成为新的 UTXO。</li>
+</ol>
+<h3 id="6-交易举例"><a href="#6-交易举例" class="headerlink" title="6. 交易举例"></a>6. 交易举例</h3><p>假设 Alice 有两个 UTXO（0.3 BTC 和 0.7 BTC），想转账 0.5 BTC 给 Bob：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Inputs:</span><br><span class="line">  - 0.3 BTC (UTXO1)</span><br><span class="line">  - 0.7 BTC (UTXO2)</span><br><span class="line">Outputs:</span><br><span class="line">  - 0.5 BTC (Bob)</span><br><span class="line">  - 0.4999 BTC (找零给 Alice)</span><br><span class="line">  - 0.0001 BTC (矿工手续费)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Alice 需要把两个 UTXO 作为输入，输出一部分给 Bob，一部分找零给自己，剩下的作为手续费。</li>
+</ul>
+<h3 id="7-脚本系统（Script）"><a href="#7-脚本系统（Script）" class="headerlink" title="7. 脚本系统（Script）"></a>7. 脚本系统（Script）</h3><p>比特币的输入输出通过一种简单的脚本语言（Script）实现灵活的支付控制。</p>
+<ul>
+<li><strong>锁定脚本（scriptPubKey）</strong>：如 <code>OP_DUP OP_HASH160 &lt;公钥哈希&gt; OP_EQUALVERIFY OP_CHECKSIG</code>，规定谁能花费。</li>
+<li><strong>解锁脚本（scriptSig）</strong>：如 <code>&lt;签名&gt; &lt;公钥&gt;</code>，用于解锁对应的 UTXO。</li>
+</ul>
+<h4 id="常见脚本类型"><a href="#常见脚本类型" class="headerlink" title="常见脚本类型"></a>常见脚本类型</h4><ul>
+<li><strong>P2PKH</strong>（Pay to Public Key Hash）：最常见的“比特币地址”收款方式。</li>
+<li><strong>P2SH</strong>（Pay to Script Hash）：多签名、复杂条件等。</li>
+<li><strong>P2WPKH&#x2F;P2WSH</strong>：隔离见证（SegWit）脚本。</li>
+</ul>
+<h3 id="8-UTXO-模型的优缺点"><a href="#8-UTXO-模型的优缺点" class="headerlink" title="8. UTXO 模型的优缺点"></a>8. UTXO 模型的优缺点</h3><p><strong>优点：</strong></p>
+<ul>
+<li>并发性强，易于并行验证。</li>
+<li>隐私性较好，难以追踪账户余额。</li>
+<li>防止双花，天然抗部分攻击。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>需要管理大量 UTXO，存储和同步压力大。</li>
+<li>找零机制导致 UTXO 碎片化。</li>
+<li>交易确认时间长，矿工手续费高。</li>
+</ul>
+<h3 id="9-总结"><a href="#9-总结" class="headerlink" title="9. 总结"></a>9. 总结</h3><ul>
+<li>UTXO 是比特币的核心概念，每个输出都是未花费的交易输出（UTXO）。</li>
+<li>输入和输出通过解锁脚本和锁定脚本实现支付控制。</li>
+<li>UTXO 模型具有高并发性、隐私性和抗双花能力，但存在存储和碎片化问题。</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>web3</tag>
+      </tags>
   </entry>
   <entry>
     <title>深入理解进程和线程</title>
@@ -4715,6 +4872,84 @@ protected void onCreate(Bundle savedInstanceState) &#123;
 <p>虚拟内存的运作需要硬件和操作系统软件之间精密复杂的交互，包括对处理器生成的每个地址的硬件编译。其基本思想是把一个进程虚拟内存的内容存储在磁盘上，然后主存作为磁盘的高速缓存，</p>
 <h3 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h3><p>文件就是字节序列，仅此而已。每个IO设备，包括磁盘，键盘，显示器，甚至网络，都可以看成是文件，系统中所有输入输出都是通过使用一小组称为Unix I&#x2F;O的系统函数调用读写文件按来实现的<br>文件这个简单而精致的概念是非常强大的，因为它向应用程序中提供了一个统一的试图，来看待系统中可能含有的所有各式各样的I&#x2F;O设备。例如，处理磁盘文件内容的应用程序员可以非常幸福，因为他们无需了解具体的磁盘技术，进一步说，同一个程序可以在使用不同磁盘技术的不同系统上运行。</p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>理解 Tokio：Rust 异步编程入门指南</title>
+    <url>/2025/04/02/%E7%90%86%E8%A7%A3-Tokio%EF%BC%9ARust-%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[<h2 id="理解-Tokio：Rust-异步编程入门指南（摘要与实用示例）"><a href="#理解-Tokio：Rust-异步编程入门指南（摘要与实用示例）" class="headerlink" title="理解 Tokio：Rust 异步编程入门指南（摘要与实用示例）"></a>理解 Tokio：Rust 异步编程入门指南（摘要与实用示例）</h2><p>Tokio 是 Rust 生态中最流行的异步运行时（async runtime）之一，为基于 <code>async</code>&#x2F;<code>.await</code> 的并发程序提供执行器、IO 驱动、定时器、任务调度和实用工具。本文总结了 Tokio 的核心概念、常用 API、实战示例及最佳实践。</p>
+<span id="more"></span>
+
+<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><ul>
+<li>Runtime：Tokio 的执行环境，包含一个或多个线程（multi-threaded runtime）或单线程（current-thread runtime）。负责调度 Future 的执行。</li>
+<li>Reactor &#x2F; I&#x2F;O 驱动：基于操作系统的事件通知（如 epoll&#x2F;kqueue），非阻塞地处理套接字&#x2F;文件等 I&#x2F;O 事件。</li>
+<li>Executor：将就绪的任务排入执行队列并在 runtime 线程上运行。</li>
+<li>Task：由 Future 封装、由 runtime 调度的执行单元（类似轻量线程）。</li>
+<li>Waker：当 Future 可继续执行时唤醒对应 task。</li>
+<li>spawn vs spawn_blocking：非阻塞任务（async）用 spawn，阻塞&#x2F;CPU 密集任务用 spawn_blocking。</li>
+</ul>
+<h3 id="启动-runtime"><a href="#启动-runtime" class="headerlink" title="启动 runtime"></a>启动 runtime</h3><ul>
+<li>多线程运行时（默认，适合并发场景）：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::runtime::Runtime;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="comment">// 在多线程 runtime 上运行</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>单线程运行时：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::runtime::Builder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">rt</span> = Builder::<span class="title function_ invoke__">new_current_thread</span>().<span class="title function_ invoke__">enable_all</span>().<span class="title function_ invoke__">build</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">rt.<span class="title function_ invoke__">block_on</span>(<span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// 单线程执行任务</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="任务调度与-spawn"><a href="#任务调度与-spawn" class="headerlink" title="任务调度与 spawn"></a>任务调度与 spawn</h3><ul>
+<li><code>tokio::spawn</code> 在 runtime 上启动一个后台异步任务，返回 <code>JoinHandle</code>：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">handle</span> = tokio::<span class="title function_ invoke__">spawn</span>(<span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// 异步任务</span></span><br><span class="line">    <span class="number">42</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">let</span> <span class="variable">res</span> = handle.<span class="keyword">await</span>.<span class="title function_ invoke__">unwrap</span>();</span><br></pre></td></tr></table></figure></li>
+<li>使用 <code>spawn_blocking</code> 将阻塞操作移出 async runtime 线程池，避免阻塞 reactor：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">res</span> = tokio::task::<span class="title function_ invoke__">spawn_blocking</span>(|| &#123;</span><br><span class="line">    <span class="comment">// 阻塞的计算或同步 IO</span></span><br><span class="line">    <span class="title function_ invoke__">heavy_computation</span>()</span><br><span class="line">&#125;).<span class="keyword">await</span>.<span class="title function_ invoke__">unwrap</span>();</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="异步-I-x2F-O-示例（TCP-Echo-Server）"><a href="#异步-I-x2F-O-示例（TCP-Echo-Server）" class="headerlink" title="异步 I&#x2F;O 示例（TCP Echo Server）"></a>异步 I&#x2F;O 示例（TCP Echo Server）</h3><p>简要示例展示如何使用 <code>TcpListener</code>&#x2F;<code>TcpStream</code> 实现并发 echo server：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::net::&#123;TcpListener, TcpStream&#125;;</span><br><span class="line"><span class="keyword">use</span> tokio::io::&#123;AsyncReadExt, AsyncWriteExt&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() <span class="punctuation">-&gt;</span> anyhow::<span class="type">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">listener</span> = TcpListener::<span class="title function_ invoke__">bind</span>(<span class="string">&quot;127.0.0.1:8080&quot;</span>).<span class="keyword">await</span>?;</span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> (<span class="keyword">mut</span> socket, _) = listener.<span class="title function_ invoke__">accept</span>().<span class="keyword">await</span>?;</span><br><span class="line">        tokio::<span class="title function_ invoke__">spawn</span>(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">buf</span> = <span class="built_in">vec!</span>[<span class="number">0u8</span>; <span class="number">1024</span>];</span><br><span class="line">            <span class="keyword">loop</span> &#123;</span><br><span class="line">                <span class="keyword">let</span> <span class="variable">n</span> = <span class="keyword">match</span> socket.<span class="title function_ invoke__">read</span>(&amp;<span class="keyword">mut</span> buf).<span class="keyword">await</span> &#123;</span><br><span class="line">                    <span class="title function_ invoke__">Ok</span>(<span class="number">0</span>) =&gt; <span class="keyword">return</span>,</span><br><span class="line">                    <span class="title function_ invoke__">Ok</span>(n) =&gt; n,</span><br><span class="line">                    <span class="title function_ invoke__">Err</span>(_) =&gt; <span class="keyword">return</span>,</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="keyword">let</span> <span class="variable">_</span> = socket.<span class="title function_ invoke__">write_all</span>(&amp;buf[..n]).<span class="keyword">await</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="定时器与延时"><a href="#定时器与延时" class="headerlink" title="定时器与延时"></a>定时器与延时</h3><ul>
+<li><code>tokio::time::sleep</code>、<code>interval</code> 等：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::time::&#123;sleep, Duration&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_secs</span>(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="通信：Channel"><a href="#通信：Channel" class="headerlink" title="通信：Channel"></a>通信：Channel</h3><ul>
+<li><code>tokio::sync::mpsc</code> 用于异步任务间消息传递；<code>oneshot</code> 用于一次性通知：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::sync::mpsc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> (tx, <span class="keyword">mut</span> rx) = mpsc::<span class="title function_ invoke__">channel</span>(<span class="number">32</span>);</span><br><span class="line">tokio::<span class="title function_ invoke__">spawn</span>(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">    tx.<span class="title function_ invoke__">send</span>(<span class="number">1</span>).<span class="keyword">await</span>.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(v) = rx.<span class="title function_ invoke__">recv</span>().<span class="keyword">await</span> &#123; <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, v); &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="同步原语（在-async-中使用）"><a href="#同步原语（在-async-中使用）" class="headerlink" title="同步原语（在 async 中使用）"></a>同步原语（在 async 中使用）</h3><ul>
+<li><code>tokio::sync::Mutex</code>&#x2F;<code>RwLock</code>：异步友好（.await 时不会阻塞线程）。</li>
+<li><code>std::sync::Mutex</code> 在 async 上慎用（会阻塞线程池）。<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::sync::Mutex;</span><br><span class="line"><span class="keyword">let</span> <span class="variable">m</span> = Mutex::<span class="title function_ invoke__">new</span>(<span class="number">0</span>);</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = m.<span class="title function_ invoke__">lock</span>().<span class="keyword">await</span>;</span><br><span class="line">    *guard += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="select-与并发控制"><a href="#select-与并发控制" class="headerlink" title="select! 与并发控制"></a>select! 与并发控制</h3><ul>
+<li><code>tokio::select!</code> 支持在多个异步分支之间竞态，第一完成的分支执行：<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line">tokio::<span class="built_in">select!</span> &#123;</span><br><span class="line">    _ = <span class="title function_ invoke__">async_task1</span>() =&gt; <span class="built_in">println!</span>(<span class="string">&quot;task1 done&quot;</span>),</span><br><span class="line">    _ = <span class="title function_ invoke__">async_task2</span>() =&gt; <span class="built_in">println!</span>(<span class="string">&quot;task2 done&quot;</span>),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="错误处理与取消"><a href="#错误处理与取消" class="headerlink" title="错误处理与取消"></a>错误处理与取消</h3><ul>
+<li><code>JoinHandle::abort()</code> 可取消任务，但需注意资源清理。</li>
+<li>任务取消会在 <code>.await</code> 点抛出 <code>Cancelled</code>，注意捕获与清理（<code>drop</code> 语义）。</li>
+</ul>
+<h3 id="与阻塞-x2F-CPU-密集型代码的整合"><a href="#与阻塞-x2F-CPU-密集型代码的整合" class="headerlink" title="与阻塞&#x2F;CPU 密集型代码的整合"></a>与阻塞&#x2F;CPU 密集型代码的整合</h3><ul>
+<li>对于 CPU 密集任务，使用 <code>spawn_blocking</code> 或移动到专门的线程池。</li>
+<li>尽量将同步 I&#x2F;O 放到独立线程或使用 async-compatible 库。</li>
+</ul>
+<h3 id="网络性能与-Tunables"><a href="#网络性能与-Tunables" class="headerlink" title="网络性能与 Tunables"></a>网络性能与 Tunables</h3><ul>
+<li>使用多线程 runtime 提升并发吞吐。</li>
+<li>减少频繁分配、避免过多 await 点导致上下文切换。</li>
+<li>通过 <code>tokio::sync::Semaphore</code> 控制并发连接数或并发任务数。</li>
+</ul>
+<h3 id="与第三方生态"><a href="#与第三方生态" class="headerlink" title="与第三方生态"></a>与第三方生态</h3><ul>
+<li>与 <code>hyper</code>（HTTP）、<code>reqwest</code>（HTTP 客户端）、<code>tokio-postgres</code>、<code>sqlx</code> 等集成良好。</li>
+<li><code>tracing</code> 与 <code>tokio-console</code> 可帮助调试运行时性能和任务行为。</li>
+</ul>
+<h3 id="常见陷阱"><a href="#常见陷阱" class="headerlink" title="常见陷阱"></a>常见陷阱</h3><ul>
+<li>在 async 中使用同步锁（如 std::sync::Mutex）会阻塞线程池，导致死锁或性能下降。</li>
+<li>忽略 <code>spawn_blocking</code> 导致 runtime 线程被阻塞。</li>
+<li>在多线程 runtime 中共享非线程安全数据（未加 Arc&#x2F;锁）会出错。</li>
+<li>忽视任务数量与系统资源（文件描述符、连接数）限制。</li>
+</ul>
+<h3 id="实战建议"><a href="#实战建议" class="headerlink" title="实战建议"></a>实战建议</h3><ul>
+<li>从 <code>tokio::main</code> 快速上手，逐步使用 <code>spawn</code> 将并发工作分离。</li>
+<li>把短小的异步任务放到 async executor，长时间或阻塞工作放到 <code>spawn_blocking</code>。</li>
+<li>使用 <code>tokio::sync</code> 系列原语做异步内部同步。</li>
+<li>用 <code>tokio-console</code> 或 <code>tracing</code> 分析热点与阻塞点。</li>
+<li>书写可取消、健壮的任务并注意资源清理（Drop 与 finally 模式）。</li>
+</ul>
+<h3 id="参考资料与深入学习"><a href="#参考资料与深入学习" class="headerlink" title="参考资料与深入学习"></a>参考资料与深入学习</h3><ul>
+<li>官方文档：<a href="https://tokio.rs/">https://tokio.rs/</a></li>
+<li>Tokio Tutorial 与 Examples（官方 GitHub）</li>
+<li>学习方向：任务模型原理（Waker&#x2F;Context）、异步 I&#x2F;O 的底层实现、性能调优与调试工具</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
   </entry>
   <entry>
     <title>设计模式系列 — 单例模式</title>

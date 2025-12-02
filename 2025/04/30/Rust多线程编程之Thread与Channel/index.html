@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thefu.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Rust 多线程编程之 Thread 与 ChannelRust 利用所有权（Ownership）系统在编译时保证线程安全，从根本上杜绝数据竞争（data race）。本文整理并补充了原文关于 std::thread 与 std::sync::mpsc（Channel） 的用法、错误处理、以及多消费者 &#x2F; 广播等实战模式与示例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust多线程编程之Thread与Channel">
+<meta property="og:url" content="https://thefu.github.io/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="Rust 多线程编程之 Thread 与 ChannelRust 利用所有权（Ownership）系统在编译时保证线程安全，从根本上杜绝数据竞争（data race）。本文整理并补充了原文关于 std::thread 与 std::sync::mpsc（Channel） 的用法、错误处理、以及多消费者 &#x2F; 广播等实战模式与示例。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-30T09:36:15.000Z">
+<meta property="article:modified_time" content="2025-12-02T09:44:50.341Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://thefu.github.io/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Rust多线程编程之Thread与Channel | TheFu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">TheFu's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">sicauthefu</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust多线程编程之Thread与Channel
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-30 17:36:15" itemprop="dateCreated datePublished" datetime="2025-04-30T17:36:15+08:00">2025-04-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-12-02 17:44:50" itemprop="dateModified" datetime="2025-12-02T17:44:50+08:00">2025-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Rust-多线程编程之-Thread-与-Channel"><a href="#Rust-多线程编程之-Thread-与-Channel" class="headerlink" title="Rust 多线程编程之 Thread 与 Channel"></a>Rust 多线程编程之 Thread 与 Channel</h2><p>Rust 利用所有权（Ownership）系统在编译时保证线程安全，从根本上杜绝数据竞争（data race）。本文整理并补充了原文关于 <code>std::thread</code> 与 <code>std::sync::mpsc</code>（Channel） 的用法、错误处理、以及多消费者 &#x2F; 广播等实战模式与示例。</p>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>线程模型与所有权</li>
+<li><code>std::thread</code>：创建与管理线程</li>
+<li>线程间通信：<code>std::sync::mpsc</code></li>
+<li>错误处理（<code>send</code> &#x2F; <code>recv</code>）</li>
+<li>多消费者与广播模式</li>
+<li>使用 <code>crossbeam-channel</code> 的进阶示例</li>
+<li>小结与参考</li>
+</ul>
+<hr>
+<h2 id="线程模型与所有权"><a href="#线程模型与所有权" class="headerlink" title="线程模型与所有权"></a>线程模型与所有权</h2><p>Rust 标准库采用 1:1 线程模型（每个 Rust 线程对应一个操作系统线程）。通过所有权与类型系统，Rust 在编译期就能防止数据竞争，减少运行时同步错误。</p>
+<p>要注意：如果在新线程中使用主线程的变量，必须将这些变量的所有权移动（<code>move</code>）到闭包中，或使用线程安全的共享类型（例如 <code>Arc&lt;Mutex&lt;T&gt;&gt;</code>）。</p>
+<h2 id="std-thread：创建与管理线程"><a href="#std-thread：创建与管理线程" class="headerlink" title="std::thread：创建与管理线程"></a><code>std::thread</code>：创建与管理线程</h2><p>最常用的创建线程方式是 <code>thread::spawn</code>，它接收一个闭包并返回 <code>JoinHandle&lt;T&gt;</code>，可以用来等待线程结束并获取返回值。</p>
+<p>示例：简单的 <code>spawn</code> 与 <code>join</code></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">	<span class="keyword">let</span> <span class="variable">v</span> = <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 必须使用 move 将 v 的所有权转移到新线程</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">handle</span> = thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;向量 v: &#123;:?&#125;&quot;</span>, v);</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">10</span>));</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 等待线程结束</span></span><br><span class="line">    handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>thread::Builder</code> 可以设置线程名、栈大小等：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">builder</span> = thread::Builder::<span class="title function_ invoke__">new</span>()</span><br><span class="line">    .<span class="title function_ invoke__">name</span>(<span class="string">&quot;channel-test&quot;</span>.<span class="title function_ invoke__">to_string</span>())</span><br><span class="line">    .<span class="title function_ invoke__">stack_size</span>(<span class="number">4</span> * <span class="number">1024</span> * <span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">handle</span> = builder.<span class="title function_ invoke__">spawn</span>(|| &#123;</span><br><span class="line">    <span class="comment">// 线程体</span></span><br><span class="line">&#125;).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">handle.<span class="title function_ invoke__">join</span>().<span class="title function_ invoke__">unwrap</span>();</span><br></pre></td></tr></table></figure>
+
+<p>线程可以被 <code>join</code>（等待）或“detach”（即不 join，让操作系统接管）。对需要保证执行完成的工作使用 <code>join</code>。</p>
+<h2 id="线程间通信：std-sync-mpsc"><a href="#线程间通信：std-sync-mpsc" class="headerlink" title="线程间通信：std::sync::mpsc"></a>线程间通信：<code>std::sync::mpsc</code></h2><p>Rust 标准库提供基于消息传递的通道（Channel）：<code>std::sync::mpsc</code>（multiple producer, single consumer）。通道传递的是值的所有权，因此天然避免了数据竞争问题。</p>
+<ul>
+<li><code>Sender&lt;T&gt;</code>：发送端，可以 <code>clone()</code> 支持多生产者。</li>
+<li><code>Receiver&lt;T&gt;</code>：接收端，默认不可克隆（单消费者）。</li>
+</ul>
+<p>创建通道：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">channel</span>(); <span class="comment">// 无界通道</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">tx_clone</span> = tx.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">    tx.<span class="title function_ invoke__">send</span>(<span class="string">&quot;hello&quot;</span>).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> <span class="variable">received</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;接收到: &#123;&#125;&quot;</span>, received);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>mpsc::sync_channel(n)</code> 可以创建带缓存容量的通道（阻塞发送者直到有空间）。当容量为 0 时，发送方会严格等待接收方（同步模式）。</p>
+<h3 id="发送-x2F-接收的返回值与错误处理"><a href="#发送-x2F-接收的返回值与错误处理" class="headerlink" title="发送&#x2F;接收的返回值与错误处理"></a>发送&#x2F;接收的返回值与错误处理</h3><p><code>send</code> 与 <code>recv</code> 都会返回 <code>Result</code>：</p>
+<ul>
+<li><code>send</code> 返回 <code>Result&lt;(), SendError&lt;T&gt;&gt;</code>：当所有 <code>Receiver</code> 被丢弃时，发送会失败并返回错误；发送失败会把要发送的值带回 <code>SendError&lt;T&gt;</code>。</li>
+<li><code>recv</code> 返回 <code>Result&lt;T, RecvError&gt;</code>：当所有 <code>Sender</code> 已被丢弃且通道中无更多消息时，<code>recv</code> 返回错误。</li>
+</ul>
+<p>示例：处理 <code>send</code>&#x2F;<code>recv</code> 错误</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> (tx, rx) = mpsc::channel::&lt;<span class="type">i32</span>&gt;();</span><br><span class="line"></span><br><span class="line">thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">    <span class="keyword">if</span> tx.<span class="title function_ invoke__">send</span>(<span class="number">1</span>).<span class="title function_ invoke__">is_err</span>() &#123;</span><br><span class="line">        eprintln!(<span class="string">&quot;发送失败：接收者已关闭&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">match</span> rx.<span class="title function_ invoke__">recv</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(v) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;收到: &#123;&#125;&quot;</span>, v),</span><br><span class="line">    <span class="title function_ invoke__">Err</span>(_) =&gt; <span class="built_in">println!</span>(<span class="string">&quot;通道已关闭，无更多数据&quot;</span>),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="多消费者（Multiple-Consumers）与选择方案"><a href="#多消费者（Multiple-Consumers）与选择方案" class="headerlink" title="多消费者（Multiple Consumers）与选择方案"></a>多消费者（Multiple Consumers）与选择方案</h2><p>标准库的 <code>mpsc</code> 仅提供单消费者。要实现多消费者或更高性能的并发消费模型，可以选择：</p>
+<ol>
+<li>使用 <code>crossbeam-channel</code>（推荐，性能好、功能丰富，支持 MPMC&#x2F;广播等）。</li>
+<li>用 <code>Arc&lt;Mutex&lt;Receiver&gt;&gt;</code> 包裹 <code>Receiver</code>（不推荐，锁带来开销且降低并发性能）。</li>
+</ol>
+<p>示例：使用 <code>crossbeam_channel::unbounded</code> 实现多个消费者抢占消息（竞争消费）：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> crossbeam_channel::unbounded;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">run_mpmc</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (s, r) = unbounded::&lt;<span class="type">String</span>&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">3</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">r_clone</span> = r.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">        thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">            <span class="keyword">for</span> <span class="variable">msg</span> <span class="keyword">in</span> r_clone.<span class="title function_ invoke__">iter</span>() &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;消费者 &#123;&#125; 收到: &#123;&#125;&quot;</span>, i, msg);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">5</span> &#123;</span><br><span class="line">        s.<span class="title function_ invoke__">send</span>(<span class="built_in">format!</span>(<span class="string">&quot;消息 &#123;&#125;&quot;</span>, i)).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 发送端 drop 后，消费者会结束迭代</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>crossbeam-channel</code> 的特点是高性能并且支持多种模式（无界&#x2F;有界、超时、选择等）。</p>
+<h2 id="广播模式"><a href="#广播模式" class="headerlink" title="广播模式"></a>广播模式</h2><p>如果需要广播（同一条消息被多个消费者都收到），可以选择：</p>
+<ul>
+<li>异步环境下：<code>tokio::sync::broadcast</code>。</li>
+<li>同步（阻塞）场景：使用 <code>bus</code>、<code>postage</code> 等 crate（<code>bus</code> 示例）：</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"><span class="keyword">use</span> bus::Bus;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">run_bus</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">bus</span> = Bus::<span class="title function_ invoke__">new</span>(<span class="number">10</span>); <span class="comment">// 容量 10</span></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">rx1</span> = bus.<span class="title function_ invoke__">add_rx</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">rx2</span> = bus.<span class="title function_ invoke__">add_rx</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;消费者 1 收到: &#123;&#125;&quot;</span>, rx1.<span class="title function_ invoke__">recv</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;消费者 2 收到: &#123;&#125;&quot;</span>, rx2.<span class="title function_ invoke__">recv</span>().<span class="title function_ invoke__">unwrap</span>());</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    bus.<span class="title function_ invoke__">broadcast</span>(<span class="string">&quot;广播消息&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：不同广播实现的语义不同（一些库是有容量限制并可能丢弃旧消息）。选择时请阅读对应库文档。</p>
+<h2 id="线程间通信的设计要点与最佳实践"><a href="#线程间通信的设计要点与最佳实践" class="headerlink" title="线程间通信的设计要点与最佳实践"></a>线程间通信的设计要点与最佳实践</h2><ul>
+<li>优先使用消息传递（ownership transfer）而非共享可变状态。</li>
+<li>对于需要多个消费者的高吞吐场景，优先考虑 <code>crossbeam-channel</code>。</li>
+<li>避免用 <code>Arc&lt;Mutex&lt;Receiver&gt;&gt;</code> 作为首选方案，因为锁可能成为瓶颈。</li>
+<li>使用 <code>sync_channel</code> 实现生产者速率限制（backpressure）。</li>
+</ul>
+<h2 id="常见示例汇总"><a href="#常见示例汇总" class="headerlink" title="常见示例汇总"></a>常见示例汇总</h2><p>多生产者、单消费者（标准库）：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">run_mpsc_clone</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">channel</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">tx1</span> = tx.<span class="title function_ invoke__">clone</span>();</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">vals</span> = <span class="built_in">vec!</span>[<span class="string">&quot;消息1&quot;</span>, <span class="string">&quot;消息2&quot;</span>, <span class="string">&quot;消息3&quot;</span>];</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">val</span> <span class="keyword">in</span> vals &#123;</span><br><span class="line">            tx.<span class="title function_ invoke__">send</span>(val).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">            thread::<span class="title function_ invoke__">sleep</span>(std::time::Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">10</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">vals</span> = <span class="built_in">vec!</span>[<span class="string">&quot;消息A&quot;</span>, <span class="string">&quot;消息B&quot;</span>, <span class="string">&quot;消息C&quot;</span>];</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">val</span> <span class="keyword">in</span> vals &#123;</span><br><span class="line">            tx1.<span class="title function_ invoke__">send</span>(val).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">received</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;主线程收到: &#123;&#125;&quot;</span>, received);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>sync_channel</code> 的同步发送示例（实现 backpressure）：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::sync::mpsc;</span><br><span class="line"><span class="keyword">use</span> std::thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">run_sync_channel</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> (tx, rx) = mpsc::<span class="title function_ invoke__">sync_channel</span>(<span class="number">2</span>); <span class="comment">// 容量 2</span></span><br><span class="line"></span><br><span class="line">    thread::<span class="title function_ invoke__">spawn</span>(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="number">0</span>..<span class="number">5</span> &#123;</span><br><span class="line">            tx.<span class="title function_ invoke__">send</span>(i).<span class="title function_ invoke__">unwrap</span>(); <span class="comment">// 当队列满时会阻塞</span></span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">&quot;发送: &#123;&#125;&quot;</span>, i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">v</span> <span class="keyword">in</span> rx &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;接收: &#123;&#125;&quot;</span>, v);</span><br><span class="line">        thread::<span class="title function_ invoke__">sleep</span>(std::time::Duration::<span class="title function_ invoke__">from_millis</span>(<span class="number">50</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结与参考"><a href="#小结与参考" class="headerlink" title="小结与参考"></a>小结与参考</h2><p>Rust 的线程与通道模型以所有权为核心，消息传递可以在不加锁的情况下安全地移动数据。对于性能和扩展性要求较高的场景，<code>crossbeam-channel</code> 是比标准库更好的选择；需要广播时选择合适的广播库。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"># Rust</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/04/02/%E7%90%86%E8%A7%A3-Tokio%EF%BC%9ARust-%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" rel="prev" title="理解 Tokio：Rust 异步编程入门指南">
+      <i class="fa fa-chevron-left"></i> 理解 Tokio：Rust 异步编程入门指南
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/06/01/%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E8%AF%A6%E8%A7%A3/" rel="next" title="比特币的输入输出详解">
+      比特币的输入输出详解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Rust-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8B-Thread-%E4%B8%8E-Channel"><span class="nav-number">1.</span> <span class="nav-text">Rust 多线程编程之 Thread 与 Channel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%89%80%E6%9C%89%E6%9D%83"><span class="nav-number">3.</span> <span class="nav-text">线程模型与所有权</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#std-thread%EF%BC%9A%E5%88%9B%E5%BB%BA%E4%B8%8E%E7%AE%A1%E7%90%86%E7%BA%BF%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">std::thread：创建与管理线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%9Astd-sync-mpsc"><span class="nav-number">5.</span> <span class="nav-text">线程间通信：std::sync::mpsc</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E9%80%81-x2F-%E6%8E%A5%E6%94%B6%E7%9A%84%E8%BF%94%E5%9B%9E%E5%80%BC%E4%B8%8E%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text">发送&#x2F;接收的返回值与错误处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E6%B6%88%E8%B4%B9%E8%80%85%EF%BC%88Multiple-Consumers%EF%BC%89%E4%B8%8E%E9%80%89%E6%8B%A9%E6%96%B9%E6%A1%88"><span class="nav-number">6.</span> <span class="nav-text">多消费者（Multiple Consumers）与选择方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">广播模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E7%9A%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">8.</span> <span class="nav-text">线程间通信的设计要点与最佳实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%A4%BA%E4%BE%8B%E6%B1%87%E6%80%BB"><span class="nav-number">9.</span> <span class="nav-text">常见示例汇总</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93%E4%B8%8E%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">小结与参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">thefu</p>
+  <div class="site-description" itemprop="description">thefu</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thefu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thefu" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sicauthefu@gmail.com" title="E-Mail → sicauthefu@gmail.com"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -258,6 +258,285 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/06/01/%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/01/%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">比特币的输入输出详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-06-01 17:47:16" itemprop="dateCreated datePublished" datetime="2025-06-01T17:47:16+08:00">2025-06-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-12-02 17:51:50" itemprop="dateModified" datetime="2025-12-02T17:51:50+08:00">2025-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="比特币简介"><a href="#比特币简介" class="headerlink" title="比特币简介"></a>比特币简介</h2><p>比特币（Bitcoin）是由中本聪（Satoshi Nakamoto）于2008年提出、2009年正式上线的去中心化数字货币。它基于区块链技术，通过点对点网络实现无需信任的价值转移。比特币的核心特性包括：</p>
+<ul>
+<li><strong>去中心化</strong>：没有中央机构或第三方，所有节点平等参与。</li>
+<li><strong>总量有限</strong>：总发行量为2100万枚，通胀可控。</li>
+<li><strong>公开透明</strong>：所有交易都记录在区块链上，任何人可查验。</li>
+<li><strong>抗审查性</strong>：交易难以被单一实体阻断或篡改。</li>
+<li><strong>匿名性</strong>：用户通过地址进行交易，无需实名。</li>
+</ul>
+<p>比特币的出现不仅推动了数字货币和区块链技术的发展，也为全球金融体系带来了新的思考和变革方向。</p>
+<h2 id="比特币的输入输出（UTXO）机制详解"><a href="#比特币的输入输出（UTXO）机制详解" class="headerlink" title="比特币的输入输出（UTXO）机制详解"></a>比特币的输入输出（UTXO）机制详解</h2><p>比特币采用<strong>UTXO（Unspent Transaction Output，未花费交易输出）模型</strong>，这是理解比特币交易和账本结构的核心。</p>
+<h3 id="1-UTXO-模型概述"><a href="#1-UTXO-模型概述" class="headerlink" title="1. UTXO 模型概述"></a>1. UTXO 模型概述</h3><ul>
+<li><strong>UTXO</strong>：每一笔比特币交易的输出（output）都可以作为后续交易的输入（input）。未被花费的输出即为 UTXO。</li>
+<li><strong>账户体系 vs. UTXO</strong>：以太坊等采用账户余额模型，而比特币采用 UTXO 模型，每个 UTXO 都是独立的“零钱”。</li>
+</ul>
+<h3 id="2-比特币交易结构"><a href="#2-比特币交易结构" class="headerlink" title="2. 比特币交易结构"></a>2. 比特币交易结构</h3><p>一笔比特币交易（Transaction）由<strong>输入（Inputs）</strong>和<strong>输出（Outputs）</strong>两部分组成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+-------------------+</span><br><span class="line">|   Transaction     |</span><br><span class="line">+-------------------+</span><br><span class="line">| Inputs  | Outputs |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>输入（Input）</strong>：引用之前某笔交易的输出（即 UTXO），并提供解锁脚本证明所有权。</li>
+<li><strong>输出（Output）</strong>：指定比特币的接收方和金额，形成新的 UTXO。</li>
+</ul>
+<h4 id="交易结构示意"><a href="#交易结构示意" class="headerlink" title="交易结构示意"></a>交易结构示意</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Inputs: [</span><br><span class="line">  &#123; prev_txid, output_index, unlocking_script &#125;,</span><br><span class="line">  ...</span><br><span class="line">]</span><br><span class="line">Outputs: [</span><br><span class="line">  &#123; value, locking_script &#125;,</span><br><span class="line">  ...</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-输入（Input）详解"><a href="#3-输入（Input）详解" class="headerlink" title="3. 输入（Input）详解"></a>3. 输入（Input）详解</h3><p>每个输入包含：</p>
+<ul>
+<li><strong>引用的 UTXO</strong>：前一笔交易的 txid 和输出序号（output_index）。</li>
+<li><strong>解锁脚本（scriptSig）</strong>：证明你有权花费该 UTXO（通常是签名+公钥）。</li>
+</ul>
+<h3 id="4-输出（Output）详解"><a href="#4-输出（Output）详解" class="headerlink" title="4. 输出（Output）详解"></a>4. 输出（Output）详解</h3><p>每个输出包含：</p>
+<ul>
+<li><strong>金额（value）</strong>：该输出包含的比特币数量（单位：聪，1 BTC &#x3D; 1亿聪）。</li>
+<li><strong>锁定脚本（scriptPubKey）</strong>：规定谁能花费该输出（通常是接收方地址的哈希）。</li>
+</ul>
+<h3 id="5-UTXO-的生命周期"><a href="#5-UTXO-的生命周期" class="headerlink" title="5. UTXO 的生命周期"></a>5. UTXO 的生命周期</h3><ol>
+<li>交易 A 产生一个输出 O1，O1 成为 UTXO。</li>
+<li>交易 B 的输入引用 O1，O1 被花费，不再是 UTXO。</li>
+<li>交易 B 产生新的输出 O2、O3，成为新的 UTXO。</li>
+</ol>
+<h3 id="6-交易举例"><a href="#6-交易举例" class="headerlink" title="6. 交易举例"></a>6. 交易举例</h3><p>假设 Alice 有两个 UTXO（0.3 BTC 和 0.7 BTC），想转账 0.5 BTC 给 Bob：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Inputs:</span><br><span class="line">  - 0.3 BTC (UTXO1)</span><br><span class="line">  - 0.7 BTC (UTXO2)</span><br><span class="line">Outputs:</span><br><span class="line">  - 0.5 BTC (Bob)</span><br><span class="line">  - 0.4999 BTC (找零给 Alice)</span><br><span class="line">  - 0.0001 BTC (矿工手续费)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Alice 需要把两个 UTXO 作为输入，输出一部分给 Bob，一部分找零给自己，剩下的作为手续费。</li>
+</ul>
+<h3 id="7-脚本系统（Script）"><a href="#7-脚本系统（Script）" class="headerlink" title="7. 脚本系统（Script）"></a>7. 脚本系统（Script）</h3><p>比特币的输入输出通过一种简单的脚本语言（Script）实现灵活的支付控制。</p>
+<ul>
+<li><strong>锁定脚本（scriptPubKey）</strong>：如 <code>OP_DUP OP_HASH160 &lt;公钥哈希&gt; OP_EQUALVERIFY OP_CHECKSIG</code>，规定谁能花费。</li>
+<li><strong>解锁脚本（scriptSig）</strong>：如 <code>&lt;签名&gt; &lt;公钥&gt;</code>，用于解锁对应的 UTXO。</li>
+</ul>
+<h4 id="常见脚本类型"><a href="#常见脚本类型" class="headerlink" title="常见脚本类型"></a>常见脚本类型</h4><ul>
+<li><strong>P2PKH</strong>（Pay to Public Key Hash）：最常见的“比特币地址”收款方式。</li>
+<li><strong>P2SH</strong>（Pay to Script Hash）：多签名、复杂条件等。</li>
+<li><strong>P2WPKH&#x2F;P2WSH</strong>：隔离见证（SegWit）脚本。</li>
+</ul>
+<h3 id="8-UTXO-模型的优缺点"><a href="#8-UTXO-模型的优缺点" class="headerlink" title="8. UTXO 模型的优缺点"></a>8. UTXO 模型的优缺点</h3><p><strong>优点：</strong></p>
+<ul>
+<li>并发性强，易于并行验证。</li>
+<li>隐私性较好，难以追踪账户余额。</li>
+<li>防止双花，天然抗部分攻击。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>需要管理大量 UTXO，存储和同步压力大。</li>
+<li>找零机制导致 UTXO 碎片化。</li>
+<li>交易确认时间长，矿工手续费高。</li>
+</ul>
+<h3 id="9-总结"><a href="#9-总结" class="headerlink" title="9. 总结"></a>9. 总结</h3><ul>
+<li>UTXO 是比特币的核心概念，每个输出都是未花费的交易输出（UTXO）。</li>
+<li>输入和输出通过解锁脚本和锁定脚本实现支付控制。</li>
+<li>UTXO 模型具有高并发性、隐私性和抗双花能力，但存在存储和碎片化问题。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/" class="post-title-link" itemprop="url">Rust多线程编程之Thread与Channel</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-30 17:36:15" itemprop="dateCreated datePublished" datetime="2025-04-30T17:36:15+08:00">2025-04-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-12-02 17:44:50" itemprop="dateModified" datetime="2025-12-02T17:44:50+08:00">2025-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Rust-多线程编程之-Thread-与-Channel"><a href="#Rust-多线程编程之-Thread-与-Channel" class="headerlink" title="Rust 多线程编程之 Thread 与 Channel"></a>Rust 多线程编程之 Thread 与 Channel</h2><p>Rust 利用所有权（Ownership）系统在编译时保证线程安全，从根本上杜绝数据竞争（data race）。本文整理并补充了原文关于 <code>std::thread</code> 与 <code>std::sync::mpsc</code>（Channel） 的用法、错误处理、以及多消费者 &#x2F; 广播等实战模式与示例。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/04/30/Rust%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E4%B9%8BThread%E4%B8%8EChannel/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/04/02/%E7%90%86%E8%A7%A3-Tokio%EF%BC%9ARust-%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/04/02/%E7%90%86%E8%A7%A3-Tokio%EF%BC%9ARust-%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">理解 Tokio：Rust 异步编程入门指南</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-02 15:31:16" itemprop="dateCreated datePublished" datetime="2025-04-02T15:31:16+08:00">2025-04-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-12-02 17:44:21" itemprop="dateModified" datetime="2025-12-02T17:44:21+08:00">2025-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="理解-Tokio：Rust-异步编程入门指南（摘要与实用示例）"><a href="#理解-Tokio：Rust-异步编程入门指南（摘要与实用示例）" class="headerlink" title="理解 Tokio：Rust 异步编程入门指南（摘要与实用示例）"></a>理解 Tokio：Rust 异步编程入门指南（摘要与实用示例）</h2><p>Tokio 是 Rust 生态中最流行的异步运行时（async runtime）之一，为基于 <code>async</code>&#x2F;<code>.await</code> 的并发程序提供执行器、IO 驱动、定时器、任务调度和实用工具。本文总结了 Tokio 的核心概念、常用 API、实战示例及最佳实践。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/04/02/%E7%90%86%E8%A7%A3-Tokio%EF%BC%9ARust-%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2024/09/17/Rust%E4%B8%AD%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AF%BC%E5%85%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -688,226 +967,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/" class="post-title-link" itemprop="url">Rust中的闭包</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-12-10 20:13:38" itemprop="dateCreated datePublished" datetime="2023-12-10T20:13:38+08:00">2023-12-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-11-26 22:43:21" itemprop="dateModified" datetime="2025-11-26T22:43:21+08:00">2025-11-26</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Rust 的闭包在功能和用途上与其他语言的 lambda 相同，都是在本地定义的小型匿名函数，可以捕获外部变量。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/12/10/Rust%E4%B8%AD%E7%9A%84%E9%97%AD%E5%8C%85/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/" class="post-title-link" itemprop="url">Rust编译参数与优化控制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-11-26 20:07:07" itemprop="dateCreated datePublished" datetime="2023-11-26T20:07:07+08:00">2023-11-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-11-26 22:43:42" itemprop="dateModified" datetime="2025-11-26T22:43:42+08:00">2025-11-26</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Rust 的核心工具包括：</p>
-<ul>
-<li>**<code>rustc</code>**：Rust 的底层编译器。<code>cargo</code> 最终会调用 <code>rustc</code> 来编译代码。<code>rustc</code> 接受大量的命令行参数来精确控制编译过程。</li>
-<li>**<code>cargo</code>**：Rust 的官方构建工具和包管理器。根据 <code>Cargo.toml</code> 的配置，自动调用 <code>rustc</code> 并传递合适的参数。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/11/26/Rust%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E6%8E%A7%E5%88%B6/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/" class="post-title-link" itemprop="url">Rust中字符串与格式化</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-11-24 20:07:07" itemprop="dateCreated datePublished" datetime="2023-11-24T20:07:07+08:00">2023-11-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-11-26 22:41:20" itemprop="dateModified" datetime="2025-11-26T22:41:20+08:00">2025-11-26</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Rust 提供了多种字符串类型和强大的格式化工具。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/11/24/Rust%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -977,7 +1036,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
