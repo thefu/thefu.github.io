@@ -44,10 +44,10 @@ https://thefu.github.io/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A
 https://thefu.github.io/
 https://thefu.github.io/tags/android/
 https://thefu.github.io/tags/Rust/
-https://thefu.github.io/tags/hexo/
-https://thefu.github.io/tags/Redis/
 https://thefu.github.io/tags/Android/
+https://thefu.github.io/tags/Redis/
 https://thefu.github.io/tags/web3/
+https://thefu.github.io/tags/hexo/
 https://thefu.github.io/tags/RxJava/
 https://thefu.github.io/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/
 https://thefu.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/
