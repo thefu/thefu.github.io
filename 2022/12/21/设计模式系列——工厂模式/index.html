@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thefu.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="学习技术深度的时候（看一些框架的源码）总感觉只理解了表面，而没有理解里面的思想。这里大家应该都知道我想说什么，就是设计模式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式系列——工厂模式">
+<meta property="og:url" content="https://thefu.github.io/2022/12/21/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="学习技术深度的时候（看一些框架的源码）总感觉只理解了表面，而没有理解里面的思想。这里大家应该都知道我想说什么，就是设计模式。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/12/21/zXVPc8.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2022/12/26/zxHvsP.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2023/01/01/pSCBWPf.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2023/01/01/pSCDpL9.jpg">
+<meta property="article:published_time" content="2022-12-21T14:58:40.000Z">
+<meta property="article:modified_time" content="2023-01-01T07:30:10.000Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/12/21/zXVPc8.jpg">
+
+<link rel="canonical" href="https://thefu.github.io/2022/12/21/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>设计模式系列——工厂模式 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="TheFu's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">TheFu's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">sicauthefu</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2022/12/21/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          设计模式系列——工厂模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-12-21 22:58:40" itemprop="dateCreated datePublished" datetime="2022-12-21T22:58:40+08:00">2022-12-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>学习技术深度的时候（看一些框架的源码）总感觉只理解了表面，而没有理解里面的思想。<br>这里大家应该都知道我想说什么，就是设计模式。</p>
+<span id="more"></span>
+
+<p>今天聊一下工厂模式，工厂模式在我们的电商领域的应用是非常广泛的，写之前我看了自己电脑项目的代码，确实随处可见。<br>工厂模式主要可以分为三大类：<br>简单工厂模式<br>工厂方法模式<br>抽象工厂模式</p>
+<p>今天我也主要围绕这三种模式来举例了解一下</p>
+<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>工厂模式主要是用于对实现逻辑的封装，并且通过对公共的接口提供对象的实例化的服务，在我添加新的类时不需要大动干戈，只要修改一点就好。</p>
+<p>举个电商业务是怎么创建商品的：<br><a target="_blank" rel="noopener" href="https://imgse.com/i/zXVPc8"><img src="https://s1.ax1x.com/2022/12/21/zXVPc8.jpg" alt="zXVPc8.jpg"></a><br>在这个简单工厂里面，如果要创建活动商品1以及活动商品2，我们要创建商品的时候只要调用简单工厂里面的创建商品方法，根据类型创建出不同的商品然后实例化返回就可以了。</p>
+<p>简单工厂几种实现方式：</p>
+<h3 id="静态工厂模式"><a href="#静态工厂模式" class="headerlink" title="静态工厂模式"></a>静态工厂模式</h3><p>我们还是以创建商品为例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleFacttory &#123;</span><br><span class="line">	public static Share createProduct(EnumProdutType type) &#123;</span><br><span class="line">		if (EnumProductType.activityone.equals(type)) &#123;</span><br><span class="line">			return new ProductOne();</span><br><span class="line">		&#125; else if (EnumProductType.acctivityTwo.equals(type)) &#123;</span><br><span class="line">			return new ProductTwo();</span><br><span class="line">		&#125;</span><br><span class="line">		return null;</span><br><span class="line">	&#125;</span><br><span class="line">	public enum EnumProductType &#123;</span><br><span class="line">		activituOne, activityTwo;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种方式创建看起来其实也没有什么问题，根据类型创建不同的商品，但是有一个问题不知道大家发现没有？</p>
+<p>是不是我没增加一种类型还要去createProduct方法上修改if else？这不是违背我们的开闭原则吗？</p>
+<p>所以这种方式不好，我们还有接下来的两种：<br>使用反射机制<br>直接注册商品对象，添加一个Type类型方法，根据type类型返回自身相同类型的方法。同样的我们还是以创建商品为例：反射实现<br>同样的我们还是以创建商品为例：反射实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleFactoryReflection &#123;</span><br><span class="line"></span><br><span class="line">    private static final Map&lt;EnumProductType, Class&gt; activityIdMap = new HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    public  static void addProductKey(EnumProductType EnumProduct, Class product) &#123;</span><br><span class="line">        activityIdMap.put(EnumProduct, product);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static activityOne product(EnumProductType type) throws IllegalAccessException, InstantiationException &#123;</span><br><span class="line">        Class productClass = activityIdMap.get(type);</span><br><span class="line">        return (activityOne) productClass.newInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws InstantiationException, IllegalAccessException &#123;</span><br><span class="line">        addProductKey(EnumProductType.activityOne, activityOne.class);</span><br><span class="line">        activityOne product = product(EnumProductType.activityOne);</span><br><span class="line">        System.out.println(product.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class Producet&#123;</span><br><span class="line">        private String name;</span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class activityOne extends Producet &#123;</span><br><span class="line">        private String stock;</span><br><span class="line">        @Override</span><br><span class="line">        public String toString() &#123;</span><br><span class="line">            return &quot;activityOne&#123;&quot; +</span><br><span class="line">                    &quot;stock=&#x27;&quot; + stock + &#x27;\&#x27;&#x27; +</span><br><span class="line">                    &#x27;&#125;&#x27;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public class activityTwo extends Producet &#123;</span><br><span class="line">        private String stock;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumProductType &#123;</span><br><span class="line">        activityOne, activityTwo;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>看上面的代码，我发现反射其实也很容易就实现了，但是在一些特定的情况下，并不适用，而且在某些特定的情况下是无法实现的，而且反射机制也会降低程序的运行效果，在对想能要求很高的场景下应该避免这种实现。</p>
+<p>这里还有一个问题是使用反射不当是很容易导致线上机器出问题的，因为我们反射创建的对象属性是被SoftReference软引用的，所以当**-XX:SoftRefLRUPolicyMSPerMB**没有设置好的话，会让机器的CPU一直很高。当然它的默认值是1000，也就根据大家的情况而定吧。</p>
+<p>剩下的一种其实跟反射实现很像，就是为了避免使用反射，在Map的对象中不是存的要添加的类，而是将要添加的每种类对象实例，这个就不写demo了。</p>
+<h3 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h3><p>工厂方法模式是对静态工厂模式上的一种改进，我们工厂类直接被抽象化，需要具体特定化的逻辑代码转移到实现抽象方法的子类中，这样我们就不要再去修改工厂类（即：不用再去做什么if else修改）这也是我们当前比较常用的一种方式。<br>还是以我们创建商品为例：<br><a target="_blank" rel="noopener" href="https://imgse.com/i/zxHvsP"><img src="https://s1.ax1x.com/2022/12/26/zxHvsP.jpg" alt="zxHvsP.jpg"></a><br>看这张图，其实说白了就是再创建一个工厂，用来创建工厂类对象<br>接下来看代码实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">public abstract class FactoryMethod &#123;</span><br><span class="line"></span><br><span class="line">    protected abstract Product createProduct(String name);</span><br><span class="line"></span><br><span class="line">    public Product product(String activity, String name) &#123;</span><br><span class="line">        Product product = createProduct(activity);</span><br><span class="line">        product.setProductName(name);</span><br><span class="line">        return product;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class Product &#123;</span><br><span class="line">        public String productName;</span><br><span class="line"></span><br><span class="line">        public String getProductName() &#123;</span><br><span class="line">            return productName;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setProductName(String productName) &#123;</span><br><span class="line">            this.productName = productName;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumProductType &#123;</span><br><span class="line">        activityOne(&quot;one&quot;),</span><br><span class="line">        activityTwo(&quot;two&quot;);</span><br><span class="line"></span><br><span class="line">        private String name;</span><br><span class="line"></span><br><span class="line">        EnumProductType(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里先创建一个抽象工厂方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class ProductFactory extends FactoryMethod&#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Product createProduct(String activityId) &#123;</span><br><span class="line">        if (EnumProductType.activityOne.getName().equals(activityId)) &#123;</span><br><span class="line">            //这里可以处理我们自己的想要的业务逻辑代码</span><br><span class="line">            return new OneProduct();</span><br><span class="line">        &#125; else if (EnumProductType.activityTwo.getName().equals(activityId)) &#123;</span><br><span class="line">            return new TwoProduct();</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class OneProduct extends Product &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class TwoProduct extends Product &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FactoryMethod factoryMethod = new ProductFactory();</span><br><span class="line">        Product product = factoryMethod.product(&quot;one&quot;, &quot;one&quot;);</span><br><span class="line">        System.out.println(product.getProductName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再创建一个商品工厂去继承抽象工厂方法。</p>
+<p>当还有其他类型的时候我们只需要去继承我们创建的工厂方法就可以了。<br>这个代码大家肯定都能实现出来，但是我们真正需要学习的是前辈们这种工厂模式的思想。把这种思想运用到我们真实的业务场景中，学以致用才能对我们有真正的提升。</p>
+<p>举个例子</p>
+<p>假设现在需要做一个分享商品图片，我们知道商品的类型有很多，比如无SKU商品，有SKU商品，下单分享，邀请分享…等一下列的场景，那我们怎么去设计这个代码做到更加的易懂，易读，今后扩展性好呢？<br>注：sku和spu是电商里面的名词，spu差不多跟item也就是商品是一个维度，一个商品item有很多sku，比如：iphone是一个商品是item也是spu，白色的iphone 12 64G就是一个具体的sku</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public interface Share &#123;</span><br><span class="line">    //获取分享类型</span><br><span class="line"></span><br><span class="line">    String getShareFunctionType();</span><br><span class="line"></span><br><span class="line">    String mainProcess(String shareName);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一步我们应该都是定义一个创建分享模板</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public class ShareFactory &#123;</span><br><span class="line">    private List&lt;Share&gt; shareFunctionList;</span><br><span class="line"></span><br><span class="line">    //根据分享类型获取对应的分享处理方式</span><br><span class="line">    public Share getShareFunction(String type) &#123;</span><br><span class="line">        for(Share shareFunction : shareFunctionList) &#123;</span><br><span class="line">            if (shareFunction.getShareFunctionType().equals(type)) &#123;</span><br><span class="line">                return shareFunction;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public enum EnumShareType &#123;</span><br><span class="line">        SUCCESS_ORDER(&quot;successOrder&quot;);</span><br><span class="line">        private String name;</span><br><span class="line"></span><br><span class="line">        EnumShareType(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二步我们再创建一个分享工厂根据我们的类型获取我们预先加载在Spring容器中的bean实例<br>public class SuccessOrderShare implements Share {<br>    public String getShareFunctionType() {<br>        return ShareFactory.EnumShareType.SUCCESS_ORDER.getName();<br>    }</p>
+<pre><code>public String mainProcess(String shareName) &#123;
+    return shareNmae;
+&#125;
+</code></pre>
+<p>}<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pSCBWPf"><img src="https://s1.ax1x.com/2023/01/01/pSCBWPf.jpg" alt="pSCBWPf.jpg"></a></p>
+<p>最后就是定义我们不同的类型来实现分享图片。<br>其实我们学习设计模式就是这种思想，有了这种思想上面提到的三点又是才能体现出来对我们今后的成长，面对复杂业务设计以及思考能力才能提升。</p>
+<p>那么问题来了，什么时候改用工厂方法模式，而非简单工厂模式呢？<br>这里引用设计模式之美里面的一句话：当对象的创建逻辑比较复杂，不只是简单的new一下就可以，而是要组合其他类对象，做各种初始化操作的时候，我们推荐使用工厂方法模式，将复杂的创建逻辑拆分到多个工厂类中，让每个工厂类都不至于过于复杂。<br>而使用简单工厂模式，将所有的创建逻辑都放到一个工厂类中，会导致这个工厂类变得很复杂。</p>
+<h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2><p>看完工厂方法模式，在理解抽象工厂模式就更加简单，因为它其实就是工厂方法的一个延伸。<br>工厂方法类中只有一个唱响方法，要想实现多种不同的类对象，只能去创建不同的具体工厂方法的子类来实例化，而抽象工厂则是让一个工厂负责创建多个不同类型的对象。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pSCDpL9"><img src="https://s1.ax1x.com/2023/01/01/pSCDpL9.jpg" alt="pSCDpL9.jpg"></a><br>样子可能有点丑，但是能说明问题，其实看上去可以分为以上几个部分组成：<br>抽象工厂类<br>具体工厂类<br>抽象类<br>抽象工厂类我个人可以理解为一个刚出厂的手机，具体抽象工厂则是认为是我们每个人对这个手机壁纸自定义设置，最后抽象类我理解就是手机壁纸。<br>我们每个人可以自定义不同的壁纸：例如动图，静图风景等等。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/12/12/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97-%E2%80%94-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" rel="prev" title="设计模式系列 — 单例模式">
+      <i class="fa fa-chevron-left"></i> 设计模式系列 — 单例模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/01/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97%E2%80%94%E2%80%94%E6%B5%81%E7%A8%8B%E5%BC%95%E6%93%8E/" rel="next" title="设计模式系列——流程引擎">
+      设计模式系列——流程引擎 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">简单工厂模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">静态工厂模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">工厂方法模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">抽象工厂模式</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">thefu</p>
+  <div class="site-description" itemprop="description">thefu</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thefu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thefu" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sicauthefu@gmail.com" title="E-Mail → sicauthefu@gmail.com"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

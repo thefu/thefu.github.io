@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thefu.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="作为一名合格的 Android Coder，除了认真工作，写出优秀代码外，我们还需要在日新月异的技术栈中找到有用的资源，来装备自己，开阔视野。希望以下的资源对大家有用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android developer 必备的几个资源">
+<meta property="og:url" content="https://thefu.github.io/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="作为一名合格的 Android Coder，除了认真工作，写出优秀代码外，我们还需要在日新月异的技术栈中找到有用的资源，来装备自己，开阔视野。希望以下的资源对大家有用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2023/04/22/p9ZShM8.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/04/22/p9ZprlV.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/04/22/p9Zpgw4.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/04/22/p9Zphf1.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/04/22/p9Zpo6K.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/04/22/p9ZpOkd.png">
+<meta property="article:published_time" content="2023-02-22T12:12:50.000Z">
+<meta property="article:modified_time" content="2023-04-22T12:26:35.000Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2023/04/22/p9ZShM8.png">
+
+<link rel="canonical" href="https://thefu.github.io/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android developer 必备的几个资源 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="TheFu's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">TheFu's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">sicauthefu</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/02/22/Android-developer-%E5%BF%85%E5%A4%87%E7%9A%84%E5%87%A0%E4%B8%AA%E8%B5%84%E6%BA%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android developer 必备的几个资源
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-22 20:12:50" itemprop="dateCreated datePublished" datetime="2023-02-22T20:12:50+08:00">2023-02-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>作为一名合格的 Android Coder，除了认真工作，写出优秀代码外，我们还需要在日新月异的技术栈中找到有用的资源，来装备自己，开阔视野。希望以下的资源对大家有用。</p>
+<span id="more"></span>
+
+<h2 id="1-官方资源"><a href="#1-官方资源" class="headerlink" title="1.官方资源"></a>1.官方资源</h2><p>一手、最新、最全的资料。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9ZShM8"><img src="https://s1.ax1x.com/2023/04/22/p9ZShM8.png" alt="p9ZShM8.png"></a><br>包含 Android Platform、Android Studio、Jetpack、Kotlin 等一切跟 Android 开发相关的指导、例子Sample 等。大部分人肯定都知道。<br>建议每隔一段时间上去看看，经常更新，比如最近增加了模块化的指导。除此之外，其他架构相关的内容，不管是初学者还是初学者，<br>都有很多指导、学习的意义。</p>
+<p>其他官方资源，比如：</p>
+<ul>
+<li>Android Developers on Medium <a target="_blank" rel="noopener" href="https://medium.com/androiddevelopers">https://medium.com/androiddevelopers</a></li>
+<li>Android Developers on YouTube <a target="_blank" rel="noopener" href="https://www.youtube.com/@AndroidDevelopers">https://www.youtube.com/@AndroidDevelopers</a></li>
+<li>Google Codelabs <a target="_blank" rel="noopener" href="https://codelabs.developers.google.com/?product=android">https://codelabs.developers.google.com/?product=android</a></li>
+</ul>
+<p>网址：<a target="_blank" rel="noopener" href="https://developer.android.com/docs">https://developer.android.com/docs</a></p>
+<h2 id="2-Android-Weekly"><a href="#2-Android-Weekly" class="headerlink" title="2.Android Weekly"></a>2.Android Weekly</h2><p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9ZprlV"><img src="https://s1.ax1x.com/2023/04/22/p9ZprlV.png" alt="p9ZprlV.png"></a><br>聚合了最近、最新的 Android 相关的文章、开源项目、视频&amp;播客、新闻等，每周一更新，不容错过。</p>
+<p>网址：<a target="_blank" rel="noopener" href="https://androidweekly.net/">https://androidweekly.net/</a></p>
+<h2 id="3-kotlin-Weekly"><a href="#3-kotlin-Weekly" class="headerlink" title="3.kotlin Weekly"></a>3.kotlin Weekly</h2><p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9Zpgw4"><img src="https://s1.ax1x.com/2023/04/22/p9Zpgw4.png" alt="p9Zpgw4.png"></a><br>类似于上面的 Android Weekly，主要提供一些 kotlin 相关技术栈更新、文章、新特性等，也包括了一些 Android 相关的内容。</p>
+<p>网址：<a target="_blank" rel="noopener" href="http://www.kotlinweekly.net/">http://www.kotlinweekly.net/</a></p>
+<h2 id="4-ProAndroidDev"><a href="#4-ProAndroidDev" class="headerlink" title="4.ProAndroidDev"></a>4.ProAndroidDev</h2><p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9Zphf1"><img src="https://s1.ax1x.com/2023/04/22/p9Zphf1.png" alt="p9Zphf1.png"></a><br>Medium（国外的简书）上的一个组织，都是 Android专家和大牛（Google Developer Experts）写的一些易懂、简洁的文章，质量不错。而且，如果你要在该专栏发布文章的话，需要专家 review 才能发出来。</p>
+<p>网址：<a target="_blank" rel="noopener" href="https://proandroiddev.com/">https://proandroiddev.com/</a></p>
+<h2 id="5-Github"><a href="#5-Github" class="headerlink" title="5.Github"></a>5.Github</h2><p>这个应该都知道吧，最大的基友交流社区，全世界的代码仓库集中地。<br>比如 Android 官方的仓库，<a target="_blank" rel="noopener" href="https://github.com/android%EF%BC%8C%E5%8C%85%E5%90%AB%E5%BE%88%E5%A4%9A%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%8C%E6%AF%94%E5%A6%82">https://github.com/android，包含很多最佳实践，比如</a> Now In Android, architecture-samples,  sunflower 等。<br>也可以通过 GitHub Trending page 来查看最近热门的仓库，类似微博热搜🔥 （筛选 kotlin 语言，前几个就是 android 相关的项目）<br>顺便推荐一个 android-developer-roadmap 项目，包含了一些 Android 开发的资源：<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9Zpo6K"><img src="https://s1.ax1x.com/2023/04/22/p9Zpo6K.png" alt="p9Zpo6K.png"></a></p>
+<h2 id="6-Google-Developer-Library"><a href="#6-Google-Developer-Library" class="headerlink" title="6.Google Developer Library"></a>6.Google Developer Library</h2><p>又是一个宝藏资源库！<br>谷歌官方的资源库，包含了 Android、Flutter、Firebase 和 Machine Learning 等资源，光 Android 方面就有一大堆，打开慢慢看吧<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9ZpOkd"><img src="https://s1.ax1x.com/2023/04/22/p9ZpOkd.png" alt="p9ZpOkd.png"></a></p>
+<h2 id="7-Android-Arsenal"><a href="#7-Android-Arsenal" class="headerlink" title="7.Android Arsenal"></a>7.Android Arsenal</h2><p>安卓军火库，聚集了大量的开源库，工具等，支持分类查找。<br>也可以提交自己的开源库，通过审核就可以展示出来，供别人使用。<br>关注它的推特，及时获取最新的开源项目。</p>
+<p>网址：<a target="_blank" rel="noopener" href="https://android-arsenal.com/">https://android-arsenal.com/</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/android/" rel="tag"># android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/01/15/Android-%E5%BC%80%E5%8F%91%E8%B0%83%E7%94%A8C++%E5%BA%93/" rel="prev" title="Android 开发调用C++库">
+      <i class="fa fa-chevron-left"></i> Android 开发调用C++库
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/03/22/%E4%BD%BF%E7%94%A8Android-sharesheet%E5%9C%A8Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%88%86%E4%BA%AB%E5%86%85%E5%AE%B9%E5%92%8C%E9%93%BE%E6%8E%A5/" rel="next" title="使用Android sharesheet在Android应用程序中分享内容和链接">
+      使用Android sharesheet在Android应用程序中分享内容和链接 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%AE%98%E6%96%B9%E8%B5%84%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">1.官方资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Android-Weekly"><span class="nav-number">2.</span> <span class="nav-text">2.Android Weekly</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-kotlin-Weekly"><span class="nav-number">3.</span> <span class="nav-text">3.kotlin Weekly</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-ProAndroidDev"><span class="nav-number">4.</span> <span class="nav-text">4.ProAndroidDev</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Github"><span class="nav-number">5.</span> <span class="nav-text">5.Github</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Google-Developer-Library"><span class="nav-number">6.</span> <span class="nav-text">6.Google Developer Library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-Android-Arsenal"><span class="nav-number">7.</span> <span class="nav-text">7.Android Arsenal</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">thefu</p>
+  <div class="site-description" itemprop="description">thefu</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thefu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thefu" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sicauthefu@gmail.com" title="E-Mail → sicauthefu@gmail.com"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

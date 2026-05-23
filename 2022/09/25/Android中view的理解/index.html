@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thefu.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="view是Android中的一个重要组件，理解好它对Android开发很有益处">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android中view的理解">
+<meta property="og:url" content="https://thefu.github.io/2022/09/25/Android%E4%B8%ADview%E7%9A%84%E7%90%86%E8%A7%A3/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="view是Android中的一个重要组件，理解好它对Android开发很有益处">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-09-25T02:36:02.000Z">
+<meta property="article:modified_time" content="2025-11-30T05:44:37.000Z">
+<meta property="article:author" content="thefu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://thefu.github.io/2022/09/25/Android%E4%B8%ADview%E7%9A%84%E7%90%86%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android中view的理解 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="TheFu's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">TheFu's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">sicauthefu</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2022/09/25/Android%E4%B8%ADview%E7%9A%84%E7%90%86%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android中view的理解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-09-25 10:36:02" itemprop="dateCreated datePublished" datetime="2022-09-25T10:36:02+08:00">2022-09-25</time>
+            </span>
+
+          
+            <div class="post-description">view是Android中的一个重要组件，理解好它对Android开发很有益处</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="View是什么？"><a href="#View是什么？" class="headerlink" title="View是什么？"></a>View是什么？</h3><p>View是屏幕上的一块矩形区域，它负责用来显示一个区域，并且响应这个区域内的事件。可以说，手机屏幕上的任意一部分看得见的地方都是view，它很常见，比如TextView、imageview、button、以及linearLayout、relativelayout都是继承于view的。<br>对于activity来说，我们通过setContentView添加的布局到activity上，实际上都是添加到了activity内部的decorview上面，这个DecorView，其实就是一个FrameLayout，因此实际上，我们的布局是添加到了FrameLayout里面。</p>
+<h2 id="View绘制的三个流程"><a href="#View绘制的三个流程" class="headerlink" title="View绘制的三个流程"></a>View绘制的三个流程</h2><p>我们知道，在自定义view的时候一般需要重写父类的onMeasure()、onLayout()、onDraw()三个方法，来完成视图的展示过程。当然，这三个暴露给开发者重写的方法只不过是整个绘制流程的冰山一角，更多复杂的幕后工作，都让系统给代劳了，一个完整的绘制流程包括measure、layout、draw三个步骤，其中：<br>measure：测量。系统会现根据xml布局文件和代码中对控件属性的设置，来获取或者计算出每个view和viewgroup的尺寸，并将这些尺寸保存下来。<br>layout：布局。根据测量出的结果以及对应的参数，来确定每一个控件应该显示的位置。<br>draw：绘制。确定好位置后，就将这些控件绘制到屏幕上。</p>
+<h2 id="Android视图层次结果简介"><a href="#Android视图层次结果简介" class="headerlink" title="Android视图层次结果简介"></a>Android视图层次结果简介</h2><p>在介绍view绘制流程之间，咱们先接单介绍一下Android视图层次结果以及DecorView因为view的绘制流程的入口和DecorView有着密切的联系。</p>
+<p>咱们平时看到的视图，其实存在如上的嵌套关系。上图是针对比较老的Android系统版本中制作的，新的版本中会略有出入，还有一个状态栏，但整体上没变。我们平时在activity中setContentView(…)中对应layout内容，对应的是上图中viewgrop的树状结构，实际上添加到系统中时，会再裹上一层FrameLayout，就是上图中最里面的浅蓝色部分。<br>这里咱们再通过一个实例来继续查看。Androidstudio工具中提供了一个布局观察期工具，通过Tools &gt; android &gt; layout Inspector可以查看具体某个activity的布局情况。下图中，左边树状结果对应了右边的可视图，可见DecorView就是整个界面的根视图，对应右边的红色框，是整个屏幕的大小。黄色边框为状态栏部分；那个绿色边框中有两个部分，一个是白框中的actionBar，对应了上图中紫色部分的TitleActionBar部分，即标题栏，平时咱们可以在activity中将其隐藏掉；另外一个蓝色边框部分，对应上图中最里面的蓝色部分，即contentview部分，下图中左边有两个蓝色框，上面那个中有个布局”content_layout”，咱们能通过layout布局文件直接完全操作的也就是这一块，当其被add到视图系统中时，会被过上contentFramelayout（显然是FrameLayout的子类），这也就是为什么添加到layout.xml视图的方法叫setContentView()而不叫setView()的原因了。</p>
+<h2 id="故事开始的地方"><a href="#故事开始的地方" class="headerlink" title="故事开始的地方"></a>故事开始的地方</h2><p>如果对activity的启动流程有一定的了解的话，应该知道这个启动会在activityThread.java类中完成，在启动activity的过程中，会调用handleResumeActivity()方法，关于视图的绘制过程最初就是从这个方法开始的。</p>
+<h3 id="1-view绘制起源UML时序图"><a href="#1-view绘制起源UML时序图" class="headerlink" title="1.view绘制起源UML时序图"></a>1.view绘制起源UML时序图</h3><p>整个调用链如下图所示，知道ViewRootImpl类中的performTraversals()中，才正式开始绘制流程了，所以一般都是以该方法作为正式绘制的源头。</p>
+<h3 id="2-handResumeActivity-方法"><a href="#2-handResumeActivity-方法" class="headerlink" title="2.handResumeActivity()方法"></a>2.handResumeActivity()方法</h3><p>在这先大致看一下ActivityThread类中的handleResumeActivity方法，咱们这里只贴出关键代码：<br><code>//===========ActivityThread.java========== final void handleResumeActivity(...) &#123;     ......     //跟踪代码后发现其初始赋值为mWindow = new PhoneWindow(this, window, activityConfigCallback);     r.window = r.activity.getWindow();        //从PhoneWindow实例中获取DecorView     View decor = r.window.getDecorView();     ......     //跟踪代码后发现，vm值为上述PhoneWindow实例中获取的WindowManager。     ViewManager wm = a.getWindowManager();     ......     //当前window的属性，从代码跟踪来看是PhoneWindow窗口的属性     WindowManager.LayoutParams l = r.window.getAttributes();     ......     wm.addView(decor, l);     ...... &#125;</code><br>上述代码第八行中，ViewManager是一个接口，addView是其中定义一个空方法，WindowManager是其子类，WindowManagerImpl是WindowManager的实现类，在第四行代码中的r.window的值可以根据Activity.java的如下代码得知，其值为PhoneWindow实例。<br>&#96;&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Activity.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>private Window mWindow;<br>public Window getWindow() {<br>   return mWindow;<br>}</p>
+<p>final void attach(…){<br>   ……<br>   mWindow &#x3D; new PhoneWindow(this, window, activityConfigCallback);<br>   ……<br>}&#96;</p>
+<h3 id="3-两个重要参数分析"><a href="#3-两个重要参数分析" class="headerlink" title="3.两个重要参数分析"></a>3.两个重要参数分析</h3><p>之所以要在这里特意分析handleResumeActivity()方法，除了因为它是整个绘制流程的最初源头外，还有就是addView的两个参数比较重要，它们经过一层一层传递后进入到ViewRootImpl中，在后面分析绘制中要用到。这里再看看这两个参数的相关信息：<br>（1）参数dector<br>&#96;&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Activity.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>private Window mWindow;<br>public Window getWindow() {<br>   return mWindow;<br>}</p>
+<p>final void attach(…){<br>   ……<br>   mWindow &#x3D; new PhoneWindow(this, window, activityConfigCallback);<br>   ……<br>}<code>可见decor参数表示的是DecorView实例，注释中也有说明：这是window的顶级视图，包含了window的decor （2）参数l</code>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;Window.java&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>&#x2F;&#x2F;The current window attributes.<br>    private final WindowManager.LayoutParams mWindowAttributes &#x3D;<br>        new WindowManager.LayoutParams();<br>……<br>public final WindowManager.LayoutParams getAttributes() {<br>        return mWindowAttributes;<br>    }<br>……</p>
+<p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;WindowManager.java的内部类LayoutParams extends ViewGroup.LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams() {<br>            super(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);<br>            ……<br>        }</p>
+<p>&#x2F;&#x2F;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;ViewGroup.java内部类LayoutParams&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>public LayoutParams(int width, int height) {<br>            this.width &#x3D; width;<br>            this.height &#x3D; height;<br>        }&#96;<br>该参数表示的是PhoneWindow的LayoutParams属性，其width和height值均为LayoutParmas.MATCH_PARENT。<br>在源码中，WindowPhone和DecorView通过组合方法联系在一起的，而DecorView是整个View体系的根View。在前面handleResumeActivity()方法代码片段中，当Activity启动后，就通过第14行的addView方法，来间接调用ViewRootImpl类中的performTraversals()，从而实现视图的绘制。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/09/21/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B/" rel="prev" title="深入理解进程和线程">
+      <i class="fa fa-chevron-left"></i> 深入理解进程和线程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/09/25/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3hexo%E9%A6%96%E9%A1%B5%E6%98%BE%E7%A4%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%85%A8%E9%83%A8%E6%96%87%E7%AB%A0/" rel="next" title="如何解决hexo首页显示博客的全部文章">
+      如何解决hexo首页显示博客的全部文章 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#View%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">View是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View%E7%BB%98%E5%88%B6%E7%9A%84%E4%B8%89%E4%B8%AA%E6%B5%81%E7%A8%8B"><span class="nav-number"></span> <span class="nav-text">View绘制的三个流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%9C%E7%AE%80%E4%BB%8B"><span class="nav-number"></span> <span class="nav-text">Android视图层次结果简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%85%E4%BA%8B%E5%BC%80%E5%A7%8B%E7%9A%84%E5%9C%B0%E6%96%B9"><span class="nav-number"></span> <span class="nav-text">故事开始的地方</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-view%E7%BB%98%E5%88%B6%E8%B5%B7%E6%BA%90UML%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">1.view绘制起源UML时序图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-handResumeActivity-%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">2.handResumeActivity()方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%A4%E4%B8%AA%E9%87%8D%E8%A6%81%E5%8F%82%E6%95%B0%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">3.两个重要参数分析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">thefu</p>
+  <div class="site-description" itemprop="description">thefu</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thefu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thefu" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sicauthefu@gmail.com" title="E-Mail → sicauthefu@gmail.com"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thefu.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="介绍Redis是一个高性能的key-value数据库。 Redis优势 性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。 丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。 原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis 相关知识">
+<meta property="og:url" content="https://thefu.github.io/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="介绍Redis是一个高性能的key-value数据库。 Redis优势 性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。 丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。 原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2023/06/24/pCtU9i9.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/06/24/pCtUCGR.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/06/24/pCtUkM6.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/06/24/pCtUZZD.png">
+<meta property="og:image" content="https://s1.ax1x.com/2023/06/24/pCtUmIH.png">
+<meta property="article:published_time" content="2023-05-24T05:40:16.000Z">
+<meta property="article:modified_time" content="2023-06-24T05:50:09.000Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2023/06/24/pCtU9i9.png">
+
+<link rel="canonical" href="https://thefu.github.io/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>redis 相关知识 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="TheFu's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">TheFu's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">sicauthefu</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2023/05/24/redis-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis 相关知识
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-24 13:40:16" itemprop="dateCreated datePublished" datetime="2023-05-24T13:40:16+08:00">2023-05-24</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Redis是一个高性能的key-value数据库。</p>
+<h3 id="Redis优势"><a href="#Redis优势" class="headerlink" title="Redis优势"></a>Redis优势</h3><ul>
+<li>性能极高 – Redis能读的速度是110000次&#x2F;s,写的速度是81000次&#x2F;s 。</li>
+<li>丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。</li>
+<li>原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。</li>
+<li>丰富的特性 – Redis还支持 publish&#x2F;subscribe, 通知, key 过期等等特性。</li>
+</ul>
+<span id="more"></span>
+<h2 id="redis的数据结构"><a href="#redis的数据结构" class="headerlink" title="redis的数据结构"></a>redis的数据结构</h2><p>Redis支持五中数据类型：String、hash、list、set和zset（有序集合）</p>
+<h3 id="String-类型"><a href="#String-类型" class="headerlink" title="String 类型"></a>String 类型</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对</p>
+<blockquote>
+<p>set test “test”<br>OK<br>get test<br>“test”</p>
+</blockquote>
+<p>*注意：一个键最大能存储512MB</p>
+<h3 id="Hash（哈希）"><a href="#Hash（哈希）" class="headerlink" title="Hash（哈希）"></a>Hash（哈希）</h3><p>String 类型是一个（key&#x3D;&#x3D;&gt;value）的键值对集合，每个最外层key对应多个（key&#x3D;&#x3D;&gt;value）形式的键值对<br>使用时需要用命令HSET 和HGET命令。</p>
+<blockquote>
+<p>hset htest h1 “t1” h2 “t2”<br>2<br>hget htest h1<br>“t1”<br>hget htest h2<br>“t2”</p>
+</blockquote>
+<h3 id="List（列表）"><a href="#List（列表）" class="headerlink" title="List（列表）"></a>List（列表）</h3><p>是一个简单的字符串列表，排序默认按照插入顺序排序<br>需要用命令LPUSH 和LRANGE start end(给出索引起始和结束位置左闭又闭区间)命令。<br> lpush ltest qq<br>(integer) 1</p>
+<blockquote>
+<p>lpush ltest ll<br>(integer) 2<br>lrange ltest 0 10</p>
+</blockquote>
+<ol>
+<li>“ll”</li>
+<li>“qq”</li>
+</ol>
+<h3 id="set（集合）"><a href="#set（集合）" class="headerlink" title="set（集合）"></a>set（集合）</h3><p>添加一个string对象到对应的set集合中，成功返回1，如果元素已在集合中返回0<br>添加元素使用：sadd，显示所有元素使用 smembers</p>
+<blockquote>
+<p>sadd stest 1<br>(integer) 1<br>sadd stest 2<br>(integer) 1<br>sadd stest 1<br>(integer) 0<br>smembers stest</p>
+</blockquote>
+<ol>
+<li>“1”</li>
+<li>“2”</li>
+</ol>
+<h3 id="zset（有序集合）"><a href="#zset（有序集合）" class="headerlink" title="zset（有序集合）"></a>zset（有序集合）</h3><p>Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。<br>不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。<br>zset的成员是唯一的,但分数(score)却可以重复。<br>需要使用命令</p>
+<blockquote>
+<p>zadd ztest 0 t1<br>(integer) 1<br>zadd ztest 1 t2<br>(integer) 1<br>zadd ztest 0 t3<br>(integer) 1<br>zrangebyscore ztest 0 3</p>
+</blockquote>
+<ol>
+<li>“t1”</li>
+<li>“t3”</li>
+<li>“t2”</li>
+</ol>
+<h2 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h2><p>为什么需要持久化？<br>Redis的数据都存储在内存中，若没有配置持久化，redis重启后数据就丢失了，于是需要开启redis的持久化功能，将数据保存到磁盘上，重启后从磁盘恢复数据。redis提供了两种持久化方式：1.RDB持久化（定时将redis在内存中的数据生成快照，全量同步到磁盘）。2.AOF（append only file）持久化（将redis的操作日志以追加的方式写入文件）。</p>
+<ol>
+<li><p>RDB持久化<br>过程：在指定时间间隔内将内存中的数据集快照写入磁盘，实际操作过程就是fork一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用于二进制压缩存储。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pCtU9i9"><img src="https://s1.ax1x.com/2023/06/24/pCtU9i9.png" alt="pCtU9i9.png"></a><br>优点：<br>1.redis只会包含一个文件，便于文件备份。可以配置每小时归档最近24小时的数据，同时每天归档最近30天的数据，通过这样的策略，一旦系统出现灾难性故障，可以很容易的进行恢复。<br>2.RDB适合于灾难恢复，可以很轻松的将一个单独的文件压缩后再转移到其他存储介质上。<br>3.性能最大化。fork出一个子进程完成持久化操作，避免了单个线程的IO问题。<br>4.相比于AOF机制，如果数据集很大，RDB的启动效率更高。<br>缺点：<br>1.无法保证数据的高可用性，即最大限度的避免数据丢失。如果在持久化之前出现宕机现象，此前未来得及写入磁盘的数据都将丢失。<br>2.fork子进程完成持久化操作时，如果数据集较大时，可能会导致服务器停止服务几百毫秒到1秒。</p>
+</li>
+<li><p>AOF持久化<br>过程：AOF以日志的形式来记录每个写操作，将redis执行过的所有写指令记录下来，只许追加文件但不允许改写文件，redis启动之后就会读取该文件重构数据集。默认是不开启的，需要将appendonly改为yes就开启了aof，重启后生效。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pCtUCGR"><img src="https://s1.ax1x.com/2023/06/24/pCtUCGR.png" alt="pCtUCGR.png"></a><br>优点：<br>1.更高的数据安全性，保证数据在redis重启前后是一致的。<br>2.日志写操作采用的是append方式，写入过程中出现宕机也不会破坏日志文件中已存在的内容。<br>3.如果日志过大，redis会自动启用rewrite机制。即Redis以append模式不断的将修改数据写入到老的磁盘文件中，同时Redis还会创建一个新的文件用于记录此期间有哪些修改命令被执行。因此在进行rewrite切换时可以更好的保证数据安全性。<br>4.AOF包含一个格式清晰、易于理解的日志文件用于记录所有的修改操作。事实上，我们也可以通过该文件完成数据的重建。<br>缺点：<br>1.对于相同数量的数据集而言，AOF文件通常要大于RDB文件。RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>2.根据同步策略的不同，AOF在运行效率上往往会慢于RDB。总之，每秒同步策略的效率是比较高的，同步禁用策略的效率和RDB一样高效。</p>
+</li>
+</ol>
+<h2 id="Redis集群"><a href="#Redis集群" class="headerlink" title="Redis集群"></a>Redis集群</h2><p>1.主从模式<br>至少需要两台服务器，一台主节点（master），一台从节点（slave）。master主要负责写，slave主要负责读，主从模式实现了读写分离。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pCtUkM6"><img src="https://s1.ax1x.com/2023/06/24/pCtUkM6.png" alt="pCtUkM6.png"></a><br>主从复制的作用：<br>数据冗余：实现了数据的热备份，是持久化之外的另一种数据冗余方式<br>故障恢复：master故障时，slave可以提供服务，实现故障快速恢复<br>负载均衡：master负责写，slave负责读。在写少读多的场景下可以极大提高redis吞吐量<br>高可用基石：主从复制是redis哨兵模式和集群模式的基础。<br>主从复制实现原理：<br>主从复制过程主要可以分为3个阶段：连接建立阶段、数据同步阶段、命令传播阶段。<br>连接建立阶段：在主从节点之间建立连接，为数据同步做准备。<br>数据同步阶段：执行数据的全量（或增量）复制（复制RDB文件）<br>命令传播阶段：主节点将已执行的命令发送给从节点，从节点接收命令并执行，从而实现主从节点的数据一致性<br>主从模式中，一个主节点可以有多个从节点。为了减少主从复制对主节点的性能影响，一个从节点可以作为另外一个从节点的主节点进行主从复制。<br>不足之处：主节点宕机之后，需要手动拉起从节点来提供业务，不能达到高可用。</p>
+<p>2.哨兵模式<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pCtUZZD"><img src="https://s1.ax1x.com/2023/06/24/pCtUZZD.png" alt="pCtUZZD.png"></a><br>哨兵模式的原理<br>Sentinel是一种特殊的redis节点，每个sentinel节点会维护与其他redis节点（包括master&#x2F;slave&#x2F;sentinel）的心跳。<br>当一个sentinel节点与master节点的心跳丢失时，这个sentinel节点就会认为master节点出现了故障，处于不可用的状态，这种判定叫作主观下线（即sentinel节点自己主观认为master下线了），之后，这个sentinel节点会与其他sentinel节点交换信息，如果发现认为主节点发生故障的sentinel节点的个数超过了某个阈值（通常为sentinel节点总数的1&#x2F;2+1，即超过半数），则sentinel会认为master节点已经处于客观下线的状态，即大家都认为master故障不可用了。<br>之后，sentinel节点中会选举处一个sentinel leader来执行redis主节点的故障转移。<br>被选举出的 Sentinel 领导者进行故障转移的具体步骤如下：<br>（1）在从节点列表中选出一个节点作为新的主节点</p>
+<ul>
+<li>过滤不健康或者不满足要求的节点；</li>
+<li>选择 slave-priority（优先级）最高的从节点， 如果存在则返回， 不存在则继续；</li>
+<li>选择复制偏移量最大的从节点 ， 如果存在则返回， 不存在则继续；</li>
+<li>选择 runid 最小的从节点。<br>（2）Sentinel 领导者节点会对选出来的从节点执行 slaveof no one 命令让其成为主节点。<br>（3）Sentinel 领导者节点会向剩余的从节点发送命令，让他们从新的主节点上复制数据。<br>（4）Sentinel 领导者会将原来的主节点更新为从节点， 并对其进行监控， 当其恢复后命令它去复制新的主节点。</li>
+</ul>
+<p>3.集群模式<br>如图所示集群模式其实就是多个主从复制的结构组合起来的，每一个主从复制结构可以看成一个节点，那么上面的Cluster集群中就有三个节点。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/pCtUmIH"><img src="https://s1.ax1x.com/2023/06/24/pCtUmIH.png" alt="pCtUmIH.png"></a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/30/%E5%87%BD%E6%95%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94RxJava/" rel="prev" title="函数响应式编程——RxJava">
+      <i class="fa fa-chevron-left"></i> 函数响应式编程——RxJava
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="Rust学习笔记">
+      Rust学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E4%BC%98%E5%8A%BF"><span class="nav-number">1.1.</span> <span class="nav-text">Redis优势</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">redis的数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#String-%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">String 类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash%EF%BC%88%E5%93%88%E5%B8%8C%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">Hash（哈希）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#List%EF%BC%88%E5%88%97%E8%A1%A8%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">List（列表）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#set%EF%BC%88%E9%9B%86%E5%90%88%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">set（集合）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zset%EF%BC%88%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">zset（有序集合）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">redis持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E9%9B%86%E7%BE%A4"><span class="nav-number">4.</span> <span class="nav-text">Redis集群</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">thefu</p>
+  <div class="site-description" itemprop="description">thefu</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thefu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thefu" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sicauthefu@gmail.com" title="E-Mail → sicauthefu@gmail.com"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
