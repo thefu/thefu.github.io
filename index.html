@@ -187,71 +187,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/12/14/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/12/14/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">区块链学习笔记</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-12-14 14:48:30" itemprop="dateCreated datePublished" datetime="2025-12-14T14:48:30+08:00">2025-12-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>比特币出块时间未10分钟，以太坊出块时间为15s左右。</p>
-<p>以太坊得单位，<br>比特币得单位</p>
-<p>以太坊使用账户模型得一个很重要的点是为了智能合约得这个身份验证，而比特币使用UTXO模型，UTXO模型得一个重要点就是UTXO得不可分割性，而账户模型得一个重要点就是UTXO得可分割性。<br>比特币可以创建一个新的账户转走剩余的账户得钱，而以太坊不能，不能是智能合约找不到人了，会给合同的执行带来困难，因为智能合约得执行是顺序执行的，如果找不到人，那么后面的代码就执行不了了。总而言之是为了保证账户的稳定</p>
-<p>adder-&gt;state<br>以太坊用的账户地址是160位</p>
-<p>账户地址是160位，160位得16进制，160位得32字节，32字节得64位，64位得16进制，64位得8字节，8字节得2进制，2进制得10进制，10进制得10位，10位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节</p>
-<p>为什么不直接用哈希表呢，</p>
-<p>因为每次取构建一个新的merkle tree，代价太多了，需要包含所有的账户</p>
-<p>MPT，merkle patricia tree</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/11/27/web3-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -835,10 +770,75 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/" class="post-title-link" itemprop="url">Rust中的for循环与迭代器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-02-10 19:48:31" itemprop="dateCreated datePublished" datetime="2024-02-10T19:48:31+08:00">2024-02-10</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>for</code> 循环是迭代器的语法糖，而迭代器是 Rust 处理集合（如 <code>Vec</code>、<code>HashMap</code>）的核心抽象。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/02/10/Rust%E4%B8%AD%E7%9A%84for%E5%BE%AA%E7%8E%AF%E4%B8%8E%E8%BF%AD%E4%BB%A3%E5%99%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -904,7 +904,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -917,7 +917,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

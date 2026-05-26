@@ -10,26 +10,7 @@
   <rights>All rights reserved 2026, thefu</rights>
   <subtitle>sicauthefu</subtitle>
   <title>TheFu's Blog</title>
-  <updated>2025-12-14T08:48:33.000Z</updated>
-  <entry>
-    <author>
-      <name>thefu</name>
-    </author>
-    <category term="区块链" scheme="https://thefu.github.io/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/"/>
-    <content>
-      <![CDATA[<p>比特币出块时间未10分钟，以太坊出块时间为15s左右。</p><p>以太坊得单位，<br>比特币得单位</p><p>以太坊使用账户模型得一个很重要的点是为了智能合约得这个身份验证，而比特币使用UTXO模型，UTXO模型得一个重要点就是UTXO得不可分割性，而账户模型得一个重要点就是UTXO得可分割性。<br>比特币可以创建一个新的账户转走剩余的账户得钱，而以太坊不能，不能是智能合约找不到人了，会给合同的执行带来困难，因为智能合约得执行是顺序执行的，如果找不到人，那么后面的代码就执行不了了。总而言之是为了保证账户的稳定</p><p>adder-&gt;state<br>以太坊用的账户地址是160位</p><p>账户地址是160位，160位得16进制，160位得32字节，32字节得64位，64位得16进制，64位得8字节，8字节得2进制，2进制得10进制，10进制得10位，10位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节，1字节得8位，8位得1字节</p><p>为什么不直接用哈希表呢，</p><p>因为每次取构建一个新的merkle tree，代价太多了，需要包含所有的账户</p><p>MPT，merkle patricia tree</p>]]>
-    </content>
-    <id>https://thefu.github.io/2025/12/14/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</id>
-    <link href="https://thefu.github.io/2025/12/14/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    <published>2025-12-14T06:48:30.000Z</published>
-    <summary>
-      <![CDATA[<p>比特币出块时间未10分钟，以太坊出块时间为15s左右。</p>
-<p>以太坊得单位，<br>比特币得单位</p>
-<p>以太坊使用账户模型得一个很重要的点是为了智能合约得这个身份验证，而比特币使用UTXO模型，UTXO模型得一个重要点就是UTXO得不可分割性，而账户模型得一]]>
-    </summary>
-    <title>区块链学习笔记</title>
-    <updated>2025-12-14T08:48:33.000Z</updated>
-  </entry>
+  <updated>2025-11-30T04:21:02.000Z</updated>
   <entry>
     <author>
       <name>thefu</name>
@@ -366,5 +347,22 @@
     </summary>
     <title>Rust中错误处理机制</title>
     <updated>2025-11-26T14:40:40.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>thefu</name>
+    </author>
+    <category term="Rust" scheme="https://thefu.github.io/tags/Rust/"/>
+    <content>
+      <![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p><span id="more"></span><p>Rust语言的特点<br>高性能 - Rust 速度惊人且内存利用率极高。由于没有运行时和垃圾回收，它能够胜任对性能要求特别高的服务，可以在嵌入式设备上运行，还能轻松和其他语言集成。</p><p>可靠性 - Rust 丰富的类型系统和所有权模型保证了内存安全和线程安全，让您在编译期就能够消除各种各样的错误。</p><p>生产力 - Rust 拥有出色的文档、友好的编译器和清晰的错误提示信息， 还集成了一流的工具 —— 包管理器和构建工具， 智能地自动补全和类型检验的多编辑器支持， 以及自动格式化代码等等。</p><p>学习笔记已上传至gitHub：<a href="https://github.com/thefu/RustPrroject">https://github.com/thefu/RustPrroject</a></p>]]>
+    </content>
+    <id>https://thefu.github.io/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</id>
+    <link href="https://thefu.github.io/2023/06/20/Rust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <published>2023-06-20T04:43:44.000Z</published>
+    <summary>
+      <![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Rust 语言是一种高效、可靠的通用高级语言。其高效不仅限于开发效率，它的执行效率也是令人称赞的，是一种少有的兼顾开发效率和执行效率的语言。</p>]]>
+    </summary>
+    <title>Rust学习笔记</title>
+    <updated>2023-06-24T05:50:28.000Z</updated>
   </entry>
 </feed>
