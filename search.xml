@@ -5148,4 +5148,76 @@ protected void onCreate(Bundle savedInstanceState) &#123;
         <tag>设计模式</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Harness Engineering到底是什么</title>
+    <url>/2026/05/28/Harness-Engineering%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/</url>
+    <content><![CDATA[<p>最近 AI 工程圈里，一个新词开始频繁出现：Harness Engineering。它出现在 OpenAI 的工程实践文章里，也出现在 Anthropic 关于 long-running agents 的实践总结里，Martin Fowler 网站也专门写过第一印象。这个概念之所以引发讨论，是因为它试图回答一个很现实的问题：当大模型已经足够强之后，工程师到底应该继续优化 Prompt，还是应该把精力放在模型外部的系统设计上？</p>
+<p>这期视频的核心观点可以概括为一句话：Harness Engineering 不是简单的新名词炒作，它是一种围绕 Agent 搭建运行系统的工程思维；但它也未必是最终形态，因为模型能力越强，很多外部约束和补救机制就越可能被模型自身吸收。</p>
+<span id="more"></span>
+
+<p>视频来源：<a href="https://www.youtube.com/watch?v=7nCzfgDjSo8">Harness Engineering 到底是什么？概念、实战与争议，一次全部讲清楚</a></p>
+<h2 id="从-Prompt-到-Context，再到-Harness"><a href="#从-Prompt-到-Context，再到-Harness" class="headerlink" title="从 Prompt 到 Context，再到 Harness"></a>从 Prompt 到 Context，再到 Harness</h2><p>理解 Harness Engineering，最好先把它放到 Prompt Engineering 和 Context Engineering 的演进链条里看。</p>
+<p>Prompt Engineering 关注的是“怎么问问题”。它研究如何组织输入，让模型更准确理解用户意图，比如明确任务目标、输出格式、限制条件和示例。</p>
+<p>Context Engineering 往外走了一步，关注的是“怎么给信息”。它不只关心用户说了什么，还关心什么时候把什么材料放进上下文里，包括历史对话、工具列表、外部检索结果、压缩后的摘要、渐进式披露的文档等。</p>
+<p>Harness Engineering 再往外扩一圈，关注的是“怎么搭系统”。它研究如何围绕模型构建一个完整可靠的 Agent，包括权限控制、工具管理、上下文组织、执行环境、验证反馈、任务拆解、质量评估和长期维护机制。（截图提示：展示 Prompt Engineering、Context Engineering、Harness Engineering 三层递进关系）</p>
+<p>视频里给了一个非常直观的公式：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Agent = Model + Harness</span><br><span class="line">Harness = Agent - Model</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，一个完整 Agent 里，除了大模型本身之外，剩下的运行框架、工具、规则、调度、记忆、环境和验证机制，都可以看作 Harness。（截图提示：展示 Agent &#x3D; Model + Harness 的组成结构）</p>
+<p>以 Claude Code 为例，Claude 模型本身不是 Harness；但 <code>CLAUDE.md</code> 里的规则、可调用的工具、执行沙箱、定时调度、文件读写权限、任务上下文管理，都属于 Harness 的范围。</p>
+<h2 id="Harness-的核心：驯服模型，而不是替代模型"><a href="#Harness-的核心：驯服模型，而不是替代模型" class="headerlink" title="Harness 的核心：驯服模型，而不是替代模型"></a>Harness 的核心：驯服模型，而不是替代模型</h2><p>Harness 这个词原本有“马具”的意思。视频借这个类比说明：模型像一匹能力很强的马，但如果没有缰绳、鞍具和方向控制，它可能会发散、幻觉、误解目标，甚至在复杂任务中跑偏。</p>
+<p>Harness 的作用不是让模型变聪明，而是给模型提供一个可控的工作环境。它让模型知道该看什么、不该碰什么、可以调用哪些工具、完成后如何验证、失败后如何修复。</p>
+<p>这也是 Harness Engineering 和单纯提示词优化的区别：提示词优化只是在模型入口处做文章，而 Harness Engineering 是在模型周围搭一整套工程系统。</p>
+<h2 id="OpenAI-的实践：让-Agent-在系统里写代码"><a href="#OpenAI-的实践：让-Agent-在系统里写代码" class="headerlink" title="OpenAI 的实践：让 Agent 在系统里写代码"></a>OpenAI 的实践：让 Agent 在系统里写代码</h2><p>视频中最重要的案例来自 OpenAI。OpenAI 做过一个实验：用 AI 从零开发一个真实运行的软件产品，业务逻辑、测试、CI 配置、文档、内部工具等都由 AI 生成，最终代码规模接近 100 万行，耗时约 5 个月，团队从 3 人扩展到 7 人。</p>
+<p>这个实验一开始并不顺利。问题不是模型完全不会写代码，而是 Agent 经常走错方向、重复犯错、缺少项目背景、无法稳定验证结果。OpenAI 后来意识到，真正的关键不是继续追问“模型够不够强”，而是要把 Agent 周围的 Harness 搭好。</p>
+<p>视频把 OpenAI 的 Harness Engineering 实践概括为三类：上下文管理、验证与反馈、技术债清理。（截图提示：展示 OpenAI Harness Engineering 的三类优化点）</p>
+<h3 id="上下文管理：不要把所有信息都塞给模型"><a href="#上下文管理：不要把所有信息都塞给模型" class="headerlink" title="上下文管理：不要把所有信息都塞给模型"></a>上下文管理：不要把所有信息都塞给模型</h3><p>OpenAI 最初尝试把项目规范和相关信息都放进一个很大的 <code>AGENTS.md</code> 文件里，让 Agent 每次任务都能看到完整背景。但这个方案很快暴露出两个问题。</p>
+<p>第一，信息太多会淹没重点。就像新员工第一天入职时拿到一本厚厚的员工手册，虽然信息很全，但不知道该从哪里看，也不知道哪些内容和当前任务真正相关。</p>
+<p>第二，文档会腐化。项目不断演进，如果没人维护，大而全的文档很快会混入过时规则、废弃约定和历史包袱。Agent 无法判断哪些内容还有效，反而更容易被误导。</p>
+<p>OpenAI 的改进方式是把 <code>AGENTS.md</code> 压缩成一个较短的入口目录，只保留导航和核心规则，详细内容分散到更细的文档里，按需提供给 Agent。（截图提示：展示精简版 AGENTS.md 作为目录入口，关联多个细分文档）</p>
+<p>另一个重要做法是把关键决策和团队约定搬进代码仓库。很多项目知识原本散落在 Slack、Google Docs 或老员工脑子里，对 Agent 来说等同于不存在。要让 Agent 真正参与工程，就必须让仓库成为事实来源。</p>
+<h3 id="验证与反馈：让-Agent-自己跑闭环"><a href="#验证与反馈：让-Agent-自己跑闭环" class="headerlink" title="验证与反馈：让 Agent 自己跑闭环"></a>验证与反馈：让 Agent 自己跑闭环</h3><p>仅仅让 Agent 写代码是不够的，关键是让它能验证自己写出来的东西是否正确。</p>
+<p>OpenAI 给 Codex 配置了足够完善的工具和 Skill，让它能在任务中检查自己的输出。例如接入 Chrome DevTools 后，Codex 可以自己截图、查看 DOM、模拟用户操作，从而验证 UI 是否满足要求。（截图提示：展示 Codex 调用 Chrome DevTools 验证 UI 的闭环）</p>
+<p>OpenAI 还给 Codex 接入可观测性工具栈，让它读取日志、指标和链路追踪，用于排查运行问题。每个任务运行在隔离环境中，拥有独立日志和指标，任务结束后环境可以自动销毁。</p>
+<p>在代码规范层面，OpenAI 使用 linter 和测试形成自动反馈闭环：Agent 生成代码后，系统运行检查；如果失败，错误信息返回给 Agent；Agent 根据错误修复后再次运行检查，直到规则和测试通过。（截图提示：展示 Agent 生成代码、linter&#x2F;test 检查、反馈修复、再次检查的循环）</p>
+<p>视频还提到一种架构约束：系统按层划分为 UI、Runtime、Service、Repo、Config、Types，每一层只能依赖更底层的模块，不能反向依赖。（截图提示：展示 UI、Runtime、Service、Repo、Config、Types 的分层依赖结构）</p>
+<h3 id="技术债清理：让-Agent-维护自己造成的混乱"><a href="#技术债清理：让-Agent-维护自己造成的混乱" class="headerlink" title="技术债清理：让 Agent 维护自己造成的混乱"></a>技术债清理：让 Agent 维护自己造成的混乱</h3><p>大规模 AI 生成代码会带来重复代码、命名不一致、偏离架构规范、文档过时等技术债。OpenAI 的做法不是等人类工程师手动清理，而是设置后台 Codex 任务定期扫描代码库和文档库，发现问题后自动修复并提交。</p>
+<p>这体现了 OpenAI 文章里的核心理念：Humans steer, Agents execute。人类负责掌舵、定方向、给上下文、制定规则和做关键判断；Agent 在 Harness 里负责执行大量重复、细碎、可验证的工程任务。</p>
+<h2 id="Anthropic-的实践：Planner、Generator、Evaluator"><a href="#Anthropic-的实践：Planner、Generator、Evaluator" class="headerlink" title="Anthropic 的实践：Planner、Generator、Evaluator"></a>Anthropic 的实践：Planner、Generator、Evaluator</h2><p>Anthropic 的相关实践来自两篇文章：<code>Effective Harnesses for Long-Running Agents</code> 和 <code>Harness Design for Long-Running Application Development</code>。视频把它们的重点总结为两个方向：任务规划和质量评估。</p>
+<h3 id="任务规划：先拆解，再执行"><a href="#任务规划：先拆解，再执行" class="headerlink" title="任务规划：先拆解，再执行"></a>任务规划：先拆解，再执行</h3><p>Anthropic 让 Agent 克隆 <code>claude.ai</code> 这样的复杂应用时发现，如果直接把大需求扔给一个 Agent，它往往会急着开工，试图一次做完所有功能。结果是上下文耗尽、功能半成品堆积、后续 Agent 接手时无法判断哪些做完了、哪些只是看起来做完了。</p>
+<p>为了解决这个问题，Anthropic 引入了 Initializer Agent，用于初始化执行环境、拆解需求、写启动脚本、添加进度文件。后来他们把需求拆解这件事独立出来，形成 Planner Agent。</p>
+<p>Planner 的职责是把模糊需求扩展成清晰的功能列表，让后续 Agent 不再靠猜，而是按功能点推进。（截图提示：展示用户需求经过 Planner 拆成可执行功能列表）</p>
+<h3 id="质量评估：不要让-Agent-给自己打分"><a href="#质量评估：不要让-Agent-给自己打分" class="headerlink" title="质量评估：不要让 Agent 给自己打分"></a>质量评估：不要让 Agent 给自己打分</h3><p>质量评估也不能简单交给生成代码的同一个 Agent。视频里提到，Anthropic 发现 Agent 自评并不可靠，因为它会天然倾向于认可自己的输出，即使存在明显 bug，也可能给自己一个高分然后收工。</p>
+<p>因此 Anthropic 把生成和评估拆开：Generator 负责实现，Evaluator 作为独立第三方负责评估。Evaluator 不替 Generator 护短，因此反馈更客观，也可以单独优化评估能力。</p>
+<p>完整的 Full Harness 方案包含三个角色：Planner 拆解需求，Generator 实现功能，Evaluator 评估质量。Generator 和 Evaluator 会先讨论交付标准，再进入实现与评估的循环，直到 Evaluator 认为通过。（截图提示：展示 Planner、Generator、Evaluator 三 Agent 协作流程）</p>
+<p>Anthropic 用一个游戏制作工具任务对比了 Solo 和 Full Harness。Solo 方案只靠一个 Agent，耗时约 20 分钟、花费约 9 美元，但结果问题很多；Full Harness 方案耗时约 6 小时、花费约 200 美元，但产品逻辑、布局和可用性明显更好。（截图提示：展示 Solo 与 Full Harness 在耗时、成本、质量上的对比表）</p>
+<p>这说明 Harness 不是免费的。它提高质量和稳定性，但也带来更高的成本和更长的执行时间。</p>
+<h2 id="争议：这是新技术，还是新瓶装旧酒？"><a href="#争议：这是新技术，还是新瓶装旧酒？" class="headerlink" title="争议：这是新技术，还是新瓶装旧酒？"></a>争议：这是新技术，还是新瓶装旧酒？</h2><p>视频最后讨论了 Harness Engineering 最大的争议：它到底是不是噱头？</p>
+<p>从词源看，Harness 并不是新词。传统软件测试里有 Test Harness，AI 评估领域也有 <code>lm-evaluation-harness</code>。Anthropic 早期文章也用 Harness 描述支持 Agent 长时间运行的框架。</p>
+<p>真正变热的是 Harness Engineering 这个组合。视频提到，较早的起点是 Mitchell Hashimoto 在 2026 年 2 月 5 日发表的 <code>My AI Adoption Journey</code>。他大意是说，自己暂时把这种“Agent 犯错后就改造系统，避免它再犯同样错误”的方法叫 Harness Engineering。</p>
+<p>随后 OpenAI 在 2026 年 2 月 11 日发布相关文章，引爆了这个词；Martin Fowler 网站在 2 月 17 日发表 <code>Harness Engineering - First Thoughts</code>；LangChain 在 3 月 10 日发布 <code>The Anatomy of an Agent Harness</code>，明确提出 <code>Agent = Model + Harness</code>；Anthropic 在 3 月 24 日发布三 Agent 架构案例后，这个词进一步被技术圈接受。（截图提示：展示 Harness Engineering 概念传播时间线）</p>
+<p>怀疑者的观点也有道理：Harness Engineering 里的 linter、测试、任务拆解、质量评估、权限隔离、文档维护并不是新技术。它更像是把已有工程实践重新组织到一个新的系统框架下面。</p>
+<p>但工程进步并不总是来自单点新技术。很多时候，真正有价值的是把零散能力组织成一套可设计、可复用、可持续优化的方法。Harness Engineering 的意义就在这里。</p>
+<h2 id="模型越强，Harness-会越少吗？"><a href="#模型越强，Harness-会越少吗？" class="headerlink" title="模型越强，Harness 会越少吗？"></a>模型越强，Harness 会越少吗？</h2><p>另一个更深的争议是：如果模型越来越强，今天这些复杂的 Harness 会不会被淘汰？</p>
+<p>视频认为，这种趋势已经在 Anthropic 的实践里出现了。比如早期模型在长上下文中会出现“上下文焦虑”，容易急着结束任务、降低交付质量，因此需要用上下文重置等 Harness 技术来补救。但模型升级后，这类问题会减轻，相应的 Harness 设计也就不再那么必要。</p>
+<p>再比如 Anthropic 一开始需要强制 Generator 每次只做一个功能点，避免它急于求成；但当更强的模型具备更好的全局统筹能力后，这种强制分步机制就可以简化。</p>
+<p>所以，一个现实判断是：模型越强，某些 Harness 会被模型能力吸收；但这不意味着 Harness 会完全消失。它更可能从显式、复杂、强约束的系统，逐渐演化成更底层、更通用的环境接口和基础设施。</p>
+<h2 id="我的理解"><a href="#我的理解" class="headerlink" title="我的理解"></a>我的理解</h2><p>Harness Engineering 不是噱头，因为它已经在 OpenAI 和 Anthropic 的实践中展示了明确的工程收益：更稳定的 Agent、更强的自动化能力、更可控的质量反馈，以及更高的生产力。</p>
+<p>但它也不是终局。随着模型能力继续增强，今天很多用于约束、纠错和兜底的设计可能会被压缩、简化，甚至消失。</p>
+<p>更准确地说，Harness Engineering 是当前阶段把 AI 能力转化为真实生产力的关键过渡技术。只要模型还会幻觉、会误解需求、会在复杂任务中偏航，谁能把 Harness 搭得更稳，谁就能更早把 Agent 用到真实工程里。</p>
+]]></content>
+      <tags>
+        <tag>AI</tag>
+        <tag>Agent</tag>
+        <tag>Harness Engineering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Harness Engineering的概念</title>
+    <url>/2026/05/26/Harness-Engineering%E7%9A%84%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
 </search>
