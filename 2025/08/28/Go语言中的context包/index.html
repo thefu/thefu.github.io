@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thefu.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Go 语言中的 context 包context 是 Go 标准库中用于传递取消信号、超时时间、截止时间和请求级数据的包。在服务端开发中，context.Context 几乎无处不在，例如 HTTP 请求处理、RPC 调用、数据库查询、后台 goroutine 控制等。 如果说 goroutine 负责并发执行，channel 负责并发通信，那么 context 很多时候负责控制并发任务的生命周期">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言中的context包">
+<meta property="og:url" content="https://thefu.github.io/2025/08/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84context%E5%8C%85/index.html">
+<meta property="og:site_name" content="TheFu&#39;s Blog">
+<meta property="og:description" content="Go 语言中的 context 包context 是 Go 标准库中用于传递取消信号、超时时间、截止时间和请求级数据的包。在服务端开发中，context.Context 几乎无处不在，例如 HTTP 请求处理、RPC 调用、数据库查询、后台 goroutine 控制等。 如果说 goroutine 负责并发执行，channel 负责并发通信，那么 context 很多时候负责控制并发任务的生命周期">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-28T14:38:41.000Z">
+<meta property="article:modified_time" content="2026-05-28T08:52:37.275Z">
+<meta property="article:author" content="thefu">
+<meta property="article:tag" content="Go, 并发编程">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://thefu.github.io/2025/08/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84context%E5%8C%85/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Go语言中的context包 | TheFu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="TheFu's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">TheFu's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">sicauthefu</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/08/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84context%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言中的context包
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-28 22:38:41" itemprop="dateCreated datePublished" datetime="2025-08-28T22:38:41+08:00">2025-08-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Go-语言中的-context-包"><a href="#Go-语言中的-context-包" class="headerlink" title="Go 语言中的 context 包"></a>Go 语言中的 context 包</h2><p><code>context</code> 是 Go 标准库中用于传递取消信号、超时时间、截止时间和请求级数据的包。在服务端开发中，<code>context.Context</code> 几乎无处不在，例如 HTTP 请求处理、RPC 调用、数据库查询、后台 goroutine 控制等。</p>
+<p>如果说 goroutine 负责并发执行，channel 负责并发通信，那么 context 很多时候负责控制并发任务的生命周期。</p>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>context 解决什么问题</li>
+<li>Context 接口</li>
+<li>Background 与 TODO</li>
+<li>WithCancel</li>
+<li>WithTimeout</li>
+<li>WithDeadline</li>
+<li>WithValue</li>
+<li>在 HTTP 服务中的使用</li>
+<li>常见使用原则</li>
+<li>小结</li>
+</ul>
+<hr>
+<h2 id="context-解决什么问题"><a href="#context-解决什么问题" class="headerlink" title="context 解决什么问题"></a>context 解决什么问题</h2><p>在 Go 程序中，一个请求可能会启动多个 goroutine，并调用多个下游服务。</p>
+<p>例如：</p>
+<ul>
+<li>HTTP 请求进入服务</li>
+<li>查询数据库</li>
+<li>调用缓存</li>
+<li>请求第三方接口</li>
+<li>启动 goroutine 并发处理多个子任务</li>
+</ul>
+<p>如果客户端断开连接，或者请求已经超时，后面的数据库查询、网络请求和子 goroutine 就应该尽快停止。否则这些任务继续运行，会浪费资源，甚至造成 goroutine 泄漏。</p>
+<p><code>context</code> 主要解决这些问题：</p>
+<ul>
+<li>通知子任务取消</li>
+<li>设置超时时间</li>
+<li>设置截止时间</li>
+<li>在调用链上传递请求级数据</li>
+</ul>
+<h2 id="Context-接口"><a href="#Context-接口" class="headerlink" title="Context 接口"></a>Context 接口</h2><p><code>context.Context</code> 是一个接口，定义如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line">	Deadline() (deadline time.Time, ok <span class="type">bool</span>)</span><br><span class="line">	Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">	Err() <span class="type">error</span></span><br><span class="line">	Value(key any) any</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>几个方法的含义：</p>
+<ul>
+<li><code>Deadline</code>：返回上下文的截止时间</li>
+<li><code>Done</code>：返回一个 channel，当 context 被取消或超时时会关闭</li>
+<li><code>Err</code>：返回 context 结束的原因</li>
+<li><code>Value</code>：读取 context 中保存的键值</li>
+</ul>
+<p>实际开发中，我们最常用的是监听 <code>Done()</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">	<span class="keyword">return</span> ctx.Err()</span><br><span class="line"><span class="keyword">case</span> result := &lt;-ch:</span><br><span class="line">	<span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Background-与-TODO"><a href="#Background-与-TODO" class="headerlink" title="Background 与 TODO"></a>Background 与 TODO</h2><p>创建 context 的根节点通常使用 <code>context.Background()</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx := context.Background()</span><br></pre></td></tr></table></figure>
+
+<p><code>Background</code> 一般用于：</p>
+<ul>
+<li><code>main</code> 函数</li>
+<li>初始化逻辑</li>
+<li>测试代码</li>
+<li>顶层请求入口</li>
+</ul>
+<p><code>context.TODO()</code> 表示暂时还不确定应该使用哪个 context。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx := context.TODO()</span><br></pre></td></tr></table></figure>
+
+<p>如果代码还没想清楚 context 来源，可以临时使用 <code>TODO</code>，但正式业务逻辑中应尽量传递真实的 context。</p>
+<h2 id="WithCancel"><a href="#WithCancel" class="headerlink" title="WithCancel"></a>WithCancel</h2><p><code>context.WithCancel</code> 可以创建一个可主动取消的 context。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(ctx context.Context)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">			fmt.Println(<span class="string">&quot;worker stopped:&quot;</span>, ctx.Err())</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			fmt.Println(<span class="string">&quot;working...&quot;</span>)</span><br><span class="line">			time.Sleep(<span class="number">300</span> * time.Millisecond)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> worker(ctx)</span><br><span class="line"></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line">	cancel()</span><br><span class="line">	time.Sleep(<span class="number">200</span> * time.Millisecond)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用 <code>cancel()</code> 后，<code>ctx.Done()</code> 会被关闭，worker 感知到取消信号后退出。</p>
+<p>需要注意：只要调用了 <code>WithCancel</code>、<code>WithTimeout</code> 或 <code>WithDeadline</code>，通常都应该调用返回的 <code>cancel</code>，释放相关资源。</p>
+<h2 id="WithTimeout"><a href="#WithTimeout" class="headerlink" title="WithTimeout"></a>WithTimeout</h2><p><code>context.WithTimeout</code> 用于设置相对超时时间。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctx, cancel := context.WithTimeout(context.Background(), <span class="number">2</span>*time.Second)</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br></pre></td></tr></table></figure>
+
+<p>示例：模拟一个带超时控制的任务。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">query</span><span class="params">(ctx context.Context)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;-time.After(<span class="number">3</span> * time.Second):</span><br><span class="line">		fmt.Println(<span class="string">&quot;query success&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">		<span class="keyword">return</span> ctx.Err()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ctx, cancel := context.WithTimeout(context.Background(), time.Second)</span><br><span class="line">	<span class="keyword">defer</span> cancel()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := query(ctx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;query failed:&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为 <code>query</code> 需要 3 秒，而 context 只给了 1 秒，所以最终会返回 <code>context deadline exceeded</code>。</p>
+<h2 id="WithDeadline"><a href="#WithDeadline" class="headerlink" title="WithDeadline"></a>WithDeadline</h2><p><code>context.WithDeadline</code> 用于设置具体截止时间。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">deadline := time.Now().Add(<span class="number">5</span> * time.Second)</span><br><span class="line">ctx, cancel := context.WithDeadline(context.Background(), deadline)</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br></pre></td></tr></table></figure>
+
+<p><code>WithTimeout</code> 本质上可以理解为基于当前时间计算出一个 deadline。两者区别在于：</p>
+<ul>
+<li><code>WithTimeout</code> 使用一段持续时间</li>
+<li><code>WithDeadline</code> 使用一个明确时间点</li>
+</ul>
+<p>业务中如果已经有明确的截止时间，例如请求头里传递了 deadline，就可以使用 <code>WithDeadline</code>。</p>
+<h2 id="WithValue"><a href="#WithValue" class="headerlink" title="WithValue"></a>WithValue</h2><p><code>context.WithValue</code> 可以在 context 中保存请求级数据。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx := context.WithValue(context.Background(), <span class="string">&quot;trace_id&quot;</span>, <span class="string">&quot;abc123&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>读取：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceID := ctx.Value(<span class="string">&quot;trace_id&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>不过 <code>WithValue</code> 要谨慎使用。它适合传递跨 API 边界的请求级元数据，例如：</p>
+<ul>
+<li>trace id</li>
+<li>request id</li>
+<li>用户认证信息</li>
+<li>日志字段</li>
+</ul>
+<p>不适合用来传递普通业务参数。普通参数应该显式写在函数参数中。</p>
+<p>更推荐自定义 key 类型，避免字符串 key 冲突：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> contextKey <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> traceIDKey contextKey = <span class="string">&quot;trace_id&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">withTraceID</span><span class="params">(ctx context.Context, traceID <span class="type">string</span>)</span></span> context.Context &#123;</span><br><span class="line">	<span class="keyword">return</span> context.WithValue(ctx, traceIDKey, traceID)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">traceIDFromContext</span><span class="params">(ctx context.Context)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	value, _ := ctx.Value(traceIDKey).(<span class="type">string</span>)</span><br><span class="line">	<span class="keyword">return</span> value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="在-HTTP-服务中的使用"><a href="#在-HTTP-服务中的使用" class="headerlink" title="在 HTTP 服务中的使用"></a>在 HTTP 服务中的使用</h2><p>Go 的 <code>net/http</code> 请求对象自带 context。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	ctx := r.Context()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;-time.After(<span class="number">2</span> * time.Second):</span><br><span class="line">		w.Write([]<span class="type">byte</span>(<span class="string">&quot;ok&quot;</span>))</span><br><span class="line">	<span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当客户端断开连接、请求被取消，或者服务端超时控制触发时，<code>r.Context()</code> 会收到取消信号。下游函数应该继续接收这个 context，而不是重新创建一个无关的 context。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	ctx := r.Context()</span><br><span class="line"></span><br><span class="line">	user, err := queryUser(ctx, <span class="string">&quot;1001&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		http.Error(w, err.Error(), http.StatusInternalServerError)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Fprintln(w, user)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">queryUser</span><span class="params">(ctx context.Context, id <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;-time.After(<span class="number">100</span> * time.Millisecond):</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;user:&quot;</span> + id, <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, ctx.Err()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样请求取消信号可以沿着调用链继续传递。</p>
+<h2 id="常见使用原则"><a href="#常见使用原则" class="headerlink" title="常见使用原则"></a>常见使用原则</h2><h3 id="context-作为第一个参数"><a href="#context-作为第一个参数" class="headerlink" title="context 作为第一个参数"></a>context 作为第一个参数</h3><p>Go 代码中通常把 <code>context.Context</code> 放在函数的第一个参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">QueryUser</span><span class="params">(ctx context.Context, id <span class="type">string</span>)</span></span> (*User, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样调用方一眼就能看出该函数支持取消和超时控制。</p>
+<h3 id="不要把-context-存进结构体"><a href="#不要把-context-存进结构体" class="headerlink" title="不要把 context 存进结构体"></a>不要把 context 存进结构体</h3><p>一般不建议把 context 放在结构体字段中。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Service <span class="keyword">struct</span> &#123;</span><br><span class="line">	ctx context.Context <span class="comment">// 不推荐</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>更推荐在每次调用方法时显式传入：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Service)</span></span> Query(ctx context.Context, id <span class="type">string</span>) <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>context 表示一次调用链的生命周期，而结构体通常比一次请求活得更久。把 context 存进结构体容易造成生命周期混乱。</p>
+<h3 id="不要传-nil-context"><a href="#不要传-nil-context" class="headerlink" title="不要传 nil context"></a>不要传 nil context</h3><p>如果暂时没有合适的 context，可以使用 <code>context.TODO()</code>，不要传 <code>nil</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">doSomething(context.TODO())</span><br></pre></td></tr></table></figure>
+
+<p>传 nil 会导致下游代码调用 <code>ctx.Done()</code>、<code>ctx.Value()</code> 时 panic。</p>
+<h3 id="cancel-要及时调用"><a href="#cancel-要及时调用" class="headerlink" title="cancel 要及时调用"></a>cancel 要及时调用</h3><p>使用下面这些函数时，记得调用 <code>cancel</code>：</p>
+<ul>
+<li><code>context.WithCancel</code></li>
+<li><code>context.WithTimeout</code></li>
+<li><code>context.WithDeadline</code></li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctx, cancel := context.WithTimeout(parent, time.Second)</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br></pre></td></tr></table></figure>
+
+<p>即使任务提前完成，也应该调用 <code>cancel</code>，让 runtime 及时释放定时器等资源。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p><code>context</code> 是 Go 并发和服务端编程中非常重要的工具。它不负责执行任务，也不负责传递大量业务数据，而是负责表达一次调用的生命周期。</p>
+<p>使用 context 时可以记住几条原则：</p>
+<ul>
+<li>context 通常作为函数第一个参数</li>
+<li>从上游传递 context，不要随意重新创建</li>
+<li>使用 <code>Done()</code> 监听取消信号</li>
+<li>使用 <code>WithTimeout</code> 或 <code>WithDeadline</code> 控制超时</li>
+<li>使用 <code>WithValue</code> 只传递请求级元数据</li>
+<li>创建可取消 context 后要调用 <code>cancel</code></li>
+</ul>
+<p>goroutine、channel 和 context 经常一起出现。goroutine 执行任务，channel 传递结果，context 控制任务何时停止。把这三者配合好，是写出稳定 Go 并发程序的关键。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Go-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag"># Go, 并发编程</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/02/%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="prev" title="什么是以太坊">
+      <i class="fa fa-chevron-left"></i> 什么是以太坊
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/11/27/web3-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="next" title="web3-智能合约">
+      web3-智能合约 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Go-%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84-context-%E5%8C%85"><span class="nav-number">1.</span> <span class="nav-text">Go 语言中的 context 包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#context-%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">context 解决什么问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Context-%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.</span> <span class="nav-text">Context 接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Background-%E4%B8%8E-TODO"><span class="nav-number">5.</span> <span class="nav-text">Background 与 TODO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WithCancel"><span class="nav-number">6.</span> <span class="nav-text">WithCancel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WithTimeout"><span class="nav-number">7.</span> <span class="nav-text">WithTimeout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WithDeadline"><span class="nav-number">8.</span> <span class="nav-text">WithDeadline</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WithValue"><span class="nav-number">9.</span> <span class="nav-text">WithValue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8-HTTP-%E6%9C%8D%E5%8A%A1%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">10.</span> <span class="nav-text">在 HTTP 服务中的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E4%BD%BF%E7%94%A8%E5%8E%9F%E5%88%99"><span class="nav-number">11.</span> <span class="nav-text">常见使用原则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#context-%E4%BD%9C%E4%B8%BA%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%82%E6%95%B0"><span class="nav-number">11.1.</span> <span class="nav-text">context 作为第一个参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E8%A6%81%E6%8A%8A-context-%E5%AD%98%E8%BF%9B%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-number">11.2.</span> <span class="nav-text">不要把 context 存进结构体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E8%A6%81%E4%BC%A0-nil-context"><span class="nav-number">11.3.</span> <span class="nav-text">不要传 nil context</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cancel-%E8%A6%81%E5%8F%8A%E6%97%B6%E8%B0%83%E7%94%A8"><span class="nav-number">11.4.</span> <span class="nav-text">cancel 要及时调用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">thefu</p>
+  <div class="site-description" itemprop="description">thefu</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thefu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thefu" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/sicauthefu@gmail.com" title="E-Mail → sicauthefu@gmail.com"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">thefu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

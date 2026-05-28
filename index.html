@@ -253,6 +253,72 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/12/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84goroutine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/12/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84goroutine/" class="post-title-link" itemprop="url">Go语言中的goroutine</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-12-28 18:26:31" itemprop="dateCreated datePublished" datetime="2025-12-28T18:26:31+08:00">2025-12-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Go-语言中的-goroutine"><a href="#Go-语言中的-goroutine" class="headerlink" title="Go 语言中的 goroutine"></a>Go 语言中的 goroutine</h2><p>goroutine 是 Go 语言并发编程中最核心的概念。它可以理解为由 Go 运行时管理的轻量级执行单元，写法上像启动一个函数，运行时则由调度器负责把大量 goroutine 分配到少量操作系统线程上执行。</p>
+<p>相比直接使用线程，goroutine 的创建成本更低，栈空间可以按需增长，适合用来处理网络请求、后台任务、并发 I&#x2F;O、流水线计算等场景。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/12/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84goroutine/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/11/27/web3-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -318,6 +384,72 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/08/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84context%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/08/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84context%E5%8C%85/" class="post-title-link" itemprop="url">Go语言中的context包</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-28 22:38:41" itemprop="dateCreated datePublished" datetime="2025-08-28T22:38:41+08:00">2025-08-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Go-语言中的-context-包"><a href="#Go-语言中的-context-包" class="headerlink" title="Go 语言中的 context 包"></a>Go 语言中的 context 包</h2><p><code>context</code> 是 Go 标准库中用于传递取消信号、超时时间、截止时间和请求级数据的包。在服务端开发中，<code>context.Context</code> 几乎无处不在，例如 HTTP 请求处理、RPC 调用、数据库查询、后台 goroutine 控制等。</p>
+<p>如果说 goroutine 负责并发执行，channel 负责并发通信，那么 context 很多时候负责控制并发任务的生命周期。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/08/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84context%E5%8C%85/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/08/02/%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A5%E5%A4%AA%E5%9D%8A/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -360,6 +492,72 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2025/08/02/%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A5%E5%A4%AA%E5%9D%8A/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2025/06/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84channel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="thefu">
+      <meta itemprop="description" content="thefu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TheFu's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84channel/" class="post-title-link" itemprop="url">Go语言中的channel</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-06-28 16:45:45" itemprop="dateCreated datePublished" datetime="2025-06-28T16:45:45+08:00">2025-06-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Go-语言中的-channel"><a href="#Go-语言中的-channel" class="headerlink" title="Go 语言中的 channel"></a>Go 语言中的 channel</h2><p>channel 是 Go 语言中用于 goroutine 之间通信的核心机制。Go 并发编程有一句很经典的话：不要通过共享内存来通信，而要通过通信来共享内存。channel 正是这句话在语言层面的体现。</p>
+<p>通过 channel，不同 goroutine 可以安全地发送和接收数据，避免直接共享变量带来的数据竞争问题。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/06/28/Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84channel/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -639,203 +837,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/" class="post-title-link" itemprop="url">Rust中所有权和作用域以及生周期</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2024-07-12 11:58:09" itemprop="dateCreated datePublished" datetime="2024-07-12T11:58:09+08:00">2024-07-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在rust中，作用域（Scope）和所有权（Ownership）是保证内存安全的核心机制，它们共同决定了变量的生命周期和内存管理方式，无需垃圾回收即可避免悬垂指针、双重释放等内存问题。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2024/07/12/Rust%E4%B8%AD%E6%89%80%E6%9C%89%E6%9D%83%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%BB%A5%E5%8F%8A%E7%94%9F%E5%91%A8%E6%9C%9F/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" class="post-title-link" itemprop="url">Rust智能指针</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2024-03-12 13:20:18" itemprop="dateCreated datePublished" datetime="2024-03-12T13:20:18+08:00">2024-03-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Rust的智能指针：内存管理的利器</p>
-<p>Rust以其内存安全和无垃圾回收的设计而闻名，而智能指针则是Rust内存管理的重要组成部分。通过智能指针，Rust能在保证内存安全的同时，提供灵活且高效的内存管理机制。</p>
-<p>本文将介绍Rust中的几种常见智能指针，帮助你更好地理解Rust如何管理内存以及智能指针如何提升代码的安全性和可读性。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2024/03/12/Rust%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://thefu.github.io/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="thefu">
-      <meta itemprop="description" content="thefu">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="TheFu's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">Rust中的Enum与Struct详解</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2024-02-13 22:23:34" itemprop="dateCreated datePublished" datetime="2024-02-13T22:23:34+08:00">2024-02-13</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在 Rust 中，<code>struct</code>（结构体）和 <code>enum</code>（枚举）是两种核心的自定义类型，分别用于<strong>组合相关数据</strong>和<strong>表示互斥的可能性</strong>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2024/02/13/Rust%E4%B8%AD%E7%9A%84Enum%E4%B8%8EStruct%E8%AF%A6%E8%A7%A3/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -905,7 +906,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -918,7 +919,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
